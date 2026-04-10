@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
 import Galaxy from "@/components/ui/galaxy";
 import { WordRotate } from "@/components/ui/word-rotate";
-import { env } from "@/env";
 import { cn } from "@/lib/utils";
 
 export function Hero({ className }: { className?: string }) {
