@@ -102,7 +102,7 @@ class TestDoConvert:
         docx.write_bytes(b"PK fake docx")
 
         with patch(
-            "deerflow.utils.file_conversion._convert_with_markitdown",
+            "yandexdeepresearch.utils.file_conversion._convert_with_markitdown",
             return_value="# Markdown from MarkItDown",
         ) as mock_md:
             result = _do_convert(docx, "auto")
@@ -119,14 +119,14 @@ class TestDoConvert:
 
         with (
             patch(
-                "deerflow.utils.file_conversion._convert_pdf_with_pymupdf4llm",
+                "yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm",
                 return_value=dense_text,
             ),
             patch(
-                "deerflow.utils.file_conversion._pymupdf_output_too_sparse",
+                "yandexdeepresearch.utils.file_conversion._pymupdf_output_too_sparse",
                 return_value=False,
             ),
-            patch("deerflow.utils.file_conversion._convert_with_markitdown") as mock_md,
+            patch("yandexdeepresearch.utils.file_conversion._convert_with_markitdown") as mock_md,
         ):
             result = _do_convert(pdf, "auto")
 
@@ -140,15 +140,15 @@ class TestDoConvert:
 
         with (
             patch(
-                "deerflow.utils.file_conversion._convert_pdf_with_pymupdf4llm",
+                "yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm",
                 return_value="x" * 612,  # 19.7 chars/page for 31-page doc
             ),
             patch(
-                "deerflow.utils.file_conversion._pymupdf_output_too_sparse",
+                "yandexdeepresearch.utils.file_conversion._pymupdf_output_too_sparse",
                 return_value=True,
             ),
             patch(
-                "deerflow.utils.file_conversion._convert_with_markitdown",
+                "yandexdeepresearch.utils.file_conversion._convert_with_markitdown",
                 return_value="OCR result via MarkItDown",
             ) as mock_md,
         ):
@@ -166,10 +166,10 @@ class TestDoConvert:
 
         with (
             patch(
-                "deerflow.utils.file_conversion._convert_pdf_with_pymupdf4llm",
+                "yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm",
                 return_value=sparse_text,
             ),
-            patch("deerflow.utils.file_conversion._convert_with_markitdown") as mock_md,
+            patch("yandexdeepresearch.utils.file_conversion._convert_with_markitdown") as mock_md,
         ):
             result = _do_convert(pdf, "pymupdf4llm")
 
@@ -182,9 +182,9 @@ class TestDoConvert:
         pdf.write_bytes(b"%PDF-1.4 fake")
 
         with (
-            patch("deerflow.utils.file_conversion._convert_pdf_with_pymupdf4llm") as mock_pymu,
+            patch("yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm") as mock_pymu,
             patch(
-                "deerflow.utils.file_conversion._convert_with_markitdown",
+                "yandexdeepresearch.utils.file_conversion._convert_with_markitdown",
                 return_value="MarkItDown result",
             ),
         ):
@@ -200,11 +200,11 @@ class TestDoConvert:
 
         with (
             patch(
-                "deerflow.utils.file_conversion._convert_pdf_with_pymupdf4llm",
+                "yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm",
                 return_value=None,  # None signals not installed
             ),
             patch(
-                "deerflow.utils.file_conversion._convert_with_markitdown",
+                "yandexdeepresearch.utils.file_conversion._convert_with_markitdown",
                 return_value="MarkItDown fallback",
             ) as mock_md,
         ):
@@ -226,9 +226,9 @@ class TestConvertFileToMarkdown:
         pdf.write_bytes(b"%PDF-1.4 " + b"x" * 100)  # well under 1 MB
 
         with (
-            patch("deerflow.utils.file_conversion._get_pdf_converter", return_value="auto"),
+            patch("yandexdeepresearch.utils.file_conversion._get_pdf_converter", return_value="auto"),
             patch(
-                "deerflow.utils.file_conversion._do_convert",
+                "yandexdeepresearch.utils.file_conversion._do_convert",
                 return_value="# Small PDF",
             ) as mock_convert,
             patch("asyncio.to_thread") as mock_thread,
@@ -251,9 +251,9 @@ class TestConvertFileToMarkdown:
             return fn(*args, **kwargs)
 
         with (
-            patch("deerflow.utils.file_conversion._get_pdf_converter", return_value="auto"),
+            patch("yandexdeepresearch.utils.file_conversion._get_pdf_converter", return_value="auto"),
             patch(
-                "deerflow.utils.file_conversion._do_convert",
+                "yandexdeepresearch.utils.file_conversion._do_convert",
                 return_value="# Large PDF",
             ),
             patch("asyncio.to_thread", side_effect=fake_to_thread) as mock_thread,
@@ -270,9 +270,9 @@ class TestConvertFileToMarkdown:
         pdf.write_bytes(b"%PDF-1.4 fake")
 
         with (
-            patch("deerflow.utils.file_conversion._get_pdf_converter", return_value="auto"),
+            patch("yandexdeepresearch.utils.file_conversion._get_pdf_converter", return_value="auto"),
             patch(
-                "deerflow.utils.file_conversion._do_convert",
+                "yandexdeepresearch.utils.file_conversion._do_convert",
                 side_effect=RuntimeError("conversion failed"),
             ),
         ):
@@ -287,9 +287,9 @@ class TestConvertFileToMarkdown:
         chinese_content = "# 中文报告\n\n这是测试内容。"
 
         with (
-            patch("deerflow.utils.file_conversion._get_pdf_converter", return_value="auto"),
+            patch("yandexdeepresearch.utils.file_conversion._get_pdf_converter", return_value="auto"),
             patch(
-                "deerflow.utils.file_conversion._do_convert",
+                "yandexdeepresearch.utils.file_conversion._do_convert",
                 return_value=chinese_content,
             ),
         ):

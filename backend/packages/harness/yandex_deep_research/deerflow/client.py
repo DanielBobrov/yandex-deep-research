@@ -1,12 +1,12 @@
-"""DeerFlowClient — Embedded Python client for DeerFlow agent system.
+"""YandexDeepResearchClient — Embedded Python client for YandexDeepResearch agent system.
 
-Provides direct programmatic access to DeerFlow's agent capabilities
+Provides direct programmatic access to YandexDeepResearch's agent capabilities
 without requiring LangGraph Server or Gateway API processes.
 
 Usage:
-    from yandex_deep_research.client import DeerFlowClient
+    from yandex_deep_research.client import YandexDeepResearchClient
 
-    client = DeerFlowClient()
+    client = YandexDeepResearchClient()
     response = client.chat("Analyze this paper for me", thread_id="my-thread")
     print(response)
 
@@ -73,10 +73,10 @@ class StreamEvent:
     data: dict[str, Any] = field(default_factory=dict)
 
 
-class DeerFlowClient:
-    """Embedded Python client for DeerFlow agent system.
+class YandexDeepResearchClient:
+    """Embedded Python client for YandexDeepResearch agent system.
 
-    Provides direct programmatic access to DeerFlow's agent capabilities
+    Provides direct programmatic access to YandexDeepResearch's agent capabilities
     without requiring LangGraph Server or Gateway API processes.
 
     Note:
@@ -91,9 +91,9 @@ class DeerFlowClient:
 
     Example::
 
-        from yandex_deep_research.client import DeerFlowClient
+        from yandex_deep_research.client import YandexDeepResearchClient
 
-        client = DeerFlowClient()
+        client = YandexDeepResearchClient()
 
         # Simple one-shot
         print(client.chat("hello"))
@@ -267,7 +267,7 @@ class DeerFlowClient:
         if isinstance(msg, ToolMessage):
             return {
                 "type": "tool",
-                "content": DeerFlowClient._extract_text(msg.content),
+                "content": YandexDeepResearchClient._extract_text(msg.content),
                 "name": getattr(msg, "name", None),
                 "tool_call_id": getattr(msg, "tool_call_id", None),
                 "id": getattr(msg, "id", None),

@@ -43,8 +43,8 @@ def test_custom_skills_router_lifecycle(monkeypatch, tmp_path):
         skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.skills.manager.get_app_config", lambda: config)
+    monkeypatch.setattr("yandexdeepresearch.config.get_app_config", lambda: config)
+    monkeypatch.setattr("yandexdeepresearch.skills.manager.get_app_config", lambda: config)
     monkeypatch.setattr("app.gateway.routers.skills.scan_skill_content", lambda *args, **kwargs: _async_scan("allow", "ok"))
     refresh_calls = []
 
@@ -93,8 +93,8 @@ def test_custom_skill_rollback_blocked_by_scanner(monkeypatch, tmp_path):
         skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.skills.manager.get_app_config", lambda: config)
+    monkeypatch.setattr("yandexdeepresearch.config.get_app_config", lambda: config)
+    monkeypatch.setattr("yandexdeepresearch.skills.manager.get_app_config", lambda: config)
     get_skill_history_file("demo-skill").write_text(
         '{"action":"human_edit","prev_content":' + json.dumps(original_content) + ',"new_content":' + json.dumps(edited_content) + "}\n",
         encoding="utf-8",
@@ -135,8 +135,8 @@ def test_custom_skill_delete_preserves_history_and_allows_restore(monkeypatch, t
         skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.skills.manager.get_app_config", lambda: config)
+    monkeypatch.setattr("yandexdeepresearch.config.get_app_config", lambda: config)
+    monkeypatch.setattr("yandexdeepresearch.skills.manager.get_app_config", lambda: config)
     monkeypatch.setattr("app.gateway.routers.skills.scan_skill_content", lambda *args, **kwargs: _async_scan("allow", "ok"))
     refresh_calls = []
 

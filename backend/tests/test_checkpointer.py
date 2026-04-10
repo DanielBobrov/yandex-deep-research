@@ -78,7 +78,7 @@ class TestGetCheckpointer:
         """get_checkpointer should return InMemorySaver when not configured."""
         from langgraph.checkpoint.memory import InMemorySaver
 
-        with patch("deerflow.agents.checkpointer.provider.get_app_config", side_effect=FileNotFoundError):
+        with patch("yandexdeepresearch.agents.checkpointer.provider.get_app_config", side_effect=FileNotFoundError):
             cp = get_checkpointer()
         assert cp is not None
         assert isinstance(cp, InMemorySaver)
@@ -195,11 +195,11 @@ class TestAsyncCheckpointer:
         mock_module.AsyncSqliteSaver = mock_saver_cls
 
         with (
-            patch("deerflow.agents.checkpointer.async_provider.get_app_config", return_value=mock_config),
+            patch("yandexdeepresearch.agents.checkpointer.async_provider.get_app_config", return_value=mock_config),
             patch.dict(sys.modules, {"langgraph.checkpoint.sqlite.aio": mock_module}),
-            patch("deerflow.agents.checkpointer.async_provider.asyncio.to_thread", new_callable=AsyncMock) as mock_to_thread,
+            patch("yandexdeepresearch.agents.checkpointer.async_provider.asyncio.to_thread", new_callable=AsyncMock) as mock_to_thread,
             patch(
-                "deerflow.agents.checkpointer.async_provider.resolve_sqlite_conn_str",
+                "yandexdeepresearch.agents.checkpointer.async_provider.resolve_sqlite_conn_str",
                 return_value="/tmp/resolved/test.db",
             ),
         ):
@@ -230,16 +230,16 @@ class TestAppConfigLoadsCheckpointer:
 
 
 # ---------------------------------------------------------------------------
-# DeerFlowClient falls back to config checkpointer
+# YandexDeepResearchClient falls back to config checkpointer
 # ---------------------------------------------------------------------------
 
 
 class TestClientCheckpointerFallback:
     def test_client_uses_config_checkpointer_when_none_provided(self):
-        """DeerFlowClient._ensure_agent falls back to get_checkpointer() when checkpointer=None."""
+        """YandexDeepResearchClient._ensure_agent falls back to get_checkpointer() when checkpointer=None."""
         from langgraph.checkpoint.memory import InMemorySaver
 
-        from yandex_deep_research.client import DeerFlowClient
+        from yandex_deep_research.client import YandexDeepResearchClient
 
         load_checkpointer_config_from_dict({"type": "memory"})
 
@@ -256,14 +256,14 @@ class TestClientCheckpointerFallback:
         config_mock.checkpointer = None
 
         with (
-            patch("deerflow.client.get_app_config", return_value=config_mock),
-            patch("deerflow.client.create_agent", side_effect=fake_create_agent),
-            patch("deerflow.client.create_chat_model", return_value=MagicMock()),
-            patch("deerflow.client._build_middlewares", return_value=[]),
-            patch("deerflow.client.apply_prompt_template", return_value=""),
-            patch("deerflow.client.DeerFlowClient._get_tools", return_value=[]),
+            patch("yandexdeepresearch.client.get_app_config", return_value=config_mock),
+            patch("yandexdeepresearch.client.create_agent", side_effect=fake_create_agent),
+            patch("yandexdeepresearch.client.create_chat_model", return_value=MagicMock()),
+            patch("yandexdeepresearch.client._build_middlewares", return_value=[]),
+            patch("yandexdeepresearch.client.apply_prompt_template", return_value=""),
+            patch("yandexdeepresearch.client.YandexDeepResearchClient._get_tools", return_value=[]),
         ):
-            client = DeerFlowClient(checkpointer=None)
+            client = YandexDeepResearchClient(checkpointer=None)
             config = client._get_runnable_config("test-thread")
             client._ensure_agent(config)
 
@@ -272,7 +272,7 @@ class TestClientCheckpointerFallback:
 
     def test_client_explicit_checkpointer_takes_precedence(self):
         """An explicitly provided checkpointer is used even when config checkpointer is set."""
-        from yandex_deep_research.client import DeerFlowClient
+        from yandex_deep_research.client import YandexDeepResearchClient
 
         load_checkpointer_config_from_dict({"type": "memory"})
 
@@ -290,14 +290,14 @@ class TestClientCheckpointerFallback:
         config_mock.checkpointer = None
 
         with (
-            patch("deerflow.client.get_app_config", return_value=config_mock),
-            patch("deerflow.client.create_agent", side_effect=fake_create_agent),
-            patch("deerflow.client.create_chat_model", return_value=MagicMock()),
-            patch("deerflow.client._build_middlewares", return_value=[]),
-            patch("deerflow.client.apply_prompt_template", return_value=""),
-            patch("deerflow.client.DeerFlowClient._get_tools", return_value=[]),
+            patch("yandexdeepresearch.client.get_app_config", return_value=config_mock),
+            patch("yandexdeepresearch.client.create_agent", side_effect=fake_create_agent),
+            patch("yandexdeepresearch.client.create_chat_model", return_value=MagicMock()),
+            patch("yandexdeepresearch.client._build_middlewares", return_value=[]),
+            patch("yandexdeepresearch.client.apply_prompt_template", return_value=""),
+            patch("yandexdeepresearch.client.YandexDeepResearchClient._get_tools", return_value=[]),
         ):
-            client = DeerFlowClient(checkpointer=explicit_cp)
+            client = YandexDeepResearchClient(checkpointer=explicit_cp)
             config = client._get_runnable_config("test-thread")
             client._ensure_agent(config)
 

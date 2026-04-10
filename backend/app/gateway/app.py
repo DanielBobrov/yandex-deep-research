@@ -82,11 +82,11 @@ def create_app() -> FastAPI:
     """
 
     app = FastAPI(
-        title="DeerFlow API Gateway",
+        title="YandexDeepResearch API Gateway",
         description="""
-## DeerFlow API Gateway
+## YandexDeepResearch API Gateway
 
-API Gateway for DeerFlow - A LangGraph-based AI agent backend with sandbox execution capabilities.
+API Gateway for YandexDeepResearch - A LangGraph-based AI agent backend with sandbox execution capabilities.
 
 ### Features
 
@@ -134,7 +134,7 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
             },
             {
                 "name": "threads",
-                "description": "Manage DeerFlow thread-local filesystem data",
+                "description": "Manage YandexDeepResearch thread-local filesystem data",
             },
             {
                 "name": "agents",
@@ -212,7 +212,7 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
         Returns:
             Service health status information.
         """
-        return {"status": "healthy", "service": "deer-flow-gateway"}
+        return {"status": "healthy", "service": "yandex-deep-research-gateway"}
 
     return app
 

@@ -26,7 +26,7 @@ def _load_enabled_skills_sync() -> list[Skill]:
 def _start_enabled_skills_refresh_thread() -> None:
     threading.Thread(
         target=_refresh_enabled_skills_cache_worker,
-        name="deerflow-enabled-skills-loader",
+        name="yandexdeepresearch-enabled-skills-loader",
         daemon=True,
     ).start()
 
@@ -450,10 +450,10 @@ Recent breakthroughs in language models have also accelerated progress
 ```markdown
 ## Executive Summary
 
-DeerFlow is an open-source AI agent framework that gained significant traction in early 2026
-[citation:GitHub Repository](https://github.com/yandex/deer-flow). The project focuses on
+YandexDeepResearch is an open-source AI agent framework that gained significant traction in early 2026
+[citation:GitHub Repository](https://github.com/yandex/yandex-deep-research). The project focuses on
 providing a production-ready agent system with sandbox execution and memory management
-[citation:DeerFlow Documentation](https://deer-flow.dev/docs).
+[citation:YandexDeepResearch Documentation](https://yandex-deep-research.dev/docs).
 
 ## Key Analysis
 
@@ -465,8 +465,8 @@ combined with a FastAPI gateway for REST API access [citation:FastAPI](https://f
 ## Sources
 
 ### Primary Sources
-- [GitHub Repository](https://github.com/yandex/deer-flow) - Official source code and documentation
-- [DeerFlow Documentation](https://deer-flow.dev/docs) - Technical specifications
+- [GitHub Repository](https://github.com/yandex/yandex-deep-research) - Official source code and documentation
+- [YandexDeepResearch Documentation](https://yandex-deep-research.dev/docs) - Technical specifications
 
 ### Media Coverage
 - [AI Trends 2026](https://techcrunch.com/ai-trends) - Industry analysis
@@ -478,7 +478,7 @@ combined with a FastAPI gateway for REST API access [citation:FastAPI](https://f
 - The `[citation:Title](URL)` format is ONLY for inline citations within the report body
 - ❌ WRONG: `GitHub 仓库 - 官方源代码和文档` (no URL!)
 - ❌ WRONG in Sources: `[citation:GitHub Repository](url)` (citation prefix is for inline only!)
-- ✅ RIGHT in Sources: `[GitHub Repository](https://github.com/yandex/deer-flow) - 官方源代码和文档`
+- ✅ RIGHT in Sources: `[GitHub Repository](https://github.com/yandex/yandex-deep-research) - 官方源代码和文档`
 
 **WORKFLOW for Research Tasks:**
 1. Use web_search to find sources → Extract {{title, url, snippet}} from results
@@ -713,7 +713,7 @@ def apply_prompt_template(subagent_enabled: bool = False, max_concurrent_subagen
 
     # Format the prompt with dynamic skills and memory
     prompt = SYSTEM_PROMPT_TEMPLATE.format(
-        agent_name=agent_name or "DeerFlow 2.0",
+        agent_name=agent_name or "YandexDeepResearch 2.0",
         soul=get_agent_soul(agent_name),
         skills_section=skills_section,
         deferred_tools_section=deferred_tools_section,

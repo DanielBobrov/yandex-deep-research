@@ -1,4 +1,4 @@
-# 🦌 Yandex Deep Research - 2.0
+# 🦖 Yandex Deep Research - 2.0
 
 English | [中文](./README_zh.md) | [日本語](./README_ja.md) | [Français](./README_fr.md) | [Русский](./README_ru.md)
 
@@ -37,7 +37,7 @@ Learn more and see **real demos** on our [**official website**](https://yandex-d
 
 ## Table of Contents
 
-- [🦌 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
+- [🦖 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
   - [Official Website](#official-website)
   - [Table of Contents](#table-of-contents)
   - [One-Line Agent Setup](#one-line-agent-setup)
@@ -605,9 +605,9 @@ Then make sure Yandex Deep Research is running (default at `http://localhost:202
 **Environment variables** (optional, for custom endpoints):
 
 ```bash
-DEERFLOW_URL=http://localhost:2026            # Unified proxy base URL
-DEERFLOW_GATEWAY_URL=http://localhost:2026    # Gateway API
-DEERFLOW_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
+YANDEXDEEPRESEARCH_URL=http://localhost:2026            # Unified proxy base URL
+YANDEXDEEPRESEARCH_GATEWAY_URL=http://localhost:2026    # Gateway API
+YANDEXDEEPRESEARCH_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
 ```
 
 See [`skills/public/claude-to-yandex-deep-research/SKILL.md`](skills/public/claude-to-yandex-deep-research/SKILL.md) for the full API reference.

@@ -1,4 +1,4 @@
-# 🦌 Yandex Deep Research - 2.0
+# 🦖 Yandex Deep Research - 2.0
 
 [English](./README.md) | 中文 | [日本語](./README_ja.md) | [Français](./README_fr.md) | [Русский](./README_ru.md)
 
@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 ## 目录
 
-- [🦌 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
+- [🦖 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
   - [官网](#官网)
   - [目录](#目录)
   - [一句话交给 Coding Agent 安装](#一句话交给-coding-agent-安装)
@@ -443,9 +443,9 @@ npx skills add https://github.com/yandex/yandex-deep-research --skill claude-to-
 **环境变量**（可选，用于自定义端点）：
 
 ```bash
-DEERFLOW_URL=http://localhost:2026            # 统一代理基地址
-DEERFLOW_GATEWAY_URL=http://localhost:2026    # Gateway API
-DEERFLOW_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
+YANDEXDEEPRESEARCH_URL=http://localhost:2026            # 统一代理基地址
+YANDEXDEEPRESEARCH_GATEWAY_URL=http://localhost:2026    # Gateway API
+YANDEXDEEPRESEARCH_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
 ```
 
 完整 API 说明见 [`skills/public/claude-to-yandex-deep-research/SKILL.md`](skills/public/claude-to-yandex-deep-research/SKILL.md)。

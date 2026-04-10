@@ -77,12 +77,12 @@ print()
 
 MIGRATIONS = {
     1: {
-        'description': 'Rename src.* module paths to deerflow.*',
+        'description': 'Rename src.* module paths to yandexdeepresearch.*',
         'replacements': [
-            ('src.community.', 'deerflow.community.'),
-            ('src.sandbox.', 'deerflow.sandbox.'),
-            ('src.models.', 'deerflow.models.'),
-            ('src.tools.', 'deerflow.tools.'),
+            ('src.community.', 'yandexdeepresearch.community.'),
+            ('src.sandbox.', 'yandexdeepresearch.sandbox.'),
+            ('src.models.', 'yandexdeepresearch.models.'),
+            ('src.tools.', 'yandexdeepresearch.tools.'),
         ],
     },
     # Future migrations go here:

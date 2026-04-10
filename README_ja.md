@@ -1,4 +1,4 @@
-# 🦌 Yandex Deep Research - 2.0
+# 🦖 Yandex Deep Research - 2.0
 
 [English](./README.md) | [中文](./README_zh.md) | 日本語 | [Français](./README_fr.md) | [Русский](./README_ru.md)
 
@@ -37,7 +37,7 @@ https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 ## 目次
 
-- [🦌 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
+- [🦖 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
   - [公式ウェブサイト](#公式ウェブサイト)
   - [目次](#目次)
   - [Coding Agent に一文でセットアップを依頼](#coding-agent-に一文でセットアップを依頼)
@@ -414,9 +414,9 @@ Yandex Deep Researchが実行中であることを確認し（デフォルトは
 **環境変数**（オプション、カスタムエンドポイント用）：
 
 ```bash
-DEERFLOW_URL=http://localhost:2026            # 統合プロキシベースURL
-DEERFLOW_GATEWAY_URL=http://localhost:2026    # Gateway API
-DEERFLOW_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
+YANDEXDEEPRESEARCH_URL=http://localhost:2026            # 統合プロキシベースURL
+YANDEXDEEPRESEARCH_GATEWAY_URL=http://localhost:2026    # Gateway API
+YANDEXDEEPRESEARCH_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
 ```
 
 完全なAPIリファレンスは[`skills/public/claude-to-yandex-deep-research/SKILL.md`](skills/public/claude-to-yandex-deep-research/SKILL.md)をご覧ください。

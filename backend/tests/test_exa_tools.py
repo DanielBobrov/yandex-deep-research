@@ -9,7 +9,7 @@ import pytest
 @pytest.fixture
 def mock_app_config():
     """Mock the app config to return tool configurations."""
-    with patch("deerflow.community.exa.tools.get_app_config") as mock_config:
+    with patch("yandexdeepresearch.community.exa.tools.get_app_config") as mock_config:
         tool_config = MagicMock()
         tool_config.model_extra = {
             "max_results": 5,
@@ -24,7 +24,7 @@ def mock_app_config():
 @pytest.fixture
 def mock_exa_client():
     """Mock the Exa client."""
-    with patch("deerflow.community.exa.tools.Exa") as mock_exa_cls:
+    with patch("yandexdeepresearch.community.exa.tools.Exa") as mock_exa_cls:
         mock_client = MagicMock()
         mock_exa_cls.return_value = mock_client
         yield mock_client
@@ -67,7 +67,7 @@ class TestWebSearchTool:
 
     def test_search_with_custom_config(self, mock_exa_client):
         """Test search respects custom configuration values."""
-        with patch("deerflow.community.exa.tools.get_app_config") as mock_config:
+        with patch("yandexdeepresearch.community.exa.tools.get_app_config") as mock_config:
             tool_config = MagicMock()
             tool_config.model_extra = {
                 "max_results": 10,
@@ -195,7 +195,7 @@ class TestWebFetchTool:
 
     def test_fetch_reads_web_fetch_config(self, mock_exa_client):
         """Test that web_fetch_tool reads 'web_fetch' config, not 'web_search'."""
-        with patch("deerflow.community.exa.tools.get_app_config") as mock_config:
+        with patch("yandexdeepresearch.community.exa.tools.get_app_config") as mock_config:
             tool_config = MagicMock()
             tool_config.model_extra = {"api_key": "exa-fetch-key"}
             mock_config.return_value.get_tool_config.return_value = tool_config
@@ -215,8 +215,8 @@ class TestWebFetchTool:
 
     def test_fetch_uses_independent_api_key(self, mock_exa_client):
         """Test mixed-provider config: web_fetch uses its own api_key, not web_search's."""
-        with patch("deerflow.community.exa.tools.get_app_config") as mock_config:
-            with patch("deerflow.community.exa.tools.Exa") as mock_exa_cls:
+        with patch("yandexdeepresearch.community.exa.tools.get_app_config") as mock_config:
+            with patch("yandexdeepresearch.community.exa.tools.Exa") as mock_exa_cls:
                 mock_exa_cls.return_value = mock_exa_client
                 fetch_config = MagicMock()
                 fetch_config.model_extra = {"api_key": "exa-fetch-key"}

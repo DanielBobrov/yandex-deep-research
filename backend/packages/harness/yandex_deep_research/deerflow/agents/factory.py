@@ -1,6 +1,6 @@
-"""Pure-argument factory for DeerFlow agents.
+"""Pure-argument factory for YandexDeepResearch agents.
 
-``create_deerflow_agent`` accepts plain Python arguments — no YAML files, no
+``create_yandexdeepresearch_agent`` accepts plain Python arguments — no YAML files, no
 global singletons.  It is the SDK-level entry point sitting between the raw
 ``langchain.agents.create_agent`` primitive and the config-driven
 ``make_lead_agent`` application factory.
@@ -58,7 +58,7 @@ _TODO_TOOL_DESCRIPTION = "Use this tool to create and manage a structured task l
 # ---------------------------------------------------------------------------
 
 
-def create_deerflow_agent(
+def create_yandexdeepresearch_agent(
     model: BaseChatModel,
     tools: list[BaseTool] | None = None,
     *,
@@ -71,7 +71,7 @@ def create_deerflow_agent(
     checkpointer: BaseCheckpointSaver | None = None,
     name: str = "default",
 ) -> CompiledStateGraph:
-    """Create a DeerFlow agent from plain Python arguments.
+    """Create a YandexDeepResearch agent from plain Python arguments.
 
     The factory assembly itself reads no config files.  Some injected runtime
     components (e.g. ``task_tool``) may still depend on global config at

@@ -1,4 +1,4 @@
-# 🦌 Yandex Deep Research - 2.0
+# 🦖 Yandex Deep Research - 2.0
 
 [English](./README.md) | [中文](./README_zh.md) | [日本語](./README_ja.md) | Français | [Русский](./README_ru.md)
 
@@ -37,7 +37,7 @@ Découvrez-en plus et regardez des **démos réelles** sur notre [**site officie
 
 ## Table des matières
 
-- [🦌 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
+- [🦖 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
   - [Site officiel](#site-officiel)
   - [Table des matières](#table-des-matières)
   - [Installation en une phrase pour un coding agent](#installation-en-une-phrase-pour-un-coding-agent)
@@ -461,9 +461,9 @@ Assurez-vous ensuite que Yandex Deep Research tourne (par défaut sur `http://lo
 **Variables d'environnement** (optionnel, pour des endpoints custom) :
 
 ```bash
-DEERFLOW_URL=http://localhost:2026            # Unified proxy base URL
-DEERFLOW_GATEWAY_URL=http://localhost:2026    # Gateway API
-DEERFLOW_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
+YANDEXDEEPRESEARCH_URL=http://localhost:2026            # Unified proxy base URL
+YANDEXDEEPRESEARCH_GATEWAY_URL=http://localhost:2026    # Gateway API
+YANDEXDEEPRESEARCH_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
 ```
 
 Voir [`skills/public/claude-to-yandex-deep-research/SKILL.md`](skills/public/claude-to-yandex-deep-research/SKILL.md) pour la référence API complète.

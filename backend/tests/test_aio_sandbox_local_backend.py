@@ -2,11 +2,11 @@ from yandex_deep_research.community.aio_sandbox.local_backend import _format_con
 
 
 def test_format_container_mount_uses_mount_syntax_for_docker_windows_paths():
-    args = _format_container_mount("docker", "D:/deer-flow/backend/.deer-flow/threads", "/mnt/threads", False)
+    args = _format_container_mount("docker", "D:/yandex-deep-research/backend/.yandex-deep-research/threads", "/mnt/threads", False)
 
     assert args == [
         "--mount",
-        "type=bind,src=D:/deer-flow/backend/.deer-flow/threads,dst=/mnt/threads",
+        "type=bind,src=D:/yandex-deep-research/backend/.yandex-deep-research/threads,dst=/mnt/threads",
     ]
 
 

@@ -1,4 +1,4 @@
-# 🦌 [About Yandex Deep Research 2.0](https://github.com/yandex/yandex-deep-research)
+# 🦖 [About Yandex Deep Research 2.0](https://github.com/yandex/yandex-deep-research)
 
 > **From Open Source, Back to Open Source**
 

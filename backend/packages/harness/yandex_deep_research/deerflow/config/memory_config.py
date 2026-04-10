@@ -18,13 +18,13 @@ class MemoryConfig(BaseModel):
             "Absolute paths are used as-is. "
             "Relative paths are resolved against `Paths.base_dir` "
             "(not the backend working directory). "
-            "Note: if you previously set this to `.deer-flow/memory.json`, "
-            "the file will now be resolved as `{base_dir}/.deer-flow/memory.json`; "
+            "Note: if you previously set this to `.yandex-deep-research/memory.json`, "
+            "the file will now be resolved as `{base_dir}/.yandex-deep-research/memory.json`; "
             "migrate existing data or use an absolute path to preserve the old location."
         ),
     )
     storage_class: str = Field(
-        default="deerflow.agents.memory.storage.FileMemoryStorage",
+        default="yandexdeepresearch.agents.memory.storage.FileMemoryStorage",
         description="The class path for memory storage provider",
     )
     debounce_seconds: int = Field(

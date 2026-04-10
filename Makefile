@@ -1,4 +1,4 @@
-# DeerFlow - Unified Development Environment
+# YandexDeepResearch - Unified Development Environment
 
 .PHONY: help config config-upgrade check install dev dev-pro dev-daemon dev-daemon-pro start start-pro start-daemon start-daemon-pro stop up up-pro down clean docker-init docker-start docker-start-pro docker-stop docker-logs docker-logs-frontend docker-logs-gateway
 
@@ -13,7 +13,7 @@ else
 endif
 
 help:
-	@echo "DeerFlow Development Commands:"
+	@echo "YandexDeepResearch Development Commands:"
 	@echo "  make config          - Generate local config files (aborts if config already exists)"
 	@echo "  make config-upgrade  - Merge new fields from config.example.yaml into config.yaml"
 	@echo "  make check           - Check if all required tools are installed"

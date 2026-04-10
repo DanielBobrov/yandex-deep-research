@@ -1,4 +1,4 @@
-"""Tests for deerflow.runtime.serialization."""
+"""Tests for yandexdeepresearch.runtime.serialization."""
 
 from __future__ import annotations
 

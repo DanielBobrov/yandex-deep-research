@@ -29,7 +29,7 @@ def test_build_mcp_servers_filters_disabled_and_maps_transports():
     )
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(
-        "deerflow.config.extensions_config.ExtensionsConfig.from_file",
+        "yandexdeepresearch.config.extensions_config.ExtensionsConfig.from_file",
         classmethod(lambda cls: fresh_config),
     )
 
@@ -55,7 +55,7 @@ def test_build_acp_mcp_servers_formats_list_payload():
     )
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(
-        "deerflow.config.extensions_config.ExtensionsConfig.from_file",
+        "yandexdeepresearch.config.extensions_config.ExtensionsConfig.from_file",
         classmethod(lambda cls: fresh_config),
     )
 
@@ -179,7 +179,7 @@ async def test_invoke_acp_agent_uses_fixed_acp_workspace(monkeypatch, tmp_path):
     monkeypatch.setattr(paths_module, "get_paths", lambda: paths_module.Paths(base_dir=tmp_path))
 
     monkeypatch.setattr(
-        "deerflow.config.extensions_config.ExtensionsConfig.from_file",
+        "yandexdeepresearch.config.extensions_config.ExtensionsConfig.from_file",
         classmethod(
             lambda cls: ExtensionsConfig(
                 mcp_servers={"github": McpServerConfig(enabled=True, type="stdio", command="npx", args=["github-mcp"])},
@@ -314,7 +314,7 @@ async def test_invoke_acp_agent_uses_per_thread_workspace_when_thread_id_in_conf
     monkeypatch.setattr(paths_module, "get_paths", lambda: paths_module.Paths(base_dir=tmp_path))
 
     monkeypatch.setattr(
-        "deerflow.config.extensions_config.ExtensionsConfig.from_file",
+        "yandexdeepresearch.config.extensions_config.ExtensionsConfig.from_file",
         classmethod(lambda cls: ExtensionsConfig(mcp_servers={}, skills={})),
     )
 
@@ -406,7 +406,7 @@ async def test_invoke_acp_agent_passes_env_to_spawn(monkeypatch, tmp_path):
 
     monkeypatch.setattr(paths_module, "get_paths", lambda: paths_module.Paths(base_dir=tmp_path))
     monkeypatch.setattr(
-        "deerflow.config.extensions_config.ExtensionsConfig.from_file",
+        "yandexdeepresearch.config.extensions_config.ExtensionsConfig.from_file",
         classmethod(lambda cls: ExtensionsConfig(mcp_servers={}, skills={})),
     )
     monkeypatch.setenv("TEST_OPENAI_KEY", "sk-from-env")
@@ -499,7 +499,7 @@ async def test_invoke_acp_agent_skips_invalid_mcp_servers(monkeypatch, tmp_path,
 
     monkeypatch.setattr(paths_module, "get_paths", lambda: paths_module.Paths(base_dir=tmp_path))
     monkeypatch.setattr(
-        "deerflow.tools.builtins.invoke_acp_agent_tool._build_acp_mcp_servers",
+        "yandexdeepresearch.tools.builtins.invoke_acp_agent_tool._build_acp_mcp_servers",
         lambda: (_ for _ in ()).throw(ValueError("missing command")),
     )
 
@@ -587,7 +587,7 @@ async def test_invoke_acp_agent_passes_none_env_when_not_configured(monkeypatch,
 
     monkeypatch.setattr(paths_module, "get_paths", lambda: paths_module.Paths(base_dir=tmp_path))
     monkeypatch.setattr(
-        "deerflow.config.extensions_config.ExtensionsConfig.from_file",
+        "yandexdeepresearch.config.extensions_config.ExtensionsConfig.from_file",
         classmethod(lambda cls: ExtensionsConfig(mcp_servers={}, skills={})),
     )
 
@@ -683,9 +683,9 @@ def test_get_available_tools_includes_invoke_acp_agent_when_agents_configured(mo
         tool_search=SimpleNamespace(enabled=False),
         get_model_config=lambda name: None,
     )
-    monkeypatch.setattr("deerflow.tools.tools.get_app_config", lambda: fake_config)
+    monkeypatch.setattr("yandexdeepresearch.tools.tools.get_app_config", lambda: fake_config)
     monkeypatch.setattr(
-        "deerflow.config.extensions_config.ExtensionsConfig.from_file",
+        "yandexdeepresearch.config.extensions_config.ExtensionsConfig.from_file",
         classmethod(lambda cls: ExtensionsConfig(mcp_servers={}, skills={})),
     )
 

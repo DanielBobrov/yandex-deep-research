@@ -4,7 +4,7 @@ Combines the existing thread-local filesystem cleanup with LangGraph
 Platform-compatible thread management backed by the checkpointer.
 
 Channel values returned in state responses are serialized through
-:func:`deerflow.runtime.serialization.serialize_channel_values` to
+:func:`yandexdeepresearch.runtime.serialization.serialize_channel_values` to
 ensure LangChain message objects are converted to JSON-safe dicts
 matching the LangGraph Platform wire format expected by the
 ``useStream`` React hook.
@@ -218,7 +218,7 @@ def _derive_thread_status(checkpoint_tuple) -> str:
 async def delete_thread_data(thread_id: str, request: Request) -> ThreadDeleteResponse:
     """Delete local persisted filesystem data for a thread.
 
-    Cleans DeerFlow-managed thread directories, removes checkpoint data,
+    Cleans YandexDeepResearch-managed thread directories, removes checkpoint data,
     and removes the thread record from the Store.
     """
     # Clean local filesystem

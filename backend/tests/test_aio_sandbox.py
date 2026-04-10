@@ -10,7 +10,7 @@ import pytest
 @pytest.fixture()
 def sandbox():
     """Create an AioSandbox with a mocked client."""
-    with patch("deerflow.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
+    with patch("yandexdeepresearch.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
         from yandex_deep_research.community.aio_sandbox.aio_sandbox import AioSandbox
 
         sb = AioSandbox(id="test-sandbox", base_url="http://localhost:8080")

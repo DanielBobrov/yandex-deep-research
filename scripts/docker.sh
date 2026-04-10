@@ -47,9 +47,9 @@ detect_sandbox_mode() {
         }
     ' "$config_file")
 
-    if [[ "$sandbox_use" == *"deerflow.sandbox.local:LocalSandboxProvider"* ]]; then
+    if [[ "$sandbox_use" == *"yandexdeepresearch.sandbox.local:LocalSandboxProvider"* ]]; then
         echo "local"
-    elif [[ "$sandbox_use" == *"deerflow.community.aio_sandbox:AioSandboxProvider"* ]]; then
+    elif [[ "$sandbox_use" == *"yandexdeepresearch.community.aio_sandbox:AioSandboxProvider"* ]]; then
         if [ -n "$provisioner_url" ]; then
             echo "provisioner"
         else
@@ -87,7 +87,7 @@ docker_available() {
 # Initialize: pre-pull the sandbox image so first Pod startup is fast
 init() {
     echo "=========================================="
-    echo "  DeerFlow Init — Pull Sandbox Image"
+    echo "  YandexDeepResearch Init — Pull Sandbox Image"
     echo "=========================================="
     echo ""
 
@@ -162,7 +162,7 @@ start() {
     done
 
     echo "=========================================="
-    echo "  Starting DeerFlow Docker Development"
+    echo "  Starting YandexDeepResearch Docker Development"
     echo "=========================================="
     echo ""
 
@@ -206,7 +206,7 @@ start() {
             echo -e "${YELLOW}============================================================${NC}"
             echo -e "${YELLOW}  config.yaml has been created from config.example.yaml.${NC}"
             echo -e "${YELLOW}  Please edit config.yaml to set your API keys and model   ${NC}"
-            echo -e "${YELLOW}  configuration before starting DeerFlow.                  ${NC}"
+            echo -e "${YELLOW}  configuration before starting YandexDeepResearch.                  ${NC}"
             echo -e "${YELLOW}============================================================${NC}"
             echo ""
             echo -e "${YELLOW}  Edit the file:  $PROJECT_ROOT/config.yaml${NC}"
@@ -241,7 +241,7 @@ start() {
     cd "$DOCKER_DIR" && $COMPOSE_CMD up --build -d --remove-orphans $services
     echo ""
     echo "=========================================="
-    echo "  DeerFlow Docker is starting!"
+    echo "  YandexDeepResearch Docker is starting!"
     echo "=========================================="
     echo ""
     echo "  🌐 Application: http://localhost:2026"
@@ -309,7 +309,7 @@ stop() {
 # Restart Docker development environment
 restart() {
     echo "========================================"
-    echo "  Restarting DeerFlow Docker Services"
+    echo "  Restarting YandexDeepResearch Docker Services"
     echo "========================================"
     echo ""
     echo -e "${BLUE}Restarting containers...${NC}"
@@ -324,7 +324,7 @@ restart() {
 
 # Show help
 help() {
-    echo "DeerFlow Docker Management Script"
+    echo "YandexDeepResearch Docker Management Script"
     echo ""
     echo "Usage: $0 <command> [options]"
     echo ""

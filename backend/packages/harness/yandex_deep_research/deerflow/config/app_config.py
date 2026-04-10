@@ -38,9 +38,9 @@ def _default_config_candidates() -> tuple[Path, ...]:
 
 
 class AppConfig(BaseModel):
-    """Config for the DeerFlow application"""
+    """Config for the YandexDeepResearch application"""
 
-    log_level: str = Field(default="info", description="Logging level for deerflow modules (debug/info/warning/error)")
+    log_level: str = Field(default="info", description="Logging level for yandexdeepresearch modules (debug/info/warning/error)")
     token_usage: TokenUsageConfig = Field(default_factory=TokenUsageConfig, description="Token usage tracking configuration")
     models: list[ModelConfig] = Field(default_factory=list, description="Available models")
     sandbox: SandboxConfig = Field(description="Sandbox configuration")
@@ -255,8 +255,8 @@ _app_config: AppConfig | None = None
 _app_config_path: Path | None = None
 _app_config_mtime: float | None = None
 _app_config_is_custom = False
-_current_app_config: ContextVar[AppConfig | None] = ContextVar("deerflow_current_app_config", default=None)
-_current_app_config_stack: ContextVar[tuple[AppConfig | None, ...]] = ContextVar("deerflow_current_app_config_stack", default=())
+_current_app_config: ContextVar[AppConfig | None] = ContextVar("yandexdeepresearch_current_app_config", default=None)
+_current_app_config_stack: ContextVar[tuple[AppConfig | None, ...]] = ContextVar("yandexdeepresearch_current_app_config_stack", default=())
 
 
 def _get_config_mtime(config_path: Path) -> float | None:
@@ -280,7 +280,7 @@ def _load_and_cache_app_config(config_path: str | None = None) -> AppConfig:
 
 
 def get_app_config() -> AppConfig:
-    """Get the DeerFlow config instance.
+    """Get the YandexDeepResearch config instance.
 
     Returns a cached singleton instance and automatically reloads it when the
     underlying config file path or modification time changes. Use

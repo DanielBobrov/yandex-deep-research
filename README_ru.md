@@ -1,4 +1,4 @@
-# 🦌 Yandex Deep Research - 2.0
+# 🦖 Yandex Deep Research - 2.0
 
 [English](./README.md) | [中文](./README_zh.md) | [日本語](./README_ja.md) | [Français](./README_fr.md) | Русский
 
@@ -39,7 +39,7 @@ https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 ## Содержание
 
-- [🦌 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
+- [🦖 Yandex Deep Research - 2.0](#-yandex-deep-research---20)
   - [Официальный сайт](#официальный-сайт)
   - [Содержание](#содержание)
   - [Установка одной фразой для coding agent](#установка-одной-фразой-для-coding-agent)

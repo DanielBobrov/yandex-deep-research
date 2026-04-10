@@ -13,9 +13,9 @@ def get_skills_root_path() -> Path:
     Get the root path of the skills directory.
 
     Returns:
-        Path to the skills directory (deer-flow/skills)
+        Path to the skills directory (yandex-deep-research/skills)
     """
-    # loader.py lives at packages/harness/deerflow/skills/loader.py — 5 parents up reaches backend/
+    # loader.py lives at packages/harness/yandexdeepresearch/skills/loader.py — 5 parents up reaches backend/
     backend_dir = Path(__file__).resolve().parent.parent.parent.parent.parent
     # skills directory is sibling to backend directory
     skills_dir = backend_dir.parent / "skills"
@@ -32,7 +32,7 @@ def load_skills(skills_path: Path | None = None, use_config: bool = True, enable
     Args:
         skills_path: Optional custom path to skills directory.
                      If not provided and use_config is True, uses path from config.
-                     Otherwise defaults to deer-flow/skills
+                     Otherwise defaults to yandex-deep-research/skills
         use_config: Whether to load skills path from config (default: True)
         enabled_only: If True, only return enabled skills (default: False)
 

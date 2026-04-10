@@ -1,4 +1,4 @@
-"""Built-in guardrail providers that ship with DeerFlow."""
+"""Built-in guardrail providers that ship with YandexDeepResearch."""
 
 from yandex_deep_research.guardrails.provider import GuardrailDecision, GuardrailReason, GuardrailRequest
 

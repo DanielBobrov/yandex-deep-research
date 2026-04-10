@@ -31,7 +31,7 @@ export async function Header({ className, homeURL, locale }: HeaderProps) {
           target={isExternalHome ? "_blank" : "_self"}
           rel={isExternalHome ? "noopener noreferrer" : undefined}
         >
-          <h1 className="font-serif text-xl">DeerFlow</h1>
+          <h1 className="font-serif text-xl">YandexDeepResearch</h1>
         </a>
       </div>
       <nav className="mr-8 ml-auto flex items-center gap-8 text-sm font-medium">
@@ -85,7 +85,7 @@ async function StarCounter() {
 
   try {
     const response = await fetch(
-      "https://api.github.com/repos/bytedance/deer-flow",
+      "https://api.github.com/repos/bytedance/yandex-deep-research",
       {
         headers: env.GITHUB_OAUTH_TOKEN
           ? {

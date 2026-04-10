@@ -1,4 +1,4 @@
-"""Tests for deerflow.uploads.manager — shared upload management logic."""
+"""Tests for yandexdeepresearch.uploads.manager — shared upload management logic."""
 
 import pytest
 

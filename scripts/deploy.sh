@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# deploy.sh - Build, start, or stop DeerFlow production services
+# deploy.sh - Build, start, or stop YandexDeepResearch production services
 #
 # Commands:
 #   deploy.sh [--MODE]           — build + start (default: --standard)
@@ -165,7 +165,7 @@ detect_sandbox_mode() {
         }
     ' "$YANDEX_DEEP_RESEARCH_CONFIG_PATH")
 
-    if [[ "$sandbox_use" == *"deerflow.community.aio_sandbox:AioSandboxProvider"* ]]; then
+    if [[ "$sandbox_use" == *"yandexdeepresearch.community.aio_sandbox:AioSandboxProvider"* ]]; then
         if [ -n "$provisioner_url" ]; then
             echo "provisioner"
         else
@@ -196,7 +196,7 @@ fi
 
 if [ "$CMD" = "build" ]; then
     echo "=========================================="
-    echo "  DeerFlow — Building Images"
+    echo "  YandexDeepResearch — Building Images"
     echo "=========================================="
     echo ""
 
@@ -220,7 +220,7 @@ fi
 # ── Banner ────────────────────────────────────────────────────────────────────
 
 echo "=========================================="
-echo "  DeerFlow Production Deployment"
+echo "  YandexDeepResearch Production Deployment"
 echo "=========================================="
 echo ""
 
@@ -282,7 +282,7 @@ fi
 
 echo ""
 echo "=========================================="
-echo "  DeerFlow is running! ($RUNTIME_MODE mode)"
+echo "  YandexDeepResearch is running! ($RUNTIME_MODE mode)"
 echo "=========================================="
 echo ""
 echo "  🌐 Application: http://localhost:${PORT:-2026}"

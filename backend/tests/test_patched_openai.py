@@ -1,4 +1,4 @@
-"""Tests for deerflow.models.patched_openai.PatchedChatOpenAI.
+"""Tests for yandexdeepresearch.models.patched_openai.PatchedChatOpenAI.
 
 These tests verify that _restore_tool_call_signatures correctly re-injects
 ``thought_signature`` onto tool-call objects stored in
