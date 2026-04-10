@@ -1,28 +1,28 @@
-# 文件上传功能
+# Функция загрузки файлов
 
-## 概述
+## Обзор
 
-Yandex Deep Research 后端提供了完整的文件上传功能，支持多文件上传，并自动将 Office 文档和 PDF 转换为 Markdown 格式。
+Бэкенд Yandex Deep Research предоставляет полноценную функцию загрузки файлов, поддерживает одновременную загрузку нескольких файлов и автоматически преобразует документы Office и PDF в формат Markdown.
 
-## 功能特性
+## Особенности
 
-- ✅ 支持多文件同时上传
-- ✅ 自动转换文档为 Markdown（PDF、PPT、Excel、Word）
-- ✅ 文件存储在线程隔离的目录中
-- ✅ Agent 自动感知已上传的文件
-- ✅ 支持文件列表查询和删除
+- ✅ Поддержка одновременной загрузки нескольких файлов
+- ✅ Автоматическое преобразование документов в Markdown (PDF, PPT, Excel, Word)
+- ✅ Файлы хранятся в изолированных директориях потоков (threads)
+- ✅ Агент автоматически распознает загруженные файлы
+- ✅ Поддержка запроса списка файлов и их удаления
 
-## API 端点
+## API Эндпоинты
 
-### 1. 上传文件
+### 1. Загрузка файлов
 ```
 POST /api/threads/{thread_id}/uploads
 ```
 
-**请求体：** `multipart/form-data`
-- `files`: 一个或多个文件
+**Тело запроса:** `multipart/form-data`
+- `files`: Один или несколько файлов
 
-**响应：**
+**Ответ:**
 ```json
 {
   "success": true,
@@ -43,17 +43,17 @@ POST /api/threads/{thread_id}/uploads
 }
 ```
 
-**路径说明：**
-- `path`: 实际文件系统路径（相对于 `backend/` 目录）
-- `virtual_path`: Agent 在沙箱中使用的虚拟路径
-- `artifact_url`: 前端通过 HTTP 访问文件的 URL
+**Описание путей:**
+- `path`: Фактический путь в файловой системе (относительно директории `backend/`)
+- `virtual_path`: Виртуальный путь, используемый Агентом в песочнице
+- `artifact_url`: URL для доступа фронтенда к файлу по HTTP
 
-### 2. 列出已上传文件
+### 2. Получение списка загруженных файлов
 ```
 GET /api/threads/{thread_id}/uploads/list
 ```
 
-**响应：**
+**Ответ:**
 ```json
 {
   "files": [
@@ -71,12 +71,12 @@ GET /api/threads/{thread_id}/uploads/list
 }
 ```
 
-### 3. 删除文件
+### 3. Удаление файла
 ```
 DELETE /api/threads/{thread_id}/uploads/{filename}
 ```
 
-**响应：**
+**Ответ:**
 ```json
 {
   "success": true,
@@ -84,21 +84,21 @@ DELETE /api/threads/{thread_id}/uploads/{filename}
 }
 ```
 
-## 支持的文档格式
+## Поддерживаемые форматы документов
 
-以下格式会自动转换为 Markdown：
+Следующие форматы автоматически преобразуются в Markdown:
 - PDF (`.pdf`)
 - PowerPoint (`.ppt`, `.pptx`)
 - Excel (`.xls`, `.xlsx`)
 - Word (`.doc`, `.docx`)
 
-转换后的 Markdown 文件会保存在同一目录下，文件名为原文件名 + `.md` 扩展名。
+Преобразованный файл Markdown сохраняется в той же директории с именем исходного файла + расширение `.md`.
 
-## Agent 集成
+## Интеграция с Агентом
 
-### 自动文件列举
+### Автоматическое перечисление файлов
 
-Agent 在每次请求时会自动收到已上传文件的列表，格式如下：
+Агент автоматически получает список загруженных файлов при каждом запросе в следующем формате:
 
 ```xml
 <uploaded_files>
@@ -114,51 +114,51 @@ You can read these files using the `read_file` tool with the paths shown above.
 </uploaded_files>
 ```
 
-### 使用上传的文件
+### Использование загруженных файлов
 
-Agent 在沙箱中运行，使用虚拟路径访问文件。Agent 可以直接使用 `read_file` 工具读取上传的文件：
+Агент работает в песочнице и использует виртуальные пути для доступа к файлам. Агент может напрямую использовать инструмент `read_file` для чтения загруженных файлов:
 
 ```python
-# 读取原始 PDF（如果支持）
+# Чтение исходного PDF (если поддерживается)
 read_file(path="/mnt/user-data/uploads/document.pdf")
 
-# 读取转换后的 Markdown（推荐）
+# Чтение преобразованного Markdown (рекомендуется)
 read_file(path="/mnt/user-data/uploads/document.md")
 ```
 
-**路径映射关系：**
-- Agent 使用：`/mnt/user-data/uploads/document.pdf`（虚拟路径）
-- 实际存储：`backend/.yandex-deep-research/threads/{thread_id}/user-data/uploads/document.pdf`
-- 前端访问：`/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/document.pdf`（HTTP URL）
+**Отображение путей:**
+- Используется Агентом: `/mnt/user-data/uploads/document.pdf` (виртуальный путь)
+- Фактическое хранилище: `backend/.yandex-deep-research/threads/{thread_id}/user-data/uploads/document.pdf`
+- Доступ из фронтенда: `/api/threads/{thread_id}/artifacts/mnt/user-data/uploads/document.pdf` (HTTP URL)
 
-上传流程采用“线程目录优先”策略：
-- 先写入 `backend/.yandex-deep-research/threads/{thread_id}/user-data/uploads/` 作为权威存储
-- 本地沙箱（`sandbox_id=local`）直接使用线程目录内容
-- 非本地沙箱会额外同步到 `/mnt/user-data/uploads/*`，确保运行时可见
+Процесс загрузки использует стратегию "приоритет директории потока":
+- Сначала записывается в `backend/.yandex-deep-research/threads/{thread_id}/user-data/uploads/` как в авторитетное хранилище
+- Локальная песочница (`sandbox_id=local`) использует содержимое директории потока напрямую
+- Нелокальные песочницы дополнительно синхронизируются с `/mnt/user-data/uploads/*` для обеспечения видимости во время выполнения
 
-## 测试示例
+## Примеры тестирования
 
-### 使用 curl 测试
+### Тестирование с помощью curl
 
 ```bash
-# 1. 上传单个文件
+# 1. Загрузка одного файла
 curl -X POST http://localhost:2026/api/threads/test-thread/uploads \
   -F "files=@/path/to/document.pdf"
 
-# 2. 上传多个文件
+# 2. Загрузка нескольких файлов
 curl -X POST http://localhost:2026/api/threads/test-thread/uploads \
   -F "files=@/path/to/document.pdf" \
   -F "files=@/path/to/presentation.pptx" \
   -F "files=@/path/to/spreadsheet.xlsx"
 
-# 3. 列出已上传文件
+# 3. Получение списка загруженных файлов
 curl http://localhost:2026/api/threads/test-thread/uploads/list
 
-# 4. 删除文件
+# 4. Удаление файла
 curl -X DELETE http://localhost:2026/api/threads/test-thread/uploads/document.pdf
 ```
 
-### 使用 Python 测试
+### Тестирование с помощью Python
 
 ```python
 import requests
@@ -166,7 +166,7 @@ import requests
 thread_id = "test-thread"
 base_url = "http://localhost:2026"
 
-# 上传文件
+# Загрузка файлов
 files = [
     ("files", open("document.pdf", "rb")),
     ("files", open("presentation.pptx", "rb")),
@@ -177,86 +177,86 @@ response = requests.post(
 )
 print(response.json())
 
-# 列出文件
+# Получение списка файлов
 response = requests.get(f"{base_url}/api/threads/{thread_id}/uploads/list")
 print(response.json())
 
-# 删除文件
+# Удаление файла
 response = requests.delete(
     f"{base_url}/api/threads/{thread_id}/uploads/document.pdf"
 )
 print(response.json())
 ```
 
-## 文件存储结构
+## Структура хранения файлов
 
 ```
 backend/.yandex-deep-research/threads/
 └── {thread_id}/
     └── user-data/
         └── uploads/
-            ├── document.pdf          # 原始文件
-            ├── document.md           # 转换后的 Markdown
+            ├── document.pdf          # Исходный файл
+            ├── document.md           # Преобразованный Markdown
             ├── presentation.pptx
             ├── presentation.md
             └── ...
 ```
 
-## 限制
+## Ограничения
 
-- 最大文件大小：100MB（可在 nginx.conf 中配置 `client_max_body_size`）
-- 文件名安全性：系统会自动验证文件路径，防止目录遍历攻击
-- 线程隔离：每个线程的上传文件相互隔离，无法跨线程访问
+- Максимальный размер файла: 100 МБ (можно настроить в nginx.conf через `client_max_body_size`)
+- Безопасность имен файлов: Система автоматически проверяет пути к файлам для предотвращения атак обхода каталога (directory traversal)
+- Изоляция потоков: Загруженные файлы каждого потока изолированы и недоступны из других потоков
 
-## 技术实现
+## Техническая реализация
 
-### 组件
+### Компоненты
 
 1. **Upload Router** (`app/gateway/routers/uploads.py`)
-   - 处理文件上传、列表、删除请求
-   - 使用 markitdown 转换文档
+   - Обрабатывает запросы на загрузку, получение списка и удаление файлов
+   - Использует markitdown для преобразования документов
 
 2. **Uploads Middleware** (`packages/harness/yandex-deep-research/agents/middlewares/uploads_middleware.py`)
-   - 在每次 Agent 请求前注入文件列表
-   - 自动生成格式化的文件列表消息
+   - Внедряет список файлов перед каждым запросом Агента
+   - Автоматически генерирует отформатированные сообщения со списком файлов
 
-3. **Nginx 配置** (`nginx.conf`)
-   - 路由上传请求到 Gateway API
-   - 配置大文件上传支持
+3. **Nginx конфигурация** (`nginx.conf`)
+   - Маршрутизирует запросы на загрузку к Gateway API
+   - Настраивает поддержку загрузки больших файлов
 
-### 依赖
+### Зависимости
 
-- `markitdown>=0.0.1a2` - 文档转换
-- `python-multipart>=0.0.20` - 文件上传处理
+- `markitdown>=0.0.1a2` - Преобразование документов
+- `python-multipart>=0.0.20` - Обработка загрузки файлов
 
-## 故障排查
+## Устранение неполадок
 
-### 文件上传失败
+### Ошибка загрузки файла
 
-1. 检查文件大小是否超过限制
-2. 检查 Gateway API 是否正常运行
-3. 检查磁盘空间是否充足
-4. 查看 Gateway 日志：`make gateway`
+1. Проверьте, не превышает ли размер файла установленный лимит
+2. Проверьте, нормально ли работает Gateway API
+3. Проверьте, достаточно ли места на диске
+4. Просмотрите логи Gateway: `make gateway`
 
-### 文档转换失败
+### Ошибка преобразования документа
 
-1. 检查 markitdown 是否正确安装：`uv run python -c "import markitdown"`
-2. 查看日志中的具体错误信息
-3. 某些损坏或加密的文档可能无法转换，但原文件仍会保存
+1. Проверьте, правильно ли установлен markitdown: `uv run python -c "import markitdown"`
+2. Просмотрите конкретное сообщение об ошибке в логах
+3. Некоторые поврежденные или зашифрованные документы могут не поддаваться преобразованию, но исходный файл все равно будет сохранен
 
-### Agent 看不到上传的文件
+### Агент не видит загруженные файлы
 
-1. 确认 UploadsMiddleware 已在 agent.py 中注册
-2. 检查 thread_id 是否正确
-3. 确认文件确实已上传到 `backend/.yandex-deep-research/threads/{thread_id}/user-data/uploads/`
-4. 非本地沙箱场景下，确认上传接口没有报错（需要成功完成 sandbox 同步）
+1. Убедитесь, что UploadsMiddleware зарегистрирован в agent.py
+2. Проверьте правильность thread_id
+3. Убедитесь, что файл действительно загружен в `backend/.yandex-deep-research/threads/{thread_id}/user-data/uploads/`
+4. В сценариях нелокальной песочницы убедитесь, что интерфейс загрузки не выдает ошибок (синхронизация песочницы должна быть успешно завершена)
 
-## 开发建议
+## Рекомендации по разработке
 
-### 前端集成
+### Интеграция с фронтендом
 
 ```typescript
-// 上传文件示例
+// Пример загрузки файлов
 async function uploadFiles(threadId: string, files: File[]) {
   const formData = new FormData();
   files.forEach(file => {
@@ -274,7 +274,7 @@ async function uploadFiles(threadId: string, files: File[]) {
   return response.json();
 }
 
-// 列出文件
+// Получение списка файлов
 async function listFiles(threadId: string) {
   const response = await fetch(
     `/api/threads/${threadId}/uploads/list`
@@ -283,11 +283,11 @@ async function listFiles(threadId: string) {
 }
 ```
 
-### 扩展功能建议
+### Идеи для расширения функционала
 
-1. **文件预览**：添加预览端点，支持在浏览器中直接查看文件
-2. **批量删除**：支持一次删除多个文件
-3. **文件搜索**：支持按文件名或类型搜索
-4. **版本控制**：保留文件的多个版本
-5. **压缩包支持**：自动解压 zip 文件
-6. **图片 OCR**：对上传的图片进行 OCR 识别
+1. **Предпросмотр файлов**: Добавить эндпоинт предпросмотра для просмотра файлов прямо в браузере
+2. **Пакетное удаление**: Поддержка удаления нескольких файлов одновременно
+3. **Поиск файлов**: Поддержка поиска по имени или типу файла
+4. **Контроль версий**: Сохранение нескольких версий файла
+5. **Поддержка архивов**: Автоматическая распаковка zip-файлов
+6. **OCR для изображений**: Выполнение OCR-распознавания загруженных изображений

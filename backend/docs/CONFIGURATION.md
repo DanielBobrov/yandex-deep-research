@@ -1,46 +1,46 @@
-# Configuration Guide
+# Руководство по конфигурации
 
-This guide explains how to configure Yandex Deep Research for your environment.
+Это руководство объясняет, как настроить Yandex Deep Research для вашей среды.
 
-## Config Versioning
+## Версионирование конфигурации
 
-`config.example.yaml` contains a `config_version` field that tracks schema changes. When the example version is higher than your local `config.yaml`, the application emits a startup warning:
+`config.example.yaml` содержит поле `config_version`, которое отслеживает изменения схемы. Когда версия примера выше, чем в вашем локальном `config.yaml`, приложение выдает предупреждение при запуске:
 
 ```
 WARNING - Your config.yaml (version 0) is outdated — the latest version is 1.
 Run `make config-upgrade` to merge new fields into your config.
 ```
 
-- **Missing `config_version`** in your config is treated as version 0.
-- Run `make config-upgrade` to auto-merge missing fields (your existing values are preserved, a `.bak` backup is created).
-- When changing the config schema, bump `config_version` in `config.example.yaml`.
+- **Отсутствие `config_version`** в вашей конфигурации считается версией 0.
+- Запустите `make config-upgrade`, чтобы автоматически объединить недостающие поля (ваши существующие значения сохраняются, создается резервная копия `.bak`).
+- При изменении схемы конфигурации повышайте `config_version` в `config.example.yaml`.
 
-## Configuration Sections
+## Разделы конфигурации
 
-### Models
+### Модели (Models)
 
-Configure the LLM models available to the agent:
+Настройте LLM-модели, доступные агенту:
 
 ```yaml
 models:
-  - name: gpt-4                    # Internal identifier
-    display_name: GPT-4            # Human-readable name
-    use: langchain_openai:ChatOpenAI  # LangChain class path
-    model: gpt-4                   # Model identifier for API
-    api_key: $OPENAI_API_KEY       # API key (use env var)
-    max_tokens: 4096               # Max tokens per request
-    temperature: 0.7               # Sampling temperature
+  - name: gpt-4                    # Внутренний идентификатор
+    display_name: GPT-4            # Читаемое человеком имя
+    use: langchain_openai:ChatOpenAI  # Путь к классу LangChain
+    model: gpt-4                   # Идентификатор модели для API
+    api_key: $OPENAI_API_KEY       # API-ключ (используйте переменную окружения)
+    max_tokens: 4096               # Максимум токенов на запрос
+    temperature: 0.7               # Температура сэмплирования
 ```
 
-**Supported Providers**:
+**Поддерживаемые провайдеры**:
 - OpenAI (`langchain_openai:ChatOpenAI`)
 - Anthropic (`langchain_anthropic:ChatAnthropic`)
 - DeepSeek (`langchain_deepseek:ChatDeepSeek`)
 - Claude Code OAuth (`yandex-deep-research.models.claude_provider:ClaudeChatModel`)
 - Codex CLI (`yandex-deep-research.models.openai_codex_provider:CodexChatModel`)
-- Any LangChain-compatible provider
+- Любой провайдер, совместимый с LangChain
 
-CLI-backed provider examples:
+Примеры провайдеров на базе CLI:
 
 ```yaml
 models:
@@ -59,13 +59,13 @@ models:
     supports_thinking: true
 ```
 
-**Auth behavior for CLI-backed providers**:
-- `CodexChatModel` loads Codex CLI auth from `~/.codex/auth.json`
-- The Codex Responses endpoint currently rejects `max_tokens` and `max_output_tokens`, so `CodexChatModel` does not expose a request-level token cap
-- `ClaudeChatModel` accepts `CLAUDE_CODE_OAUTH_TOKEN`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR`, `CLAUDE_CODE_CREDENTIALS_PATH`, or plaintext `~/.claude/.credentials.json`
-- On macOS, Yandex Deep Research does not probe Keychain automatically. Use `scripts/export_claude_code_oauth.py` to export Claude Code auth explicitly when needed
+**Поведение авторизации для провайдеров на базе CLI**:
+- `CodexChatModel` загружает авторизацию Codex CLI из `~/.codex/auth.json`
+- Эндпоинт Codex Responses в настоящее время отклоняет `max_tokens` и `max_output_tokens`, поэтому `CodexChatModel` не предоставляет лимит токенов на уровне запроса
+- `ClaudeChatModel` принимает `CLAUDE_CODE_OAUTH_TOKEN`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR`, `CLAUDE_CODE_CREDENTIALS_PATH` или обычный текст `~/.claude/.credentials.json`
+- В macOS Yandex Deep Research не проверяет связку ключей (Keychain) автоматически. Используйте `scripts/export_claude_code_oauth.py` для явного экспорта авторизации Claude Code при необходимости
 
-To use OpenAI's `/v1/responses` endpoint with LangChain, keep using `langchain_openai:ChatOpenAI` and set:
+Чтобы использовать эндпоинт `/v1/responses` от OpenAI с LangChain, продолжайте использовать `langchain_openai:ChatOpenAI` и задайте:
 
 ```yaml
 models:
@@ -78,7 +78,7 @@ models:
     output_version: responses/v1
 ```
 
-For OpenAI-compatible gateways (for example Novita or OpenRouter), keep using `langchain_openai:ChatOpenAI` and set `base_url`:
+Для шлюзов, совместимых с OpenAI (например, Novita или OpenRouter), продолжайте использовать `langchain_openai:ChatOpenAI` и задайте `base_url`:
 
 ```yaml
 models:
@@ -101,7 +101,7 @@ models:
     api_key: $MINIMAX_API_KEY
     base_url: https://api.minimax.io/v1
     max_tokens: 4096
-    temperature: 1.0  # MiniMax requires temperature in (0.0, 1.0]
+    temperature: 1.0  # MiniMax требует температуру в диапазоне (0.0, 1.0]
     supports_vision: true
 
   - name: minimax-m2.5-highspeed
@@ -111,7 +111,7 @@ models:
     api_key: $MINIMAX_API_KEY
     base_url: https://api.minimax.io/v1
     max_tokens: 4096
-    temperature: 1.0  # MiniMax requires temperature in (0.0, 1.0]
+    temperature: 1.0  # MiniMax требует температуру в диапазоне (0.0, 1.0]
     supports_vision: true
   - name: openrouter-gemini-2.5-flash
     display_name: Gemini 2.5 Flash (OpenRouter)
@@ -121,10 +121,10 @@ models:
     base_url: https://openrouter.ai/api/v1
 ```
 
-If your OpenRouter key lives in a different environment variable name, point `api_key` at that variable explicitly (for example `api_key: $OPENROUTER_API_KEY`).
+Если ваш ключ OpenRouter находится в переменной окружения с другим именем, явно укажите `api_key` на эту переменную (например, `api_key: $OPENROUTER_API_KEY`).
 
-**Thinking Models**:
-Some models support "thinking" mode for complex reasoning:
+**Модели с рассуждением (Thinking Models)**:
+Некоторые модели поддерживают режим "размышления" (thinking) для сложных рассуждений:
 
 ```yaml
 models:
@@ -136,23 +136,23 @@ models:
           type: enabled
 ```
 
-**Gemini with thinking via OpenAI-compatible gateway**:
+**Gemini с рассуждением через шлюз, совместимый с OpenAI**:
 
-When routing Gemini through an OpenAI-compatible proxy (Vertex AI OpenAI compat endpoint, AI Studio, or third-party gateways) with thinking enabled, the API attaches a `thought_signature` to each tool-call object returned in the response.  Every subsequent request that replays those assistant messages **must** echo those signatures back on the tool-call entries or the API returns:
+При маршрутизации Gemini через прокси, совместимый с OpenAI (эндпоинт совместимости Vertex AI OpenAI, AI Studio или сторонние шлюзы) с включенным рассуждением, API прикрепляет `thought_signature` к каждому объекту tool-call, возвращаемому в ответе. Каждый последующий запрос, который воспроизводит эти сообщения ассистента, **должен** возвращать эти подписи обратно в записях tool-call, иначе API вернет:
 
 ```
 HTTP 400 INVALID_ARGUMENT: function call `<tool>` in the N. content block is
 missing a `thought_signature`.
 ```
 
-Standard `langchain_openai:ChatOpenAI` silently drops `thought_signature` when serialising messages.  Use `yandex-deep-research.models.patched_openai:PatchedChatOpenAI` instead — it re-injects the tool-call signatures (sourced from `AIMessage.additional_kwargs["tool_calls"]`) into every outgoing payload:
+Стандартный `langchain_openai:ChatOpenAI` молча отбрасывает `thought_signature` при сериализации сообщений. Используйте вместо этого `yandex-deep-research.models.patched_openai:PatchedChatOpenAI` — он заново внедряет подписи tool-call (взятые из `AIMessage.additional_kwargs["tool_calls"]`) в каждую отправляемую полезную нагрузку:
 
 ```yaml
 models:
   - name: gemini-2.5-pro-thinking
     display_name: Gemini 2.5 Pro (Thinking)
     use: yandex-deep-research.models.patched_openai:PatchedChatOpenAI
-    model: google/gemini-2.5-pro-preview   # model name as expected by your gateway
+    model: google/gemini-2.5-pro-preview   # имя модели, ожидаемое вашим шлюзом
     api_key: $GEMINI_API_KEY
     base_url: https://<your-openai-compat-gateway>/v1
     max_tokens: 16384
@@ -164,23 +164,23 @@ models:
           type: enabled
 ```
 
-For Gemini accessed **without** thinking (e.g. via OpenRouter where thinking is not activated), the plain `langchain_openai:ChatOpenAI` with `supports_thinking: false` is sufficient and no patch is needed.
+Для доступа к Gemini **без** рассуждения (например, через OpenRouter, где рассуждение не активировано) достаточно обычного `langchain_openai:ChatOpenAI` с `supports_thinking: false`, и патч не нужен.
 
-### Tool Groups
+### Группы инструментов (Tool Groups)
 
-Organize tools into logical groups:
+Организуйте инструменты в логические группы:
 
 ```yaml
 tool_groups:
-  - name: web          # Web browsing and search
-  - name: file:read    # Read-only file operations
-  - name: file:write   # Write file operations
-  - name: bash         # Shell command execution
+  - name: web          # Веб-браузинг и поиск
+  - name: file:read    # Операции чтения файлов
+  - name: file:write   # Операции записи файлов
+  - name: bash         # Выполнение shell-команд
 ```
 
-### Tools
+### Инструменты (Tools)
 
-Configure specific tools available to the agent:
+Настройте конкретные инструменты, доступные агенту:
 
 ```yaml
 tools:
@@ -188,38 +188,38 @@ tools:
     group: web
     use: yandex-deep-research.community.tavily.tools:web_search_tool
     max_results: 5
-    # api_key: $TAVILY_API_KEY  # Optional
+    # api_key: $TAVILY_API_KEY  # Необязательно
 ```
 
-**Built-in Tools**:
-- `web_search` - Search the web (Tavily)
-- `web_fetch` - Fetch web pages (Jina AI)
-- `ls` - List directory contents
-- `read_file` - Read file contents
-- `write_file` - Write file contents
-- `str_replace` - String replacement in files
-- `bash` - Execute bash commands
+**Встроенные инструменты**:
+- `web_search` - Поиск в интернете (Tavily)
+- `web_fetch` - Получение веб-страниц (Jina AI)
+- `ls` - Просмотр содержимого директорий
+- `read_file` - Чтение содержимого файлов
+- `write_file` - Запись содержимого файлов
+- `str_replace` - Замена строк в файлах
+- `bash` - Выполнение bash-команд
 
-### Sandbox
+### Песочница (Sandbox)
 
-Yandex Deep Research supports multiple sandbox execution modes. Configure your preferred mode in `config.yaml`:
+Yandex Deep Research поддерживает несколько режимов выполнения в песочнице. Настройте предпочитаемый режим в `config.yaml`:
 
-**Local Execution** (runs sandbox code directly on the host machine):
+**Локальное выполнение** (запускает код песочницы непосредственно на хост-машине):
 ```yaml
 sandbox:
-   use: yandex-deep-research.sandbox.local:LocalSandboxProvider # Local execution
-   allow_host_bash: false # default; host bash is disabled unless explicitly re-enabled
+   use: yandex-deep-research.sandbox.local:LocalSandboxProvider # Локальное выполнение
+   allow_host_bash: false # по умолчанию; host bash отключен, если явно не включен
 ```
 
-**Docker Execution** (runs sandbox code in isolated Docker containers):
+**Выполнение в Docker** (запускает код песочницы в изолированных контейнерах Docker):
 ```yaml
 sandbox:
-   use: yandex-deep-research.community.aio_sandbox:AioSandboxProvider # Docker-based sandbox
+   use: yandex-deep-research.community.aio_sandbox:AioSandboxProvider # Песочница на базе Docker
 ```
 
-**Docker Execution with Kubernetes** (runs sandbox code in Kubernetes pods via provisioner service):
+**Выполнение в Docker с Kubernetes** (запускает код песочницы в подах Kubernetes через сервис provisioner):
 
-This mode runs each sandbox in an isolated Kubernetes Pod on your **host machine's cluster**. Requires Docker Desktop K8s, OrbStack, or similar local K8s setup.
+Этот режим запускает каждую песочницу в изолированном поде Kubernetes в кластере вашей **хост-машины**. Требуется Docker Desktop K8s, OrbStack или аналогичная локальная настройка K8s.
 
 ```yaml
 sandbox:
@@ -227,22 +227,22 @@ sandbox:
    provisioner_url: http://provisioner:8002
 ```
 
-When using Docker development (`make docker-start`), Yandex Deep Research starts the `provisioner` service only if this provisioner mode is configured. In local or plain Docker sandbox modes, `provisioner` is skipped.
+При использовании Docker-разработки (`make docker-start`), Yandex Deep Research запускает сервис `provisioner` только если настроен этот режим provisioner. В локальном режиме или обычном Docker-режиме песочницы `provisioner` пропускается.
 
-See [Provisioner Setup Guide](../../docker/provisioner/README.md) for detailed configuration, prerequisites, and troubleshooting.
+Смотрите [Руководство по настройке Provisioner](../../docker/provisioner/README.md) для получения подробной информации по конфигурации, предварительным требованиям и устранению неполадок.
 
-Choose between local execution or Docker-based isolation:
+Выберите между локальным выполнением или изоляцией на базе Docker:
 
-**Option 1: Local Sandbox** (default, simpler setup):
+**Вариант 1: Локальная песочница** (по умолчанию, более простая настройка):
 ```yaml
 sandbox:
   use: yandex-deep-research.sandbox.local:LocalSandboxProvider
   allow_host_bash: false
 ```
 
-`allow_host_bash` is intentionally `false` by default. Yandex Deep Research's local sandbox is a host-side convenience mode, not a secure shell isolation boundary. If you need `bash`, prefer `AioSandboxProvider`. Only set `allow_host_bash: true` for fully trusted single-user local workflows.
+Параметр `allow_host_bash` намеренно установлен в `false` по умолчанию. Локальная песочница Yandex Deep Research — это удобный режим на стороне хоста, а не безопасная граница изоляции оболочки. Если вам нужен `bash`, предпочитайте `AioSandboxProvider`. Устанавливайте `allow_host_bash: true` только для полностью доверенных однопользовательских локальных рабочих процессов.
 
-**Option 2: Docker Sandbox** (isolated, more secure):
+**Вариант 2: Docker-песочница** (изолированная, более безопасная):
 ```yaml
 sandbox:
   use: yandex-deep-research.community.aio_sandbox:AioSandboxProvider
@@ -250,120 +250,120 @@ sandbox:
   auto_start: true
   container_prefix: yandex-deep-research-sandbox
 
-  # Optional: Additional mounts
+  # Необязательно: Дополнительные монтирования
   mounts:
     - host_path: /path/on/host
       container_path: /path/in/container
       read_only: false
 ```
 
-When you configure `sandbox.mounts`, Yandex Deep Research exposes those `container_path` values in the agent prompt so the agent can discover and operate on mounted directories directly instead of assuming everything must live under `/mnt/user-data`.
+Когда вы настраиваете `sandbox.mounts`, Yandex Deep Research предоставляет эти значения `container_path` в промпте агента, чтобы агент мог обнаруживать смонтированные каталоги и работать с ними напрямую, вместо того чтобы предполагать, что все должно находиться в `/mnt/user-data`.
 
-### Skills
+### Навыки (Skills)
 
-Configure the skills directory for specialized workflows:
+Настройте каталог навыков для специализированных рабочих процессов:
 
 ```yaml
 skills:
-  # Host path (optional, default: ../skills)
+  # Путь на хосте (необязательно, по умолчанию: ../skills)
   path: /custom/path/to/skills
 
-  # Container mount path (default: /mnt/skills)
+  # Путь монтирования в контейнере (по умолчанию: /mnt/skills)
   container_path: /mnt/skills
 ```
 
-**How Skills Work**:
-- Skills are stored in `yandex-deep-research/skills/{public,custom}/`
-- Each skill has a `SKILL.md` file with metadata
-- Skills are automatically discovered and loaded
-- Available in both local and Docker sandbox via path mapping
+**Как работают навыки**:
+- Навыки хранятся в `yandex-deep-research/skills/{public,custom}/`
+- Каждый навык имеет файл `SKILL.md` с метаданными
+- Навыки автоматически обнаруживаются и загружаются
+- Доступны как в локальной, так и в Docker-песочнице через маппинг путей
 
-**Per-Agent Skill Filtering**:
-Custom agents can restrict which skills they load by defining a `skills` field in their `config.yaml` (located at `workspace/agents/<agent_name>/config.yaml`):
-- **Omitted or `null`**: Loads all globally enabled skills (default fallback).
-- **`[]` (empty list)**: Disables all skills for this specific agent.
-- **`["skill-name"]`**: Loads only the explicitly specified skills.
+**Фильтрация навыков для каждого агента**:
+Пользовательские агенты могут ограничивать, какие навыки они загружают, определяя поле `skills` в своем `config.yaml` (находится в `workspace/agents/<agent_name>/config.yaml`):
+- **Пропущено или `null`**: Загружает все глобально включенные навыки (поведение по умолчанию).
+- **`[]` (пустой список)**: Отключает все навыки для этого конкретного агента.
+- **`["skill-name"]`**: Загружает только явно указанные навыки.
 
-### Title Generation
+### Генерация заголовков (Title Generation)
 
-Automatic conversation title generation:
+Автоматическая генерация заголовков бесед:
 
 ```yaml
 title:
   enabled: true
   max_words: 6
   max_chars: 60
-  model_name: null  # Use first model in list
+  model_name: null  # Использовать первую модель в списке
 ```
 
-### GitHub API Token (Optional for GitHub Deep Research Skill)
+### Токен API GitHub (необязательно для навыка GitHub Deep Research)
 
-The default GitHub API rate limits are quite restrictive. For frequent project research, we recommend configuring a personal access token (PAT) with read-only permissions.
+Стандартные лимиты частоты запросов API GitHub довольно строгие. Для частого исследования проектов мы рекомендуем настроить персональный токен доступа (PAT) с правами только на чтение.
 
-**Configuration Steps**:
-1. Uncomment the `GITHUB_TOKEN` line in the `.env` file and add your personal access token
-2. Restart the Yandex Deep Research service to apply changes
+**Шаги настройки**:
+1. Раскомментируйте строку `GITHUB_TOKEN` в файле `.env` и добавьте свой персональный токен доступа
+2. Перезапустите службу Yandex Deep Research для применения изменений
 
-## Environment Variables
+## Переменные окружения
 
-Yandex Deep Research supports environment variable substitution using the `$` prefix:
+Yandex Deep Research поддерживает подстановку переменных окружения с использованием префикса `$`:
 
 ```yaml
 models:
-  - api_key: $OPENAI_API_KEY  # Reads from environment
+  - api_key: $OPENAI_API_KEY  # Читает из окружения
 ```
 
-**Common Environment Variables**:
-- `OPENAI_API_KEY` - OpenAI API key
-- `ANTHROPIC_API_KEY` - Anthropic API key
-- `DEEPSEEK_API_KEY` - DeepSeek API key
-- `NOVITA_API_KEY` - Novita API key (OpenAI-compatible endpoint)
-- `TAVILY_API_KEY` - Tavily search API key
-- `DEER_FLOW_CONFIG_PATH` - Custom config file path
+**Общие переменные окружения**:
+- `OPENAI_API_KEY` - API-ключ OpenAI
+- `ANTHROPIC_API_KEY` - API-ключ Anthropic
+- `DEEPSEEK_API_KEY` - API-ключ DeepSeek
+- `NOVITA_API_KEY` - API-ключ Novita (эндпоинт, совместимый с OpenAI)
+- `TAVILY_API_KEY` - API-ключ для поиска Tavily
+- `DEER_FLOW_CONFIG_PATH` - Пользовательский путь к файлу конфигурации
 
-## Configuration Location
+## Расположение конфигурации
 
-The configuration file should be placed in the **project root directory** (`yandex-deep-research/config.yaml`), not in the backend directory.
+Файл конфигурации должен быть размещен в **корневом каталоге проекта** (`yandex-deep-research/config.yaml`), а не в каталоге backend.
 
-## Configuration Priority
+## Приоритет конфигурации
 
-Yandex Deep Research searches for configuration in this order:
+Yandex Deep Research ищет конфигурацию в следующем порядке:
 
-1. Path specified in code via `config_path` argument
-2. Path from `DEER_FLOW_CONFIG_PATH` environment variable
-3. `config.yaml` in current working directory (typically `backend/` when running)
-4. `config.yaml` in parent directory (project root: `yandex-deep-research/`)
+1. Путь, указанный в коде через аргумент `config_path`
+2. Путь из переменной окружения `DEER_FLOW_CONFIG_PATH`
+3. `config.yaml` в текущем рабочем каталоге (обычно `backend/` при запуске)
+4. `config.yaml` в родительском каталоге (корень проекта: `yandex-deep-research/`)
 
-## Best Practices
+## Лучшие практики
 
-1. **Place `config.yaml` in project root** - Not in `backend/` directory
-2. **Never commit `config.yaml`** - It's already in `.gitignore`
-3. **Use environment variables for secrets** - Don't hardcode API keys
-4. **Keep `config.example.yaml` updated** - Document all new options
-5. **Test configuration changes locally** - Before deploying
-6. **Use Docker sandbox for production** - Better isolation and security
+1. **Размещайте `config.yaml` в корне проекта** - А не в каталоге `backend/`
+2. **Никогда не коммитьте `config.yaml`** - Он уже добавлен в `.gitignore`
+3. **Используйте переменные окружения для секретов** - Не хардкодьте API-ключи
+4. **Поддерживайте `config.example.yaml` в актуальном состоянии** - Документируйте все новые опции
+5. **Тестируйте изменения конфигурации локально** - Перед развертыванием
+6. **Используйте Docker-песочницу для продакшена** - Лучшая изоляция и безопасность
 
-## Troubleshooting
+## Устранение неполадок
 
-### "Config file not found"
-- Ensure `config.yaml` exists in the **project root** directory (`yandex-deep-research/config.yaml`)
-- The backend searches parent directory by default, so root location is preferred
-- Alternatively, set `DEER_FLOW_CONFIG_PATH` environment variable to custom location
+### "Config file not found" (Файл конфигурации не найден)
+- Убедитесь, что `config.yaml` существует в **корневом каталоге** проекта (`yandex-deep-research/config.yaml`)
+- Backend ищет в родительском каталоге по умолчанию, поэтому расположение в корне предпочтительнее
+- В качестве альтернативы установите переменную окружения `DEER_FLOW_CONFIG_PATH` на пользовательское расположение
 
-### "Invalid API key"
-- Verify environment variables are set correctly
-- Check that `$` prefix is used for env var references
+### "Invalid API key" (Неверный API-ключ)
+- Убедитесь, что переменные окружения установлены правильно
+- Проверьте, что префикс `$` используется для ссылок на переменные окружения
 
-### "Skills not loading"
-- Check that `yandex-deep-research/skills/` directory exists
-- Verify skills have valid `SKILL.md` files
-- Check `skills.path` configuration if using custom path
+### "Skills not loading" (Навыки не загружаются)
+- Проверьте, что каталог `yandex-deep-research/skills/` существует
+- Убедитесь, что у навыков есть корректные файлы `SKILL.md`
+- Проверьте конфигурацию `skills.path`, если используется пользовательский путь
 
-### "Docker sandbox fails to start"
-- Ensure Docker is running
-- Check port 8080 (or configured port) is available
-- Verify Docker image is accessible
+### "Docker sandbox fails to start" (Не удается запустить Docker-песочницу)
+- Убедитесь, что Docker запущен
+- Проверьте, что порт 8080 (или настроенный порт) доступен
+- Убедитесь, что Docker-образ доступен
 
-## Examples
+## Примеры
 
-See `config.example.yaml` for complete examples of all configuration options.
+Смотрите `config.example.yaml` для полных примеров всех опций конфигурации.

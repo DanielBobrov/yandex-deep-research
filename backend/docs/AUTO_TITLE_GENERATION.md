@@ -1,45 +1,45 @@
-# 自动 Thread Title 生成功能
+# Функция автоматической генерации заголовка (Thread Title)
 
-## 功能说明
+## Описание функции
 
-自动为对话线程生成标题，在用户首次提问并收到回复后自动触发。
+Автоматически генерирует заголовок для потока диалога, срабатывая после того, как пользователь задает первый вопрос и получает ответ.
 
-## 实现方式
+## Способ реализации
 
-使用 `TitleMiddleware` 在 `after_model` 钩子中：
-1. 检测是否是首次对话（1个用户消息 + 1个助手回复）
-2. 检查 state 是否已有 title
-3. 调用 LLM 生成简洁的标题（默认最多6个词）
-4. 将 title 存储到 `ThreadState` 中（会被 checkpointer 持久化）
+Используется `TitleMiddleware` в хуке `after_model`:
+1. Определяет, является ли это первым диалогом (1 сообщение пользователя + 1 ответ ассистента)
+2. Проверяет, есть ли уже заголовок (title) в состоянии (state)
+3. Вызывает LLM для генерации лаконичного заголовка (по умолчанию не более 6 слов)
+4. Сохраняет title в `ThreadState` (будет персистентно сохранено с помощью checkpointer)
 
-TitleMiddleware 会先把 LangChain message content 里的结构化 block/list 内容归一化为纯文本，再拼到 title prompt 里，避免把 Python/JSON 的原始 repr 泄漏到标题生成模型。
+TitleMiddleware сначала нормализует структурированный контент (блоки/списки) из сообщений LangChain в простой текст, а затем подставляет в промпт для заголовка, чтобы избежать утечки оригинального repr Python/JSON в модель генерации заголовков.
 
-## ⚠️ 重要：存储机制
+## ⚠️ Важно: Механизм хранения
 
-### Title 存储位置
+### Место хранения заголовка
 
-Title 存储在 **`ThreadState.title`** 中，而非 thread metadata：
+Title хранится в **`ThreadState.title`**, а не в метаданных (metadata) потока:
 
 ```python
 class ThreadState(AgentState):
     sandbox: SandboxState | None = None
-    title: str | None = None  # ✅ Title stored here
+    title: str | None = None  # ✅ Заголовок хранится здесь
 ```
 
-### 持久化说明
+### Информация о персистентности
 
-| 部署方式 | 持久化 | 说明 |
+| Способ развертывания | Персистентность | Описание |
 |---------|--------|------|
-| **LangGraph Studio (本地)** | ❌ 否 | 仅内存存储，重启后丢失 |
-| **LangGraph Platform** | ✅ 是 | 自动持久化到数据库 |
-| **自定义 + Checkpointer** | ✅ 是 | 需配置 PostgreSQL/SQLite checkpointer |
+| **LangGraph Studio (локально)** | ❌ Нет | Хранится только в памяти, теряется после перезапуска |
+| **LangGraph Platform** | ✅ Да | Автоматически сохраняется в базу данных |
+| **Пользовательский + Checkpointer** | ✅ Да | Требуется настройка PostgreSQL/SQLite checkpointer |
 
-### 如何启用持久化
+### Как включить персистентность
 
-如果需要在本地开发时也持久化 title，需要配置 checkpointer：
+Если необходимо сохранять title при локальной разработке, нужно настроить checkpointer:
 
 ```python
-# 在 langgraph.json 同级目录创建 checkpointer.py
+# Создайте checkpointer.py в той же директории, что и langgraph.json
 from langgraph.checkpoint.postgres import PostgresSaver
 
 checkpointer = PostgresSaver.from_conn_string(
@@ -47,7 +47,7 @@ checkpointer = PostgresSaver.from_conn_string(
 )
 ```
 
-然后在 `langgraph.json` 中引用：
+Затем сошлитесь на него в `langgraph.json`:
 
 ```json
 {
@@ -58,19 +58,19 @@ checkpointer = PostgresSaver.from_conn_string(
 }
 ```
 
-## 配置
+## Конфигурация
 
-在 `config.yaml` 中添加（可选）：
+Добавьте в `config.yaml` (опционально):
 
 ```yaml
 title:
   enabled: true
   max_words: 6
   max_chars: 60
-  model_name: null  # 使用默认模型
+  model_name: null  # Использовать модель по умолчанию
 ```
 
-或在代码中配置：
+Или настройте в коде:
 
 ```python
 from yandex-deep-research.config.title_config import TitleConfig, set_title_config
@@ -82,16 +82,16 @@ set_title_config(TitleConfig(
 ))
 ```
 
-## 客户端使用
+## Использование на клиенте
 
-### 获取 Thread Title
+### Получение заголовка потока (Thread Title)
 
 ```typescript
-// 方式1: 从 thread state 获取
+// Способ 1: Получение из состояния потока (thread state)
 const state = await client.threads.getState(threadId);
 const title = state.values.title || "New Conversation";
 
-// 方式2: 监听 stream 事件
+// Способ 2: Прослушивание событий потока (stream events)
 for await (const chunk of client.runs.stream(threadId, assistantId, {
   input: { messages: [{ role: "user", content: "Hello" }] }
 })) {
@@ -101,10 +101,10 @@ for await (const chunk of client.runs.stream(threadId, assistantId, {
 }
 ```
 
-### 显示 Title
+### Отображение заголовка
 
 ```typescript
-// 在对话列表中显示
+// Отображение в списке диалогов
 function ConversationList() {
   const [threads, setThreads] = useState([]);
 
@@ -112,7 +112,7 @@ function ConversationList() {
     async function loadThreads() {
       const allThreads = await client.threads.list();
       
-      // 获取每个 thread 的 state 来读取 title
+      // Получаем состояние каждого потока для чтения заголовка
       const threadsWithTitles = await Promise.all(
         allThreads.map(async (t) => {
           const state = await client.threads.getState(t.thread_id);
@@ -141,7 +141,7 @@ function ConversationList() {
 }
 ```
 
-## 工作流程
+## Рабочий процесс
 
 ```mermaid
 sequenceDiagram
@@ -152,84 +152,84 @@ sequenceDiagram
     participant LLM
     participant Checkpointer
 
-    User->>Client: 发送首条消息
+    User->>Client: Отправляет первое сообщение
     Client->>LangGraph: POST /threads/{id}/runs
-    LangGraph->>Agent: 处理消息
-    Agent-->>LangGraph: 返回回复
+    LangGraph->>Agent: Обрабатывает сообщение
+    Agent-->>LangGraph: Возвращает ответ
     LangGraph->>TitleMiddleware: after_agent()
-    TitleMiddleware->>TitleMiddleware: 检查是否需要生成 title
-    TitleMiddleware->>LLM: 生成 title
-    LLM-->>TitleMiddleware: 返回 title
+    TitleMiddleware->>TitleMiddleware: Проверяет, нужно ли сгенерировать title
+    TitleMiddleware->>LLM: Генерирует title
+    LLM-->>TitleMiddleware: Возвращает title
     TitleMiddleware->>LangGraph: return {"title": "..."}
-    LangGraph->>Checkpointer: 保存 state (含 title)
-    LangGraph-->>Client: 返回响应
-    Client->>Client: 从 state.values.title 读取
+    LangGraph->>Checkpointer: Сохраняет state (включая title)
+    LangGraph-->>Client: Возвращает ответ
+    Client->>Client: Читает из state.values.title
 ```
 
-## 优势
+## Преимущества
 
-✅ **可靠持久化** - 使用 LangGraph 的 state 机制，自动持久化  
-✅ **完全后端处理** - 客户端无需额外逻辑  
-✅ **自动触发** - 首次对话后自动生成  
-✅ **可配置** - 支持自定义长度、模型等  
-✅ **容错性强** - 失败时使用 fallback 策略  
-✅ **架构一致** - 与现有 SandboxMiddleware 保持一致  
+✅ **Надежная персистентность** - Использует механизм state из LangGraph, автоматическое сохранение  
+✅ **Полностью серверная обработка** - Клиенту не нужна дополнительная логика  
+✅ **Автоматическое срабатывание** - Автоматическая генерация после первого диалога  
+✅ **Настраиваемость** - Поддерживает кастомную длину, модели и т.д.  
+✅ **Отказоустойчивость** - При ошибке используется стратегия fallback  
+✅ **Согласованная архитектура** - Согласуется с существующим SandboxMiddleware  
 
-## 注意事项
+## Примечания
 
-1. **读取方式不同**：Title 在 `state.values.title` 而非 `thread.metadata.title`
-2. **性能考虑**：title 生成会增加约 0.5-1 秒延迟，可通过使用更快的模型优化
-3. **并发安全**：middleware 在 agent 执行后运行，不会阻塞主流程
-4. **Fallback 策略**：如果 LLM 调用失败，会使用用户消息的前几个词作为 title
+1. **Разница в способе чтения**: Title находится в `state.values.title`, а не в `thread.metadata.title`
+2. **Вопросы производительности**: Генерация заголовка добавляет около 0.5-1 секунды задержки, можно оптимизировать, используя более быстрые модели
+3. **Безопасность параллелизма**: Middleware запускается после выполнения агента и не блокирует основной процесс
+4. **Стратегия Fallback**: Если вызов LLM завершился ошибкой, в качестве заголовка используются первые несколько слов из сообщения пользователя
 
-## 测试
+## Тестирование
 
 ```python
-# 测试 title 生成
+# Тестирование генерации заголовка
 import pytest
 from yandex-deep-research.agents.title_middleware import TitleMiddleware
 
 def test_title_generation():
-    # TODO: 添加单元测试
+    # TODO: Добавить модульные тесты
     pass
 ```
 
-## 故障排查
+## Устранение неполадок
 
-### Title 没有生成
+### Заголовок не генерируется
 
-1. 检查配置是否启用：`get_title_config().enabled == True`
-2. 检查日志：查找 "Generated thread title" 或错误信息
-3. 确认是首次对话：只有 1 个用户消息和 1 个助手回复时才会触发
+1. Проверьте, включена ли конфигурация: `get_title_config().enabled == True`
+2. Проверьте логи: Ищите "Generated thread title" или сообщения об ошибках
+3. Убедитесь, что это первый диалог: Срабатывает только если есть ровно 1 сообщение пользователя и 1 ответ ассистента
 
-### Title 生成但客户端看不到
+### Заголовок сгенерирован, но клиент его не видит
 
-1. 确认读取位置：应该从 `state.values.title` 读取，而非 `thread.metadata.title`
-2. 检查 API 响应：确认 state 中包含 title 字段
-3. 尝试重新获取 state：`client.threads.getState(threadId)`
+1. Убедитесь в правильности места чтения: Следует читать из `state.values.title`, а не из `thread.metadata.title`
+2. Проверьте ответ API: Убедитесь, что поле title присутствует в state
+3. Попробуйте получить state заново: `client.threads.getState(threadId)`
 
-### Title 重启后丢失
+### Заголовок теряется после перезапуска
 
-1. 检查是否配置了 checkpointer（本地开发需要）
-2. 确认部署方式：LangGraph Platform 会自动持久化
-3. 查看数据库：确认 checkpointer 正常工作
+1. Проверьте, настроен ли checkpointer (необходимо для локальной разработки)
+2. Уточните способ развертывания: LangGraph Platform сохраняет данные автоматически
+3. Проверьте базу данных: Убедитесь, что checkpointer работает нормально
 
-## 架构设计
+## Проектирование архитектуры
 
-### 为什么使用 State 而非 Metadata？
+### Почему используется State, а не Metadata?
 
-| 特性 | State | Metadata |
+| Особенность | State | Metadata |
 |------|-------|----------|
-| **持久化** | ✅ 自动（通过 checkpointer） | ⚠️ 取决于实现 |
-| **版本控制** | ✅ 支持时间旅行 | ❌ 不支持 |
-| **类型安全** | ✅ TypedDict 定义 | ❌ 任意字典 |
-| **可追溯** | ✅ 每次更新都记录 | ⚠️ 只有最新值 |
-| **标准化** | ✅ LangGraph 核心机制 | ⚠️ 扩展功能 |
+| **Персистентность** | ✅ Автоматически (через checkpointer) | ⚠️ Зависит от реализации |
+| **Управление версиями** | ✅ Поддерживает перемещение во времени (time travel) | ❌ Не поддерживает |
+| **Типобезопасность** | ✅ Определено через TypedDict | ❌ Произвольный словарь |
+| **Отслеживаемость** | ✅ Записывается каждое обновление | ⚠️ Только последнее значение |
+| **Стандартизация** | ✅ Основной механизм LangGraph | ⚠️ Расширенная функциональность |
 
-### 实现细节
+### Детали реализации
 
 ```python
-# TitleMiddleware 核心逻辑
+# Основная логика TitleMiddleware
 @override
 def after_agent(self, state: TitleMiddlewareState, runtime: Runtime) -> dict | None:
     """Generate and set thread title after the first agent response."""
@@ -237,22 +237,22 @@ def after_agent(self, state: TitleMiddlewareState, runtime: Runtime) -> dict | N
         title = self._generate_title(runtime)
         print(f"Generated thread title: {title}")
         
-        # ✅ 返回 state 更新，会被 checkpointer 自动持久化
+        # ✅ Возвращает обновление state, которое будет автоматически сохранено через checkpointer
         return {"title": title}
     
     return None
 ```
 
-## 相关文件
+## Связанные файлы
 
-- [`packages/harness/yandex-deep-research/agents/thread_state.py`](../packages/harness/yandex-deep-research/agents/thread_state.py) - ThreadState 定义
-- [`packages/harness/yandex-deep-research/agents/middlewares/title_middleware.py`](../packages/harness/yandex-deep-research/agents/middlewares/title_middleware.py) - TitleMiddleware 实现
-- [`packages/harness/yandex-deep-research/config/title_config.py`](../packages/harness/yandex-deep-research/config/title_config.py) - 配置管理
-- [`config.yaml`](../../config.example.yaml) - 配置文件
-- [`packages/harness/yandex-deep-research/agents/lead_agent/agent.py`](../packages/harness/yandex-deep-research/agents/lead_agent/agent.py) - Middleware 注册
+- [`packages/harness/yandex-deep-research/agents/thread_state.py`](../packages/harness/yandex-deep-research/agents/thread_state.py) - Определение ThreadState
+- [`packages/harness/yandex-deep-research/agents/middlewares/title_middleware.py`](../packages/harness/yandex-deep-research/agents/middlewares/title_middleware.py) - Реализация TitleMiddleware
+- [`packages/harness/yandex-deep-research/config/title_config.py`](../packages/harness/yandex-deep-research/config/title_config.py) - Управление конфигурацией
+- [`config.yaml`](../../config.example.yaml) - Файл конфигурации
+- [`packages/harness/yandex-deep-research/agents/lead_agent/agent.py`](../packages/harness/yandex-deep-research/agents/lead_agent/agent.py) - Регистрация Middleware
 
-## 参考资料
+## Справочные материалы
 
-- [LangGraph Checkpointer 文档](https://langchain-ai.github.io/langgraph/concepts/persistence/)
-- [LangGraph State 管理](https://langchain-ai.github.io/langgraph/concepts/low_level/#state)
+- [Документация LangGraph Checkpointer](https://langchain-ai.github.io/langgraph/concepts/persistence/)
+- [Управление состоянием LangGraph (State)](https://langchain-ai.github.io/langgraph/concepts/low_level/#state)
 - [LangGraph Middleware](https://langchain-ai.github.io/langgraph/concepts/middleware/)

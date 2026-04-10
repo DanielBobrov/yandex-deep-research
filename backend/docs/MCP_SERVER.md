@@ -1,28 +1,28 @@
-# MCP (Model Context Protocol) Configuration
+# Конфигурация MCP (Model Context Protocol)
 
-Yandex Deep Research supports configurable MCP servers and skills to extend its capabilities, which are loaded from a dedicated `extensions_config.json` file in the project root directory.
+Yandex Deep Research поддерживает настраиваемые MCP-серверы и навыки (skills) для расширения своих возможностей, которые загружаются из специального файла `extensions_config.json` в корневой директории проекта.
 
-## Setup
+## Установка
 
-1. Copy `extensions_config.example.json` to `extensions_config.json` in the project root directory.
+1. Скопируйте `extensions_config.example.json` в `extensions_config.json` в корневой директории проекта.
    ```bash
-   # Copy example configuration
+   # Копирование примера конфигурации
    cp extensions_config.example.json extensions_config.json
    ```
    
-2. Enable the desired MCP servers or skills by setting `"enabled": true`.
-3. Configure each server’s command, arguments, and environment variables as needed.
-4. Restart the application to load and register MCP tools.
+2. Включите нужные MCP-серверы или навыки, установив `"enabled": true`.
+3. Настройте команду, аргументы и переменные окружения для каждого сервера по мере необходимости.
+4. Перезапустите приложение для загрузки и регистрации инструментов MCP.
 
-## OAuth Support (HTTP/SSE MCP Servers)
+## Поддержка OAuth (MCP-серверы HTTP/SSE)
 
-For `http` and `sse` MCP servers, Yandex Deep Research supports OAuth token acquisition and automatic token refresh.
+Для MCP-серверов типов `http` и `sse` Yandex Deep Research поддерживает получение токенов OAuth и их автоматическое обновление.
 
-- Supported grants: `client_credentials`, `refresh_token`
-- Configure per-server `oauth` block in `extensions_config.json`
-- Secrets should be provided via environment variables (for example: `$MCP_OAUTH_CLIENT_SECRET`)
+- Поддерживаемые типы разрешений (grants): `client_credentials`, `refresh_token`
+- Настройте блок `oauth` для каждого сервера в `extensions_config.json`
+- Секреты должны передаваться через переменные окружения (например: `$MCP_OAUTH_CLIENT_SECRET`)
 
-Example:
+Пример:
 
 ```json
 {
@@ -45,21 +45,21 @@ Example:
 }
 ```
 
-## How It Works
+## Как это работает
 
-MCP servers expose tools that are automatically discovered and integrated into Yandex Deep Research’s agent system at runtime. Once enabled, these tools become available to agents without additional code changes.
+MCP-серверы предоставляют инструменты, которые автоматически обнаруживаются и интегрируются в систему агентов Yandex Deep Research во время выполнения (runtime). После включения эти инструменты становятся доступными для агентов без дополнительных изменений в коде.
 
-## Example Capabilities
+## Примеры возможностей
 
-MCP servers can provide access to:
+MCP-серверы могут предоставлять доступ к:
 
-- **File systems**
-- **Databases** (e.g., PostgreSQL)
-- **External APIs** (e.g., GitHub, Brave Search)
-- **Browser automation** (e.g., Puppeteer)
-- **Custom MCP server implementations**
+- **Файловым системам**
+- **Базам данных** (например, PostgreSQL)
+- **Внешним API** (например, GitHub, Brave Search)
+- **Автоматизации браузера** (например, Puppeteer)
+- **Пользовательским реализациям MCP-серверов**
 
-## Learn More
+## Узнать больше
 
-For detailed documentation about the Model Context Protocol, visit:  
+Для получения подробной документации о Model Context Protocol посетите:  
 https://modelcontextprotocol.io

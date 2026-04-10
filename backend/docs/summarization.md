@@ -1,89 +1,89 @@
-# Conversation Summarization
+# Суммаризация диалога
 
-Yandex Deep Research includes automatic conversation summarization to handle long conversations that approach model token limits. When enabled, the system automatically condenses older messages while preserving recent context.
+Yandex Deep Research включает автоматическую суммаризацию диалога для обработки длинных бесед, которые приближаются к лимитам токенов модели. Когда эта функция включена, система автоматически сжимает старые сообщения, сохраняя при этом недавний контекст.
 
-## Overview
+## Обзор
 
-The summarization feature uses LangChain's `SummarizationMiddleware` to monitor conversation history and trigger summarization based on configurable thresholds. When activated, it:
+Функция суммаризации использует `SummarizationMiddleware` из LangChain для мониторинга истории диалога и запуска суммаризации на основе настраиваемых пороговых значений. Когда она активирована, она:
 
-1. Monitors message token counts in real-time
-2. Triggers summarization when thresholds are met
-3. Keeps recent messages intact while summarizing older exchanges
-4. Maintains AI/Tool message pairs together for context continuity
-5. Injects the summary back into the conversation
+1. Отслеживает количество токенов в сообщениях в реальном времени
+2. Запускает суммаризацию при достижении пороговых значений
+3. Сохраняет недавние сообщения нетронутыми, суммируя при этом старые обмены сообщениями
+4. Сохраняет пары сообщений ИИ/Инструмент (AI/Tool) вместе для непрерывности контекста
+5. Вставляет краткое содержание (summary) обратно в диалог
 
-## Configuration
+## Конфигурация
 
-Summarization is configured in `config.yaml` under the `summarization` key:
+Суммаризация настраивается в `config.yaml` под ключом `summarization`:
 
 ```yaml
 summarization:
   enabled: true
-  model_name: null  # Use default model or specify a lightweight model
+  model_name: null  # Использовать модель по умолчанию или указать легковесную модель
 
-  # Trigger conditions (OR logic - any condition triggers summarization)
+  # Условия срабатывания (логика ИЛИ - любое условие запускает суммаризацию)
   trigger:
     - type: tokens
       value: 4000
-    # Additional triggers (optional)
+    # Дополнительные триггеры (необязательно)
     # - type: messages
     #   value: 50
     # - type: fraction
-    #   value: 0.8  # 80% of model's max input tokens
+    #   value: 0.8  # 80% от максимального количества входных токенов модели
 
-  # Context retention policy
+  # Политика сохранения контекста
   keep:
     type: messages
     value: 20
 
-  # Token trimming for summarization call
+  # Обрезка токенов для вызова суммаризации
   trim_tokens_to_summarize: 4000
 
-  # Custom summary prompt (optional)
+  # Пользовательский промпт для суммаризации (необязательно)
   summary_prompt: null
 ```
 
-### Configuration Options
+### Параметры конфигурации
 
 #### `enabled`
-- **Type**: Boolean
-- **Default**: `false`
-- **Description**: Enable or disable automatic summarization
+- **Тип**: Boolean
+- **По умолчанию**: `false`
+- **Описание**: Включить или отключить автоматическую суммаризацию
 
 #### `model_name`
-- **Type**: String or null
-- **Default**: `null` (uses default model)
-- **Description**: Model to use for generating summaries. Recommended to use a lightweight, cost-effective model like `gpt-4o-mini` or equivalent.
+- **Тип**: Строка или null
+- **По умолчанию**: `null` (используется модель по умолчанию)
+- **Описание**: Модель для генерации краткого содержания. Рекомендуется использовать легковесную, экономичную модель, такую как `gpt-4o-mini` или эквивалентную.
 
 #### `trigger`
-- **Type**: Single `ContextSize` or list of `ContextSize` objects
-- **Required**: At least one trigger must be specified when enabled
-- **Description**: Thresholds that trigger summarization. Uses OR logic - summarization runs when ANY threshold is met.
+- **Тип**: Один объект `ContextSize` или список объектов `ContextSize`
+- **Обязательно**: Должен быть указан как минимум один триггер, если функция включена
+- **Описание**: Пороговые значения, запускающие суммаризацию. Использует логику ИЛИ - суммаризация запускается при достижении ЛЮБОГО порогового значения.
 
-**ContextSize Types:**
+**Типы ContextSize:**
 
-1. **Token-based trigger**: Activates when token count reaches the specified value
+1. **Триггер на основе токенов**: Активируется, когда количество токенов достигает указанного значения
    ```yaml
    trigger:
      type: tokens
      value: 4000
    ```
 
-2. **Message-based trigger**: Activates when message count reaches the specified value
+2. **Триггер на основе сообщений**: Активируется, когда количество сообщений достигает указанного значения
    ```yaml
    trigger:
      type: messages
      value: 50
    ```
 
-3. **Fraction-based trigger**: Activates when token usage reaches a percentage of the model's maximum input tokens
+3. **Триггер на основе доли (фракции)**: Активируется, когда использование токенов достигает процента от максимального количества входных токенов модели
    ```yaml
    trigger:
      type: fraction
-     value: 0.8  # 80% of max input tokens
+     value: 0.8  # 80% от максимального количества входных токенов
    ```
 
-**Multiple Triggers:**
+**Несколько триггеров:**
 ```yaml
 trigger:
   - type: tokens
@@ -93,125 +93,125 @@ trigger:
 ```
 
 #### `keep`
-- **Type**: `ContextSize` object
-- **Default**: `{type: messages, value: 20}`
-- **Description**: Specifies how much recent conversation history to preserve after summarization.
+- **Тип**: Объект `ContextSize`
+- **По умолчанию**: `{type: messages, value: 20}`
+- **Описание**: Определяет, сколько недавней истории диалога нужно сохранить после суммаризации.
 
-**Examples:**
+**Примеры:**
 ```yaml
-# Keep most recent 20 messages
+# Сохранить последние 20 сообщений
 keep:
   type: messages
   value: 20
 
-# Keep most recent 3000 tokens
+# Сохранить последние 3000 токенов
 keep:
   type: tokens
   value: 3000
 
-# Keep most recent 30% of model's max input tokens
+# Сохранить последние 30% от максимального количества входных токенов модели
 keep:
   type: fraction
   value: 0.3
 ```
 
 #### `trim_tokens_to_summarize`
-- **Type**: Integer or null
-- **Default**: `4000`
-- **Description**: Maximum tokens to include when preparing messages for the summarization call itself. Set to `null` to skip trimming (not recommended for very long conversations).
+- **Тип**: Целое число или null
+- **По умолчанию**: `4000`
+- **Описание**: Максимальное количество токенов для включения при подготовке сообщений для самого вызова суммаризации. Установите в `null`, чтобы пропустить обрезку (не рекомендуется для очень длинных бесед).
 
 #### `summary_prompt`
-- **Type**: String or null
-- **Default**: `null` (uses LangChain's default prompt)
-- **Description**: Custom prompt template for generating summaries. The prompt should guide the model to extract the most important context.
+- **Тип**: Строка или null
+- **По умолчанию**: `null` (используется промпт по умолчанию из LangChain)
+- **Описание**: Пользовательский шаблон промпта для генерации краткого содержания. Промпт должен направлять модель на извлечение самого важного контекста.
 
-**Default Prompt Behavior:**
-The default LangChain prompt instructs the model to:
-- Extract highest quality/most relevant context
-- Focus on information critical to the overall goal
-- Avoid repeating completed actions
-- Return only the extracted context
+**Поведение промпта по умолчанию:**
+Промпт по умолчанию LangChain дает модели следующие инструкции:
+- Извлечь контекст наивысшего качества/наиболее релевантный
+- Сосредоточиться на информации, критически важной для общей цели
+- Избегать повторения завершенных действий
+- Вернуть только извлеченный контекст
 
-## How It Works
+## Как это работает
 
-### Summarization Flow
+### Процесс суммаризации
 
-1. **Monitoring**: Before each model call, the middleware counts tokens in the message history
-2. **Trigger Check**: If any configured threshold is met, summarization is triggered
-3. **Message Partitioning**: Messages are split into:
-   - Messages to summarize (older messages beyond the `keep` threshold)
-   - Messages to preserve (recent messages within the `keep` threshold)
-4. **Summary Generation**: The model generates a concise summary of the older messages
-5. **Context Replacement**: The message history is updated:
-   - All old messages are removed
-   - A single summary message is added
-   - Recent messages are preserved
-6. **AI/Tool Pair Protection**: The system ensures AI messages and their corresponding tool messages stay together
+1. **Мониторинг**: Перед каждым вызовом модели промежуточное ПО (middleware) подсчитывает токены в истории сообщений
+2. **Проверка триггеров**: Если достигнуто любое из настроенных пороговых значений, запускается суммаризация
+3. **Разделение сообщений**: Сообщения разделяются на:
+   - Сообщения для суммаризации (старые сообщения за пределами порога `keep`)
+   - Сообщения для сохранения (недавние сообщения в пределах порога `keep`)
+4. **Генерация краткого содержания**: Модель генерирует краткое содержание старых сообщений
+5. **Замена контекста**: История сообщений обновляется:
+   - Все старые сообщения удаляются
+   - Добавляется одно сообщение с кратким содержанием
+   - Недавние сообщения сохраняются
+6. **Защита пар ИИ/Инструмент**: Система гарантирует, что сообщения ИИ и соответствующие им сообщения инструментов остаются вместе
 
-### Token Counting
+### Подсчет токенов
 
-- Uses approximate token counting based on character count
-- For Anthropic models: ~3.3 characters per token
-- For other models: Uses LangChain's default estimation
-- Can be customized with a custom `token_counter` function
+- Используется приблизительный подсчет токенов на основе количества символов
+- Для моделей Anthropic: ~3.3 символа на токен
+- Для других моделей: Используется оценка по умолчанию из LangChain
+- Можно настроить с помощью пользовательской функции `token_counter`
 
-### Message Preservation
+### Сохранение сообщений
 
-The middleware intelligently preserves message context:
+Middleware интеллектуально сохраняет контекст сообщений:
 
-- **Recent Messages**: Always kept intact based on `keep` configuration
-- **AI/Tool Pairs**: Never split - if a cutoff point falls within tool messages, the system adjusts to keep the entire AI + Tool message sequence together
-- **Summary Format**: Summary is injected as a HumanMessage with the format:
+- **Недавние сообщения**: Всегда сохраняются нетронутыми в соответствии с конфигурацией `keep`
+- **Пары ИИ/Инструмент**: Никогда не разделяются - если точка отсечения попадает внутрь сообщений инструмента, система корректирует ее, чтобы сохранить всю последовательность сообщений ИИ + Инструмент вместе
+- **Формат краткого содержания**: Краткое содержание вставляется как HumanMessage (сообщение пользователя) в формате:
   ```
   Here is a summary of the conversation to date:
 
-  [Generated summary text]
+  [Сгенерированный текст краткого содержания]
   ```
 
-## Best Practices
+## Лучшие практики
 
-### Choosing Trigger Thresholds
+### Выбор пороговых значений (Trigger Thresholds)
 
-1. **Token-based triggers**: Recommended for most use cases
-   - Set to 60-80% of your model's context window
-   - Example: For 8K context, use 4000-6000 tokens
+1. **Триггеры на основе токенов**: Рекомендуются для большинства сценариев использования
+   - Установите на 60-80% от окна контекста вашей модели
+   - Пример: Для контекста 8K используйте 4000-6000 токенов
 
-2. **Message-based triggers**: Useful for controlling conversation length
-   - Good for applications with many short messages
-   - Example: 50-100 messages depending on average message length
+2. **Триггеры на основе сообщений**: Полезны для контроля длины диалога
+   - Подходят для приложений с множеством коротких сообщений
+   - Пример: 50-100 сообщений в зависимости от средней длины сообщения
 
-3. **Fraction-based triggers**: Ideal when using multiple models
-   - Automatically adapts to each model's capacity
-   - Example: 0.8 (80% of model's max input tokens)
+3. **Триггеры на основе доли (фракции)**: Идеально подходят при использовании нескольких моделей
+   - Автоматически адаптируются к емкости каждой модели
+   - Пример: 0.8 (80% от максимального количества входных токенов модели)
 
-### Choosing Retention Policy (`keep`)
+### Выбор политики сохранения (`keep`)
 
-1. **Message-based retention**: Best for most scenarios
-   - Preserves natural conversation flow
-   - Recommended: 15-25 messages
+1. **Сохранение на основе сообщений**: Лучший выбор для большинства сценариев
+   - Сохраняет естественный ход диалога
+   - Рекомендуется: 15-25 сообщений
 
-2. **Token-based retention**: Use when precise control is needed
-   - Good for managing exact token budgets
-   - Recommended: 2000-4000 tokens
+2. **Сохранение на основе токенов**: Используйте, когда нужен точный контроль
+   - Подходит для управления точным бюджетом токенов
+   - Рекомендуется: 2000-4000 токенов
 
-3. **Fraction-based retention**: For multi-model setups
-   - Automatically scales with model capacity
-   - Recommended: 0.2-0.4 (20-40% of max input)
+3. **Сохранение на основе доли (фракции)**: Для установок с несколькими моделями
+   - Автоматически масштабируется вместе с емкостью модели
+   - Рекомендуется: 0.2-0.4 (20-40% от максимального входа)
 
-### Model Selection
+### Выбор модели
 
-- **Recommended**: Use a lightweight, cost-effective model for summaries
-  - Examples: `gpt-4o-mini`, `claude-haiku`, or equivalent
-  - Summaries don't require the most powerful models
-  - Significant cost savings on high-volume applications
+- **Рекомендуется**: Использовать легковесную, экономичную модель для краткого содержания
+  - Примеры: `gpt-4o-mini`, `claude-haiku` или эквивалентные
+  - Для краткого содержания не требуются самые мощные модели
+  - Значительная экономия затрат для высоконагруженных приложений
 
-- **Default**: If `model_name` is `null`, uses the default model
-  - May be more expensive but ensures consistency
-  - Good for simple setups
+- **По умолчанию**: Если `model_name` равно `null`, используется модель по умолчанию
+  - Может быть дороже, но обеспечивает согласованность
+  - Подходит для простых установок
 
-### Optimization Tips
+### Советы по оптимизации
 
-1. **Balance triggers**: Combine token and message triggers for robust handling
+1. **Балансировка триггеров**: Комбинируйте триггеры токенов и сообщений для надежной работы
    ```yaml
    trigger:
      - type: tokens
@@ -220,78 +220,78 @@ The middleware intelligently preserves message context:
        value: 50
    ```
 
-2. **Conservative retention**: Keep more messages initially, adjust based on performance
+2. **Консервативное сохранение**: Изначально сохраняйте больше сообщений, корректируйте в зависимости от производительности
    ```yaml
    keep:
      type: messages
-     value: 25  # Start higher, reduce if needed
+     value: 25  # Начните с большего значения, уменьшите при необходимости
    ```
 
-3. **Trim strategically**: Limit tokens sent to summarization model
+3. **Стратегическая обрезка**: Ограничьте количество токенов, отправляемых в модель суммаризации
    ```yaml
-   trim_tokens_to_summarize: 4000  # Prevents expensive summarization calls
+   trim_tokens_to_summarize: 4000  # Предотвращает дорогостоящие вызовы суммаризации
    ```
 
-4. **Monitor and iterate**: Track summary quality and adjust configuration
+4. **Мониторинг и итерация**: Отслеживайте качество краткого содержания и корректируйте конфигурацию
 
-## Troubleshooting
+## Устранение неполадок
 
-### Summary Quality Issues
+### Проблемы с качеством краткого содержания
 
-**Problem**: Summaries losing important context
+**Проблема**: В кратком содержании теряется важный контекст
 
-**Solutions**:
-1. Increase `keep` value to preserve more messages
-2. Decrease trigger thresholds to summarize earlier
-3. Customize `summary_prompt` to emphasize key information
-4. Use a more capable model for summarization
+**Решения**:
+1. Увеличьте значение `keep`, чтобы сохранить больше сообщений
+2. Уменьшите пороговые значения триггеров, чтобы суммаризировать раньше
+3. Настройте `summary_prompt`, чтобы сделать акцент на ключевой информации
+4. Используйте более мощную модель для суммаризации
 
-### Performance Issues
+### Проблемы с производительностью
 
-**Problem**: Summarization calls taking too long
+**Проблема**: Вызовы суммаризации занимают слишком много времени
 
-**Solutions**:
-1. Use a faster model for summaries (e.g., `gpt-4o-mini`)
-2. Reduce `trim_tokens_to_summarize` to send less context
-3. Increase trigger thresholds to summarize less frequently
+**Решения**:
+1. Используйте более быструю модель для суммаризации (например, `gpt-4o-mini`)
+2. Уменьшите `trim_tokens_to_summarize`, чтобы отправлять меньше контекста
+3. Увеличьте пороговые значения триггеров, чтобы суммаризировать реже
 
-### Token Limit Errors
+### Ошибки лимита токенов
 
-**Problem**: Still hitting token limits despite summarization
+**Проблема**: Лимиты токенов все равно достигаются, несмотря на суммаризацию
 
-**Solutions**:
-1. Lower trigger thresholds to summarize earlier
-2. Reduce `keep` value to preserve fewer messages
-3. Check if individual messages are very large
-4. Consider using fraction-based triggers
+**Решения**:
+1. Снизьте пороговые значения триггеров, чтобы суммаризировать раньше
+2. Уменьшите значение `keep`, чтобы сохранять меньше сообщений
+3. Проверьте, не являются ли отдельные сообщения слишком большими
+4. Рассмотрите возможность использования триггеров на основе доли (фракции)
 
-## Implementation Details
+## Детали реализации
 
-### Code Structure
+### Структура кода
 
-- **Configuration**: `packages/harness/yandex-deep-research/config/summarization_config.py`
-- **Integration**: `packages/harness/yandex-deep-research/agents/lead_agent/agent.py`
-- **Middleware**: Uses `langchain.agents.middleware.SummarizationMiddleware`
+- **Конфигурация**: `packages/harness/yandex-deep-research/config/summarization_config.py`
+- **Интеграция**: `packages/harness/yandex-deep-research/agents/lead_agent/agent.py`
+- **Middleware**: Использует `langchain.agents.middleware.SummarizationMiddleware`
 
-### Middleware Order
+### Порядок Middleware
 
-Summarization runs after ThreadData and Sandbox initialization but before Title and Clarification:
+Суммаризация выполняется после инициализации ThreadData и Sandbox, но до Title и Clarification:
 
 1. ThreadDataMiddleware
 2. SandboxMiddleware
-3. **SummarizationMiddleware** ← Runs here
+3. **SummarizationMiddleware** ← Выполняется здесь
 4. TitleMiddleware
 5. ClarificationMiddleware
 
-### State Management
+### Управление состоянием
 
-- Summarization is stateless - configuration is loaded once at startup
-- Summaries are added as regular messages in the conversation history
-- The checkpointer persists the summarized history automatically
+- Суммаризация работает без сохранения состояния (stateless) - конфигурация загружается один раз при запуске
+- Краткие содержания добавляются как обычные сообщения в историю диалога
+- Checkpointer автоматически сохраняет суммированную историю
 
-## Example Configurations
+## Примеры конфигураций
 
-### Minimal Configuration
+### Минимальная конфигурация
 ```yaml
 summarization:
   enabled: true
@@ -303,11 +303,11 @@ summarization:
     value: 20
 ```
 
-### Production Configuration
+### Производственная конфигурация
 ```yaml
 summarization:
   enabled: true
-  model_name: gpt-4o-mini  # Lightweight model for cost efficiency
+  model_name: gpt-4o-mini  # Легковесная модель для экономии средств
   trigger:
     - type: tokens
       value: 6000
@@ -319,35 +319,35 @@ summarization:
   trim_tokens_to_summarize: 5000
 ```
 
-### Multi-Model Configuration
+### Конфигурация для нескольких моделей
 ```yaml
 summarization:
   enabled: true
   model_name: gpt-4o-mini
   trigger:
     type: fraction
-    value: 0.7  # 70% of model's max input
+    value: 0.7  # 70% от максимального входа модели
   keep:
     type: fraction
-    value: 0.3  # Keep 30% of max input
+    value: 0.3  # Сохранить 30% от максимального входа
   trim_tokens_to_summarize: 4000
 ```
 
-### Conservative Configuration (High Quality)
+### Консервативная конфигурация (Высокое качество)
 ```yaml
 summarization:
   enabled: true
-  model_name: gpt-4  # Use full model for high-quality summaries
+  model_name: gpt-4  # Использовать полную модель для высококачественного краткого содержания
   trigger:
     type: tokens
     value: 8000
   keep:
     type: messages
-    value: 40  # Keep more context
-  trim_tokens_to_summarize: null  # No trimming
+    value: 40  # Сохранить больше контекста
+  trim_tokens_to_summarize: null  # Без обрезки
 ```
 
-## References
+## Ссылки
 
-- [LangChain Summarization Middleware Documentation](https://docs.langchain.com/oss/python/langchain/middleware/built-in#summarization)
-- [LangChain Source Code](https://github.com/langchain-ai/langchain)
+- [Документация LangChain Summarization Middleware](https://docs.langchain.com/oss/python/langchain/middleware/built-in#summarization)
+- [Исходный код LangChain](https://github.com/langchain-ai/langchain)

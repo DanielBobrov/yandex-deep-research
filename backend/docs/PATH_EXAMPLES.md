@@ -1,87 +1,87 @@
-# 文件路径使用示例
+# Примеры использования путей файлов
 
-## 三种路径类型
+## Три типа путей
 
-Yandex Deep Research 的文件上传系统返回三种不同的路径，每种路径用于不同的场景：
+Система загрузки файлов Yandex Deep Research возвращает три различных типа путей, каждый из которых используется для разных сценариев:
 
-### 1. 实际文件系统路径 (path)
+### 1. Фактический путь файловой системы (path)
 
 ```
 .yandex-deep-research/threads/{thread_id}/user-data/uploads/document.pdf
 ```
 
-**用途：**
-- 文件在服务器文件系统中的实际位置
-- 相对于 `backend/` 目录
-- 用于直接文件系统访问、备份、调试等
+**Использование:**
+- Фактическое расположение файла в файловой системе сервера
+- Относительно директории `backend/`
+- Используется для прямого доступа к файловой системе, резервного копирования, отладки и т.д.
 
-**示例：**
+**Пример:**
 ```python
-# Python 代码中直接访问
+# Прямой доступ в коде Python
 from pathlib import Path
 file_path = Path("backend/.yandex-deep-research/threads/abc123/user-data/uploads/document.pdf")
 content = file_path.read_bytes()
 ```
 
-### 2. 虚拟路径 (virtual_path)
+### 2. Виртуальный путь (virtual_path)
 
 ```
 /mnt/user-data/uploads/document.pdf
 ```
 
-**用途：**
-- Agent 在沙箱环境中使用的路径
-- 沙箱系统会自动映射到实际路径
-- Agent 的所有文件操作工具都使用这个路径
+**Использование:**
+- Путь, используемый агентом в среде песочницы
+- Система песочницы автоматически отображает его на фактический путь
+- Все инструменты агента для работы с файлами используют этот путь
 
-**示例：**
-Agent 在对话中使用：
+**Пример:**
+Использование агентом в диалоге:
 ```python
-# Agent 使用 read_file 工具
+# Агент использует инструмент read_file
 read_file(path="/mnt/user-data/uploads/document.pdf")
 
-# Agent 使用 bash 工具
+# Агент использует инструмент bash
 bash(command="cat /mnt/user-data/uploads/document.pdf")
 ```
 
-### 3. HTTP 访问 URL (artifact_url)
+### 3. URL для HTTP доступа (artifact_url)
 
 ```
 /api/threads/{thread_id}/artifacts/mnt/user-data/uploads/document.pdf
 ```
 
-**用途：**
-- 前端通过 HTTP 访问文件
-- 用于下载、预览文件
-- 可以直接在浏览器中打开
+**Использование:**
+- Фронтенд получает доступ к файлу через HTTP
+- Используется для скачивания, предварительного просмотра файлов
+- Можно открыть непосредственно в браузере
 
-**示例：**
+**Пример:**
 ```typescript
-// 前端 TypeScript/JavaScript 代码
+// Код TypeScript/JavaScript на фронтенде
 const threadId = 'abc123';
 const filename = 'document.pdf';
 
-// 下载文件
+// Скачать файл
 const downloadUrl = `/api/threads/${threadId}/artifacts/mnt/user-data/uploads/${filename}?download=true`;
 window.open(downloadUrl);
 
-// 在新窗口预览
+// Предварительный просмотр в новом окне
 const viewUrl = `/api/threads/${threadId}/artifacts/mnt/user-data/uploads/${filename}`;
 window.open(viewUrl, '_blank');
 
-// 使用 fetch API 获取
+// Получение с использованием fetch API
 const response = await fetch(viewUrl);
 const blob = await response.blob();
 ```
 
-## 完整使用流程示例
+## Пример полного процесса использования
 
-### 场景：前端上传文件并让 Agent 处理
+### Сценарий: Фронтенд загружает файл и позволяет агенту его обработать
 
 ```typescript
-// 1. 前端上传文件
+// 1. Фронтенд загружает файл
 async function uploadAndProcess(threadId: string, file: File) {
-  // 上传文件
+  // Загрузка файла
   const formData = new FormData();
   formData.append('files', file);
 
@@ -96,7 +96,7 @@ async function uploadAndProcess(threadId: string, file: File) {
   const uploadData = await uploadResponse.json();
   const fileInfo = uploadData.files[0];
 
-  console.log('文件信息：', fileInfo);
+  console.log('Информация о файле：', fileInfo);
   // {
   //   filename: "report.pdf",
   //   path: ".yandex-deep-research/threads/abc123/user-data/uploads/report.pdf",
@@ -108,19 +108,19 @@ async function uploadAndProcess(threadId: string, file: File) {
   //   markdown_artifact_url: "/api/threads/abc123/artifacts/mnt/user-data/uploads/report.md"
   // }
 
-  // 2. 发送消息给 Agent
-  await sendMessage(threadId, "请分析刚上传的 PDF 文件");
+  // 2. Отправка сообщения агенту
+  await sendMessage(threadId, "Пожалуйста, проанализируйте только что загруженный PDF-файл");
 
-  // Agent 会自动看到文件列表，包含：
-  // - report.pdf (虚拟路径: /mnt/user-data/uploads/report.pdf)
-  // - report.md (虚拟路径: /mnt/user-data/uploads/report.md)
+  // Агент автоматически увидит список файлов, включая:
+  // - report.pdf (виртуальный путь: /mnt/user-data/uploads/report.pdf)
+  // - report.md (виртуальный путь: /mnt/user-data/uploads/report.md)
 
-  // 3. 前端可以直接访问转换后的 Markdown
+  // 3. Фронтенд может получить прямой доступ к преобразованному Markdown
   const mdResponse = await fetch(fileInfo.markdown_artifact_url);
   const markdownContent = await mdResponse.text();
-  console.log('Markdown 内容：', markdownContent);
+  console.log('Содержимое Markdown：', markdownContent);
 
-  // 4. 或者下载原始 PDF
+  // 4. Или скачать оригинальный PDF
   const downloadLink = document.createElement('a');
   downloadLink.href = fileInfo.artifact_url + '?download=true';
   downloadLink.download = fileInfo.filename;
@@ -128,51 +128,51 @@ async function uploadAndProcess(threadId: string, file: File) {
 }
 ```
 
-## 路径转换表
+## Таблица преобразования путей
 
-| 场景 | 使用的路径类型 | 示例 |
+| Сценарий | Используемый тип пути | Пример |
 |------|---------------|------|
-| 服务器后端代码直接访问 | `path` | `.yandex-deep-research/threads/abc123/user-data/uploads/file.pdf` |
-| Agent 工具调用 | `virtual_path` | `/mnt/user-data/uploads/file.pdf` |
-| 前端下载/预览 | `artifact_url` | `/api/threads/abc123/artifacts/mnt/user-data/uploads/file.pdf` |
-| 备份脚本 | `path` | `.yandex-deep-research/threads/abc123/user-data/uploads/file.pdf` |
-| 日志记录 | `path` | `.yandex-deep-research/threads/abc123/user-data/uploads/file.pdf` |
+| Прямой доступ серверного кода (backend) | `path` | `.yandex-deep-research/threads/abc123/user-data/uploads/file.pdf` |
+| Вызов инструмента агента | `virtual_path` | `/mnt/user-data/uploads/file.pdf` |
+| Фронтенд скачивание/предпросмотр | `artifact_url` | `/api/threads/abc123/artifacts/mnt/user-data/uploads/file.pdf` |
+| Скрипт резервного копирования | `path` | `.yandex-deep-research/threads/abc123/user-data/uploads/file.pdf` |
+| Логирование | `path` | `.yandex-deep-research/threads/abc123/user-data/uploads/file.pdf` |
 
-## 代码示例集合
+## Набор примеров кода
 
-### Python - 后端处理
+### Python - Обработка на бэкенде
 
 ```python
 from pathlib import Path
 from yandex-deep-research.agents.middlewares.thread_data_middleware import THREAD_DATA_BASE_DIR
 
 def process_uploaded_file(thread_id: str, filename: str):
-    # 使用实际路径
+    # Использование фактического пути
     base_dir = Path.cwd() / THREAD_DATA_BASE_DIR / thread_id / "user-data" / "uploads"
     file_path = base_dir / filename
 
-    # 直接读取
+    # Прямое чтение
     with open(file_path, 'rb') as f:
         content = f.read()
 
     return content
 ```
 
-### JavaScript - 前端访问
+### JavaScript - Доступ с фронтенда
 
 ```javascript
-// 列出已上传的文件
+// Получение списка загруженных файлов
 async function listUploadedFiles(threadId) {
   const response = await fetch(`/api/threads/${threadId}/uploads/list`);
   const data = await response.json();
 
-  // 为每个文件创建下载链接
+  // Создание ссылок на скачивание для каждого файла
   data.files.forEach(file => {
-    console.log(`文件: ${file.filename}`);
-    console.log(`下载: ${file.artifact_url}?download=true`);
-    console.log(`预览: ${file.artifact_url}`);
+    console.log(`Файл: ${file.filename}`);
+    console.log(`Скачать: ${file.artifact_url}?download=true`);
+    console.log(`Предпросмотр: ${file.artifact_url}`);
 
-    // 如果是文档，还有 Markdown 版本
+    // Если это документ, также есть Markdown версия
     if (file.markdown_artifact_url) {
       console.log(`Markdown: ${file.markdown_artifact_url}`);
     }
@@ -181,7 +181,7 @@ async function listUploadedFiles(threadId) {
   return data.files;
 }
 
-// 删除文件
+// Удаление файла
 async function deleteFile(threadId, filename) {
   const response = await fetch(
     `/api/threads/${threadId}/uploads/${filename}`,
@@ -191,7 +191,7 @@ async function deleteFile(threadId, filename) {
 }
 ```
 
-### React 组件示例
+### Пример компонента React
 
 ```tsx
 import React, { useState, useEffect } from 'react';
@@ -234,14 +234,14 @@ function FileUploadList({ threadId }: { threadId: string }) {
       body: formData
     });
 
-    fetchFiles(); // 刷新列表
+    fetchFiles(); // Обновить список
   }
 
   async function handleDelete(filename: string) {
     await fetch(`/api/threads/${threadId}/uploads/${filename}`, {
       method: 'DELETE'
     });
-    fetchFiles(); // 刷新列表
+    fetchFiles(); // Обновить список
   }
 
   return (
@@ -252,12 +252,12 @@ function FileUploadList({ threadId }: { threadId: string }) {
         {files.map(file => (
           <li key={file.filename}>
             <span>{file.filename}</span>
-            <a href={file.artifact_url} target="_blank">预览</a>
-            <a href={`${file.artifact_url}?download=true`}>下载</a>
+            <a href={file.artifact_url} target="_blank">Предпросмотр</a>
+            <a href={`${file.artifact_url}?download=true`}>Скачать</a>
             {file.markdown_artifact_url && (
               <a href={file.markdown_artifact_url} target="_blank">Markdown</a>
             )}
-            <button onClick={() => handleDelete(file.filename)}>删除</button>
+            <button onClick={() => handleDelete(file.filename)}>Удалить</button>
           </li>
         ))}
       </ul>
@@ -266,24 +266,24 @@ function FileUploadList({ threadId }: { threadId: string }) {
 }
 ```
 
-## 注意事项
+## Примечания
 
-1. **路径安全性**
-   - 实际路径（`path`）包含线程 ID，确保隔离
-   - API 会验证路径，防止目录遍历攻击
-   - 前端不应直接使用 `path`，而应使用 `artifact_url`
+1. **Безопасность путей**
+   - Фактический путь (`path`) содержит ID потока, обеспечивая изоляцию.
+   - API проверяет пути для предотвращения атак обхода каталога.
+   - Фронтенд не должен использовать `path` напрямую, вместо этого следует использовать `artifact_url`.
 
-2. **Agent 使用**
-   - Agent 只能看到和使用 `virtual_path`
-   - 沙箱系统自动映射到实际路径
-   - Agent 不需要知道实际的文件系统结构
+2. **Использование агентом**
+   - Агент может видеть и использовать только `virtual_path`.
+   - Система песочницы автоматически отображает его на фактический путь.
+   - Агенту не нужно знать фактическую структуру файловой системы.
 
-3. **前端集成**
-   - 始终使用 `artifact_url` 访问文件
-   - 不要尝试直接访问文件系统路径
-   - 使用 `?download=true` 参数强制下载
+3. **Интеграция с фронтендом**
+   - Всегда используйте `artifact_url` для доступа к файлам.
+   - Не пытайтесь получить прямой доступ к путям файловой системы.
+   - Используйте параметр `?download=true` для принудительного скачивания.
 
-4. **Markdown 转换**
-   - 转换成功时，会返回额外的 `markdown_*` 字段
-   - 建议优先使用 Markdown 版本（更易处理）
-   - 原始文件始终保留
+4. **Конвертация в Markdown**
+   - При успешной конвертации возвращаются дополнительные поля `markdown_*`.
+   - Рекомендуется отдавать предпочтение версии Markdown (ее легче обрабатывать).
+   - Исходный файл всегда сохраняется.

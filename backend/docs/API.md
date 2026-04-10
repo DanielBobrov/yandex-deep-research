@@ -1,39 +1,39 @@
-# API Reference
+# Справочник API
 
-This document provides a complete reference for the Yandex Deep Research backend APIs.
+В этом документе представлен полный справочник по API бэкенда Yandex Deep Research.
 
-## Overview
+## Обзор
 
-Yandex Deep Research backend exposes two sets of APIs:
+Бэкенд Yandex Deep Research предоставляет два набора API:
 
-1. **LangGraph API** - Agent interactions, threads, and streaming (`/api/langgraph/*`)
-2. **Gateway API** - Models, MCP, skills, uploads, and artifacts (`/api/*`)
+1. **LangGraph API** - Взаимодействие с агентами, треды (потоки) и потоковая передача (streaming) (`/api/langgraph/*`)
+2. **Gateway API** - Модели, MCP, навыки, загрузки и артефакты (`/api/*`)
 
-All APIs are accessed through the Nginx reverse proxy at port 2026.
+Доступ ко всем API осуществляется через обратный прокси-сервер Nginx на порту 2026.
 
 ## LangGraph API
 
-Base URL: `/api/langgraph`
+Базовый URL: `/api/langgraph`
 
-The LangGraph API is provided by the LangGraph server and follows the LangGraph SDK conventions.
+LangGraph API предоставляется сервером LangGraph и следует соглашениям LangGraph SDK.
 
-### Threads
+### Треды (Threads)
 
-#### Create Thread
+#### Создание треда
 
 ```http
 POST /api/langgraph/threads
 Content-Type: application/json
 ```
 
-**Request Body:**
+**Тело запроса:**
 ```json
 {
   "metadata": {}
 }
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "thread_id": "abc123",
@@ -42,13 +42,13 @@ Content-Type: application/json
 }
 ```
 
-#### Get Thread State
+#### Получение состояния треда
 
 ```http
 GET /api/langgraph/threads/{thread_id}/state
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "values": {
@@ -63,18 +63,18 @@ GET /api/langgraph/threads/{thread_id}/state
 }
 ```
 
-### Runs
+### Запуски (Runs)
 
-#### Create Run
+#### Создание запуска
 
-Execute the agent with input.
+Запуск агента с входными данными.
 
 ```http
 POST /api/langgraph/threads/{thread_id}/runs
 Content-Type: application/json
 ```
 
-**Request Body:**
+**Тело запроса:**
 ```json
 {
   "input": {
@@ -96,16 +96,16 @@ Content-Type: application/json
 }
 ```
 
-**Stream Mode Compatibility:**
-- Use: `values`, `messages-tuple`, `custom`, `updates`, `events`, `debug`, `tasks`, `checkpoints`
-- Do not use: `tools` (deprecated/invalid in current `langgraph-api` and will trigger schema validation errors)
+**Совместимость режимов потоковой передачи (Stream Mode):**
+- Использовать: `values`, `messages-tuple`, `custom`, `updates`, `events`, `debug`, `tasks`, `checkpoints`
+- Не использовать: `tools` (устарело/недействительно в текущем `langgraph-api` и вызовет ошибки валидации схемы)
 
-**Configurable Options:**
-- `model_name` (string): Override the default model
-- `thinking_enabled` (boolean): Enable extended thinking for supported models
-- `is_plan_mode` (boolean): Enable TodoList middleware for task tracking
+**Настраиваемые параметры (Configurable Options):**
+- `model_name` (строка): Переопределить модель по умолчанию
+- `thinking_enabled` (логическое): Включить расширенное мышление для поддерживаемых моделей
+- `is_plan_mode` (логическое): Включить промежуточное ПО (middleware) TodoList для отслеживания задач
 
-**Response:** Server-Sent Events (SSE) stream
+**Ответ:** Поток событий сервера (Server-Sent Events, SSE)
 
 ```
 event: values
@@ -118,13 +118,13 @@ event: end
 data: {}
 ```
 
-#### Get Run History
+#### Получение истории запусков
 
 ```http
 GET /api/langgraph/threads/{thread_id}/runs
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "runs": [
@@ -137,34 +137,34 @@ GET /api/langgraph/threads/{thread_id}/runs
 }
 ```
 
-#### Stream Run
+#### Потоковый запуск (Stream Run)
 
-Stream responses in real-time.
+Потоковая передача ответов в реальном времени.
 
 ```http
 POST /api/langgraph/threads/{thread_id}/runs/stream
 Content-Type: application/json
 ```
 
-Same request body as Create Run. Returns SSE stream.
+Тело запроса такое же, как и при создании запуска (Create Run). Возвращает поток SSE.
 
 ---
 
 ## Gateway API
 
-Base URL: `/api`
+Базовый URL: `/api`
 
-### Models
+### Модели (Models)
 
-#### List Models
+#### Список моделей
 
-Get all available LLM models from configuration.
+Получение всех доступных моделей LLM из конфигурации.
 
 ```http
 GET /api/models
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "models": [
@@ -190,13 +190,13 @@ GET /api/models
 }
 ```
 
-#### Get Model Details
+#### Детали модели
 
 ```http
 GET /api/models/{model_name}
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "name": "gpt-4",
@@ -208,17 +208,17 @@ GET /api/models/{model_name}
 }
 ```
 
-### MCP Configuration
+### Конфигурация MCP
 
-#### Get MCP Config
+#### Получение конфигурации MCP
 
-Get current MCP server configurations.
+Получение текущих конфигураций серверов MCP.
 
 ```http
 GET /api/mcp/config
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "mcpServers": {
@@ -243,16 +243,16 @@ GET /api/mcp/config
 }
 ```
 
-#### Update MCP Config
+#### Обновление конфигурации MCP
 
-Update MCP server configurations.
+Обновление конфигураций серверов MCP.
 
 ```http
 PUT /api/mcp/config
 Content-Type: application/json
 ```
 
-**Request Body:**
+**Тело запроса:**
 ```json
 {
   "mcpServers": {
@@ -270,7 +270,7 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "success": true,
@@ -278,17 +278,17 @@ Content-Type: application/json
 }
 ```
 
-### Skills
+### Навыки (Skills)
 
-#### List Skills
+#### Список навыков
 
-Get all available skills.
+Получение всех доступных навыков.
 
 ```http
 GET /api/skills
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "skills": [
@@ -301,283 +301,6 @@ GET /api/skills
       "path": "public/pdf-processing"
     },
     {
-      "name": "frontend-design",
-      "display_name": "Frontend Design",
-      "description": "Design and build frontend interfaces",
-      "enabled": false,
-      "license": "MIT",
-      "path": "public/frontend-design"
-    }
-  ]
-}
-```
-
-#### Get Skill Details
-
-```http
-GET /api/skills/{skill_name}
-```
-
-**Response:**
-```json
-{
-  "name": "pdf-processing",
-  "display_name": "PDF Processing",
-  "description": "Handle PDF documents efficiently",
-  "enabled": true,
-  "license": "MIT",
-  "path": "public/pdf-processing",
-  "allowed_tools": ["read_file", "write_file", "bash"],
-  "content": "# PDF Processing\n\nInstructions for the agent..."
-}
-```
-
-#### Enable Skill
-
-```http
-POST /api/skills/{skill_name}/enable
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Skill 'pdf-processing' enabled"
-}
-```
-
-#### Disable Skill
-
-```http
-POST /api/skills/{skill_name}/disable
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Skill 'pdf-processing' disabled"
-}
-```
-
-#### Install Skill
-
-Install a skill from a `.skill` file.
-
-```http
-POST /api/skills/install
-Content-Type: multipart/form-data
-```
-
-**Request Body:**
-- `file`: The `.skill` file to install
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Skill 'my-skill' installed successfully",
-  "skill": {
-    "name": "my-skill",
-    "display_name": "My Skill",
-    "path": "custom/my-skill"
-  }
-}
-```
-
-### File Uploads
-
-#### Upload Files
-
-Upload one or more files to a thread.
-
-```http
-POST /api/threads/{thread_id}/uploads
-Content-Type: multipart/form-data
-```
-
-**Request Body:**
-- `files`: One or more files to upload
-
-**Response:**
-```json
-{
-  "success": true,
-  "files": [
-    {
-      "filename": "document.pdf",
-      "size": 1234567,
-      "path": ".yandex-deep-research/threads/abc123/user-data/uploads/document.pdf",
-      "virtual_path": "/mnt/user-data/uploads/document.pdf",
-      "artifact_url": "/api/threads/abc123/artifacts/mnt/user-data/uploads/document.pdf",
-      "markdown_file": "document.md",
-      "markdown_path": ".yandex-deep-research/threads/abc123/user-data/uploads/document.md",
-      "markdown_virtual_path": "/mnt/user-data/uploads/document.md",
-      "markdown_artifact_url": "/api/threads/abc123/artifacts/mnt/user-data/uploads/document.md"
-    }
-  ],
-  "message": "Successfully uploaded 1 file(s)"
-}
-```
-
-**Supported Document Formats** (auto-converted to Markdown):
-- PDF (`.pdf`)
-- PowerPoint (`.ppt`, `.pptx`)
-- Excel (`.xls`, `.xlsx`)
-- Word (`.doc`, `.docx`)
-
-#### List Uploaded Files
-
-```http
-GET /api/threads/{thread_id}/uploads/list
-```
-
-**Response:**
-```json
-{
-  "files": [
-    {
-      "filename": "document.pdf",
-      "size": 1234567,
-      "path": ".yandex-deep-research/threads/abc123/user-data/uploads/document.pdf",
-      "virtual_path": "/mnt/user-data/uploads/document.pdf",
-      "artifact_url": "/api/threads/abc123/artifacts/mnt/user-data/uploads/document.pdf",
-      "extension": ".pdf",
-      "modified": 1705997600.0
-    }
-  ],
-  "count": 1
-}
-```
-
-#### Delete File
-
-```http
-DELETE /api/threads/{thread_id}/uploads/{filename}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Deleted document.pdf"
-}
-```
-
-### Thread Cleanup
-
-Remove Yandex Deep Research-managed local thread files under `.yandex-deep-research/threads/{thread_id}` after the LangGraph thread itself has been deleted.
-
-```http
-DELETE /api/threads/{thread_id}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Deleted local thread data for abc123"
-}
-```
-
-**Error behavior:**
-- `422` for invalid thread IDs
-- `500` returns a generic `{"detail": "Failed to delete local thread data."}` response while full exception details stay in server logs
-
-### Artifacts
-
-#### Get Artifact
-
-Download or view an artifact generated by the agent.
-
-```http
-GET /api/threads/{thread_id}/artifacts/{path}
-```
-
-**Path Examples:**
-- `/api/threads/abc123/artifacts/mnt/user-data/outputs/result.txt`
-- `/api/threads/abc123/artifacts/mnt/user-data/uploads/document.pdf`
-
-**Query Parameters:**
-- `download` (boolean): If `true`, force download with Content-Disposition header
-
-**Response:** File content with appropriate Content-Type
-
----
-
-## Error Responses
-
-All APIs return errors in a consistent format:
-
-```json
-{
-  "detail": "Error message describing what went wrong"
-}
-```
-
-**HTTP Status Codes:**
-- `400` - Bad Request: Invalid input
-- `404` - Not Found: Resource not found
-- `422` - Validation Error: Request validation failed
-- `500` - Internal Server Error: Server-side error
-
----
-
-## Authentication
-
-Currently, Yandex Deep Research does not implement authentication. All APIs are accessible without credentials.
-
-Note: This is about Yandex Deep Research API authentication. MCP outbound connections can still use OAuth for configured HTTP/SSE MCP servers.
-
-For production deployments, it is recommended to:
-1. Use Nginx for basic auth or OAuth integration
-2. Deploy behind a VPN or private network
-3. Implement custom authentication middleware
-
----
-
-## Rate Limiting
-
-No rate limiting is implemented by default. For production deployments, configure rate limiting in Nginx:
-
-```nginx
-limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-
-location /api/ {
-    limit_req zone=api burst=20 nodelay;
-    proxy_pass http://backend;
-}
-```
-
----
-
-## WebSocket Support
-
-The LangGraph server supports WebSocket connections for real-time streaming. Connect to:
-
-```
-ws://localhost:2026/api/langgraph/threads/{thread_id}/runs/stream
-```
-
----
-
-## SDK Usage
-
-### Python (LangGraph SDK)
-
-```python
-from langgraph_sdk import get_client
-
-client = get_client(url="http://localhost:2026/api/langgraph")
-
-# Create thread
-thread = await client.threads.create()
-
-# Run agent
-async for event in client.runs.stream(
-    thread["thread_id"],
-    "lead_agent",
-    input={"messages": [{"role": "user", "content": "Hello"}]},
     config={"configurable": {"model_name": "gpt-4"}},
     stream_mode=["values", "messages-tuple", "custom"],
 ):
@@ -587,12 +310,12 @@ async for event in client.runs.stream(
 ### JavaScript/TypeScript
 
 ```typescript
-// Using fetch for Gateway API
+// Использование fetch для Gateway API
 const response = await fetch('/api/models');
 const data = await response.json();
 console.log(data.models);
 
-// Using EventSource for streaming
+// Использование EventSource для потоковой передачи
 const eventSource = new EventSource(
   `/api/langgraph/threads/${threadId}/runs/stream`
 );
@@ -601,23 +324,23 @@ eventSource.onmessage = (event) => {
 };
 ```
 
-### cURL Examples
+### Примеры cURL
 
 ```bash
-# List models
+# Список моделей
 curl http://localhost:2026/api/models
 
-# Get MCP config
+# Получение конфигурации MCP
 curl http://localhost:2026/api/mcp/config
 
-# Upload file
+# Загрузка файла
 curl -X POST http://localhost:2026/api/threads/abc123/uploads \
   -F "files=@document.pdf"
 
-# Enable skill
+# Включение навыка
 curl -X POST http://localhost:2026/api/skills/pdf-processing/enable
 
-# Create thread and run agent
+# Создание треда и запуск агента
 curl -X POST http://localhost:2026/api/langgraph/threads \
   -H "Content-Type: application/json" \
   -d '{}'

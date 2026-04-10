@@ -1,92 +1,92 @@
-# Setup Guide
+# Руководство по установке
 
-Quick setup instructions for Yandex Deep Research.
+Краткие инструкции по установке Yandex Deep Research.
 
-## Configuration Setup
+## Настройка конфигурации
 
-Yandex Deep Research uses a YAML configuration file that should be placed in the **project root directory**.
+Yandex Deep Research использует файл конфигурации YAML, который должен быть размещен в **корневой директории проекта**.
 
-### Steps
+### Шаги
 
-1. **Navigate to project root**:
+1. **Перейдите в корень проекта**:
    ```bash
    cd /path/to/yandex-deep-research
    ```
 
-2. **Copy example configuration**:
+2. **Скопируйте пример конфигурации**:
    ```bash
    cp config.example.yaml config.yaml
    ```
 
-3. **Edit configuration**:
+3. **Отредактируйте конфигурацию**:
    ```bash
-   # Option A: Set environment variables (recommended)
+   # Вариант А: Задать переменные окружения (рекомендуется)
    export OPENAI_API_KEY="your-key-here"
 
-   # Option B: Edit config.yaml directly
-   vim config.yaml  # or your preferred editor
+   # Вариант Б: Отредактировать config.yaml напрямую
+   vim config.yaml  # или ваш любимый редактор
    ```
 
-4. **Verify configuration**:
+4. **Проверьте конфигурацию**:
    ```bash
    cd backend
-   python -c "from yandex-deep-research.config import get_app_config; print('✓ Config loaded:', get_app_config().models[0].name)"
+   python -c "from yandex-deep-research.config import get_app_config; print('✓ Конфигурация загружена:', get_app_config().models[0].name)"
    ```
 
-## Important Notes
+## Важные примечания
 
-- **Location**: `config.yaml` should be in `yandex-deep-research/` (project root), not `yandex-deep-research/backend/`
-- **Git**: `config.yaml` is automatically ignored by git (contains secrets)
-- **Priority**: If both `backend/config.yaml` and `../config.yaml` exist, backend version takes precedence
+- **Расположение**: `config.yaml` должен находиться в `yandex-deep-research/` (в корне проекта), а не в `yandex-deep-research/backend/`
+- **Git**: `config.yaml` автоматически игнорируется git (так как содержит секреты)
+- **Приоритет**: Если существуют и `backend/config.yaml`, и `../config.yaml`, версия из backend имеет приоритет
 
-## Configuration File Locations
+## Расположение файлов конфигурации
 
-The backend searches for `config.yaml` in this order:
+Бэкенд ищет `config.yaml` в следующем порядке:
 
-1. `DEER_FLOW_CONFIG_PATH` environment variable (if set)
-2. `backend/config.yaml` (current directory when running from backend/)
-3. `yandex-deep-research/config.yaml` (parent directory - **recommended location**)
+1. Переменная окружения `DEER_FLOW_CONFIG_PATH` (если задана)
+2. `backend/config.yaml` (текущая директория при запуске из backend/)
+3. `yandex-deep-research/config.yaml` (родительская директория - **рекомендуемое расположение**)
 
-**Recommended**: Place `config.yaml` in project root (`yandex-deep-research/config.yaml`).
+**Рекомендуется**: Поместите `config.yaml` в корень проекта (`yandex-deep-research/config.yaml`).
 
-## Sandbox Setup (Optional but Recommended)
+## Настройка песочницы (Опционально, но рекомендуется)
 
-If you plan to use Docker/Container-based sandbox (configured in `config.yaml` under `sandbox.use: yandex-deep-research.community.aio_sandbox:AioSandboxProvider`), it's highly recommended to pre-pull the container image:
+Если вы планируете использовать песочницу на основе Docker/контейнеров (настраивается в `config.yaml` в разделе `sandbox.use: yandex-deep-research.community.aio_sandbox:AioSandboxProvider`), настоятельно рекомендуется заранее загрузить образ контейнера:
 
 ```bash
-# From project root
+# Из корня проекта
 make setup-sandbox
 ```
 
-**Why pre-pull?**
-- The sandbox image (~500MB+) is pulled on first use, causing a long wait
-- Pre-pulling provides clear progress indication
-- Avoids confusion when first using the agent
+**Зачем загружать заранее?**
+- Образ песочницы (~500 МБ+) скачивается при первом использовании, вызывая долгое ожидание
+- Предварительная загрузка дает четкую индикацию прогресса
+- Позволяет избежать путаницы при первом использовании агента
 
-If you skip this step, the image will be automatically pulled on first agent execution, which may take several minutes depending on your network speed.
+Если вы пропустите этот шаг, образ будет автоматически загружен при первом запуске агента, что может занять несколько минут в зависимости от скорости вашей сети.
 
-## Troubleshooting
+## Устранение неполадок
 
-### Config file not found
+### Файл конфигурации не найден
 
 ```bash
-# Check where the backend is looking
+# Проверьте, где бэкенд ищет файл
 cd yandex-deep-research/backend
 python -c "from yandex-deep-research.config.app_config import AppConfig; print(AppConfig.resolve_config_path())"
 ```
 
-If it can't find the config:
-1. Ensure you've copied `config.example.yaml` to `config.yaml`
-2. Verify you're in the correct directory
-3. Check the file exists: `ls -la ../config.yaml`
+Если файл конфигурации не найден:
+1. Убедитесь, что вы скопировали `config.example.yaml` в `config.yaml`
+2. Убедитесь, что вы находитесь в правильной директории
+3. Проверьте существование файла: `ls -la ../config.yaml`
 
-### Permission denied
+### В доступе отказано
 
 ```bash
-chmod 600 ../config.yaml  # Protect sensitive configuration
+chmod 600 ../config.yaml  # Защитите конфиденциальную конфигурацию
 ```
 
-## See Also
+## Смотрите также
 
-- [Configuration Guide](CONFIGURATION.md) - Detailed configuration options
-- [Architecture Overview](../CLAUDE.md) - System architecture
+- [Руководство по конфигурации](CONFIGURATION.md) - Подробные параметры конфигурации
+- [Обзор архитектуры](../CLAUDE.md) - Архитектура системы

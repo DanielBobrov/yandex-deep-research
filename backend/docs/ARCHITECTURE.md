@@ -1,8 +1,8 @@
-# Architecture Overview
+# Обзор Архитектуры
 
-This document provides a comprehensive overview of the Yandex Deep Research backend architecture.
+Этот документ предоставляет полный обзор архитектуры бэкенда Yandex Deep Research.
 
-## System Architecture
+## Архитектура Системы
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -16,24 +16,23 @@ This document provides a comprehensive overview of the Yandex Deep Research back
 │  ┌────────────────────────────────────────────────────────────────────┐  │
 │  │  /api/langgraph/*  →  LangGraph Server (2024)                      │  │
 │  │  /api/*            →  Gateway API (8001)                           │  │
-│  │  /*                →  Frontend (3000)                               │  │
 │  └────────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────┬────────────────────────────────────────┘
                                   │
-          ┌───────────────────────┼───────────────────────┐
-          │                       │                       │
-          ▼                       ▼                       ▼
-┌─────────────────────┐ ┌─────────────────────┐ ┌─────────────────────┐
-│   LangGraph Server  │ │    Gateway API      │ │     Frontend        │
-│     (Port 2024)     │ │    (Port 8001)      │ │    (Port 3000)      │
-│                     │ │                     │ │                     │
-│  - Agent Runtime    │ │  - Models API       │ │  - Next.js App      │
-│  - Thread Mgmt      │ │  - MCP Config       │ │  - React UI         │
-│  - SSE Streaming    │ │  - Skills Mgmt      │ │  - Chat Interface   │
-│  - Checkpointing    │ │  - File Uploads     │ │                     │
-│                     │ │  - Thread Cleanup   │ │                     │
-│                     │ │  - Artifacts        │ │                     │
-└─────────────────────┘ └─────────────────────┘ └─────────────────────┘
+          ┌───────────────────────┴───────────────────────┐
+          │                                               │
+          ▼                                               ▼
+┌─────────────────────┐                 ┌─────────────────────┐
+│   LangGraph Server  │                 │    Gateway API      │
+│     (Port 2024)     │                 │    (Port 8001)      │
+│                     │                 │                     │
+│  - Agent Runtime    │                 │  - Models API       │
+│  - Thread Mgmt      │                 │  - MCP Config       │
+│  - SSE Streaming    │                 │  - Skills Mgmt      │
+│  - Checkpointing    │                 │  - File Uploads     │
+│                     │                 │  - Thread Cleanup   │
+│                     │                 │  - Artifacts        │
+└─────────────────────┘                 └─────────────────────┘
           │                       │
           │     ┌─────────────────┘
           │     │
@@ -50,22 +49,22 @@ This document provides a comprehensive overview of the Yandex Deep Research back
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Component Details
+## Детали Компонентов
 
-### LangGraph Server
+### Сервер LangGraph
 
-The LangGraph server is the core agent runtime, built on LangGraph for robust multi-agent workflow orchestration.
+Сервер LangGraph является ядром среды выполнения агента, построенным на базе LangGraph для надежной оркестрации многоагентных рабочих процессов.
 
-**Entry Point**: `packages/harness/yandex-deep-research/agents/lead_agent/agent.py:make_lead_agent`
+**Точка входа**: `packages/harness/yandex-deep-research/agents/lead_agent/agent.py:make_lead_agent`
 
-**Key Responsibilities**:
-- Agent creation and configuration
-- Thread state management
-- Middleware chain execution
-- Tool execution orchestration
-- SSE streaming for real-time responses
+**Ключевые обязанности**:
+- Создание и настройка агента
+- Управление состоянием потока (thread)
+- Выполнение цепочки промежуточного ПО (middleware)
+- Оркестрация выполнения инструментов
+- Потоковая передача SSE для ответов в реальном времени
 
-**Configuration**: `langgraph.json`
+**Конфигурация**: `langgraph.json`
 
 ```json
 {
@@ -76,24 +75,24 @@ The LangGraph server is the core agent runtime, built on LangGraph for robust mu
 }
 ```
 
-### Gateway API
+### API Шлюза (Gateway API)
 
-FastAPI application providing REST endpoints for non-agent operations.
+FastAPI приложение, предоставляющее REST эндпоинты для операций, не связанных с агентами.
 
-**Entry Point**: `app/gateway/app.py`
+**Точка входа**: `app/gateway/app.py`
 
-**Routers**:
-- `models.py` - `/api/models` - Model listing and details
-- `mcp.py` - `/api/mcp` - MCP server configuration
-- `skills.py` - `/api/skills` - Skills management
-- `uploads.py` - `/api/threads/{id}/uploads` - File upload
-- `threads.py` - `/api/threads/{id}` - Local Yandex Deep Research thread data cleanup after LangGraph deletion
-- `artifacts.py` - `/api/threads/{id}/artifacts` - Artifact serving
-- `suggestions.py` - `/api/threads/{id}/suggestions` - Follow-up suggestion generation
+**Роутеры**:
+- `models.py` - `/api/models` - Список моделей и их детали
+- `mcp.py` - `/api/mcp` - Конфигурация серверов MCP
+- `skills.py` - `/api/skills` - Управление навыками (skills)
+- `uploads.py` - `/api/threads/{id}/uploads` - Загрузка файлов
+- `threads.py` - `/api/threads/{id}` - Очистка данных локального потока Yandex Deep Research после удаления в LangGraph
+- `artifacts.py` - `/api/threads/{id}/artifacts` - Раздача артефактов
+- `suggestions.py` - `/api/threads/{id}/suggestions` - Генерация предложений для последующих действий
 
-The web conversation delete flow is now split across both backend surfaces: LangGraph handles `DELETE /api/langgraph/threads/{thread_id}` for thread state, then the Gateway `threads.py` router removes Yandex Deep Research-managed filesystem data via `Paths.delete_thread_dir()`.
+Процесс удаления веб-беседы теперь разделен между двумя частями бэкенда: LangGraph обрабатывает `DELETE /api/langgraph/threads/{thread_id}` для состояния потока, затем роутер `threads.py` в шлюзе (Gateway) удаляет данные файловой системы, управляемые Yandex Deep Research, с помощью `Paths.delete_thread_dir()`.
 
-### Agent Architecture
+### Архитектура Агента
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -126,25 +125,25 @@ The web conversation delete flow is now split across both backend surfaces: Lang
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Thread State
+### Состояние Потока (Thread State)
 
-The `ThreadState` extends LangGraph's `AgentState` with additional fields:
+`ThreadState` расширяет `AgentState` из LangGraph дополнительными полями:
 
 ```python
 class ThreadState(AgentState):
-    # Core state from AgentState
+    # Базовое состояние из AgentState
     messages: list[BaseMessage]
 
-    # Yandex Deep Research extensions
-    sandbox: dict             # Sandbox environment info
-    artifacts: list[str]      # Generated file paths
-    thread_data: dict         # {workspace, uploads, outputs} paths
-    title: str | None         # Auto-generated conversation title
-    todos: list[dict]         # Task tracking (plan mode)
-    viewed_images: dict       # Vision model image data
+    # Расширения Yandex Deep Research
+    sandbox: dict             # Информация о среде песочницы
+    artifacts: list[str]      # Пути к сгенерированным файлам
+    thread_data: dict         # Пути {workspace, uploads, outputs}
+    title: str | None         # Автоматически сгенерированный заголовок беседы
+    todos: list[dict]         # Отслеживание задач (в режиме планирования)
+    viewed_images: dict       # Данные изображений для моделей компьютерного зрения
 ```
 
-### Sandbox System
+### Система Песочницы (Sandbox System)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -179,16 +178,16 @@ class ThreadState(AgentState):
                       └─────────────────────────┘
 ```
 
-**Virtual Path Mapping**:
+**Маппинг виртуальных путей**:
 
-| Virtual Path | Physical Path |
+| Виртуальный путь | Физический путь |
 |-------------|---------------|
 | `/mnt/user-data/workspace` | `backend/.yandex-deep-research/threads/{thread_id}/user-data/workspace` |
 | `/mnt/user-data/uploads` | `backend/.yandex-deep-research/threads/{thread_id}/user-data/uploads` |
 | `/mnt/user-data/outputs` | `backend/.yandex-deep-research/threads/{thread_id}/user-data/outputs` |
 | `/mnt/skills` | `yandex-deep-research/skills/` |
 
-### Tool System
+### Система Инструментов (Tool System)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -217,7 +216,7 @@ class ThreadState(AgentState):
                       └─────────────────────────┘
 ```
 
-### Model Factory
+### Фабрика Моделей (Model Factory)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -258,13 +257,13 @@ config.yaml:
                       └─────────────────────────┘
 ```
 
-**Supported Providers**:
+**Поддерживаемые провайдеры**:
 - OpenAI (`langchain_openai:ChatOpenAI`)
 - Anthropic (`langchain_anthropic:ChatAnthropic`)
 - DeepSeek (`langchain_deepseek:ChatDeepSeek`)
-- Custom via LangChain integrations
+- Пользовательские через интеграции LangChain
 
-### MCP Integration
+### Интеграция MCP (Model Context Protocol)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -302,7 +301,7 @@ extensions_config.json:
        └───────────┘        └───────────┘        └───────────┘
 ```
 
-### Skills System
+### Система Навыков (Skills System)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -310,21 +309,19 @@ extensions_config.json:
 │                       (packages/harness/yandex-deep-research/skills/loader.py)                             │
 └─────────────────────────────────────────────────────────────────────────┘
 
-Directory Structure:
+Структура директорий:
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ skills/                                                                  │
-│ ├── public/                        # Public skills (committed)           │
+│ ├── public/                        # Публичные навыки (в репозитории)    │
 │ │   ├── pdf-processing/                                                 │
 │ │   │   └── SKILL.md                                                    │
-│ │   ├── frontend-design/                                                │
-│ │   │   └── SKILL.md                                                    │
 │ │   └── ...                                                             │
-│ └── custom/                        # Custom skills (gitignored)          │
+│ └── custom/                        # Пользовательские навыки (gitignored)│
 │     └── user-installed/                                                 │
 │         └── SKILL.md                                                    │
 └─────────────────────────────────────────────────────────────────────────┘
 
-SKILL.md Format:
+Формат SKILL.md:
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ ---                                                                      │
 │ name: PDF Processing                                                     │
@@ -337,16 +334,16 @@ SKILL.md Format:
 │ ---                                                                      │
 │                                                                          │
 │ # Skill Instructions                                                     │
-│ Content injected into system prompt...                                   │
+│ Контент внедряется в системный промпт...                                 │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Request Flow
+### Поток Запросов (Request Flow)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         Request Flow Example                             │
-│                    User sends message to agent                           │
+│                    Пользователь отправляет сообщение агенту              │
 └─────────────────────────────────────────────────────────────────────────┘
 
 1. Client → Nginx
@@ -354,46 +351,46 @@ SKILL.md Format:
    {"input": {"messages": [{"role": "user", "content": "Hello"}]}}
 
 2. Nginx → LangGraph Server (2024)
-   Proxied to LangGraph server
+   Проксируется на сервер LangGraph
 
 3. LangGraph Server
-   a. Load/create thread state
-   b. Execute middleware chain:
-      - ThreadDataMiddleware: Set up paths
-      - UploadsMiddleware: Inject file list
-      - SandboxMiddleware: Acquire sandbox
-      - SummarizationMiddleware: Check token limits
-      - TitleMiddleware: Generate title if needed
-      - TodoListMiddleware: Load todos (if plan mode)
-      - ViewImageMiddleware: Process images
-      - ClarificationMiddleware: Check for clarifications
+   a. Загрузка/создание состояния потока
+   b. Выполнение цепочки middleware:
+      - ThreadDataMiddleware: Настройка путей
+      - UploadsMiddleware: Внедрение списка файлов
+      - SandboxMiddleware: Получение песочницы
+      - SummarizationMiddleware: Проверка лимитов токенов
+      - TitleMiddleware: Генерация заголовка при необходимости
+      - TodoListMiddleware: Загрузка задач (в режиме планирования)
+      - ViewImageMiddleware: Обработка изображений
+      - ClarificationMiddleware: Проверка на наличие уточнений
 
-   c. Execute agent:
-      - Model processes messages
-      - May call tools (bash, web_search, etc.)
-      - Tools execute via sandbox
-      - Results added to messages
+   c. Выполнение агента:
+      - Модель обрабатывает сообщения
+      - Может вызывать инструменты (bash, web_search и т.д.)
+      - Инструменты выполняются через песочницу
+      - Результаты добавляются к сообщениям
 
-   d. Stream response via SSE
+   d. Потоковая передача ответа через SSE
 
-4. Client receives streaming response
+4. Клиент получает потоковый ответ
 ```
 
-## Data Flow
+## Потоки Данных (Data Flow)
 
-### File Upload Flow
+### Поток Загрузки Файлов (File Upload Flow)
 
 ```
-1. Client uploads file
+1. Клиент загружает файл
    POST /api/threads/{thread_id}/uploads
    Content-Type: multipart/form-data
 
-2. Gateway receives file
-   - Validates file
-   - Stores in .yandex-deep-research/threads/{thread_id}/user-data/uploads/
-   - If document: converts to Markdown via markitdown
+2. Gateway получает файл
+   - Проверяет файл
+   - Сохраняет в .yandex-deep-research/threads/{thread_id}/user-data/uploads/
+   - Если это документ: конвертирует в Markdown через markitdown
 
-3. Returns response
+3. Возвращает ответ
    {
      "files": [{
        "filename": "doc.pdf",
@@ -403,82 +400,82 @@ SKILL.md Format:
      }]
    }
 
-4. Next agent run
-   - UploadsMiddleware lists files
-   - Injects file list into messages
-   - Agent can access via virtual_path
+4. Следующий запуск агента
+   - UploadsMiddleware составляет список файлов
+   - Внедряет список файлов в сообщения
+   - Агент может получить к ним доступ через virtual_path
 ```
 
-### Thread Cleanup Flow
+### Поток Очистки Потока (Thread Cleanup Flow)
 
 ```
-1. Client deletes conversation via LangGraph
+1. Клиент удаляет беседу через LangGraph
    DELETE /api/langgraph/threads/{thread_id}
 
-2. Web UI follows up with Gateway cleanup
+2. Web UI инициирует очистку в Gateway
    DELETE /api/threads/{thread_id}
 
-3. Gateway removes local Yandex Deep Research-managed files
-   - Deletes .yandex-deep-research/threads/{thread_id}/ recursively
-   - Missing directories are treated as a no-op
-   - Invalid thread IDs are rejected before filesystem access
+3. Gateway удаляет локальные файлы, управляемые Yandex Deep Research
+   - Рекурсивно удаляет .yandex-deep-research/threads/{thread_id}/
+   - Отсутствующие директории обрабатываются как отсутствие операций (no-op)
+   - Недействительные ID потоков отклоняются до обращения к файловой системе
 ```
 
-### Configuration Reload
+### Перезагрузка Конфигурации (Configuration Reload)
 
 ```
-1. Client updates MCP config
+1. Клиент обновляет конфигурацию MCP
    PUT /api/mcp/config
 
-2. Gateway writes extensions_config.json
-   - Updates mcpServers section
-   - File mtime changes
+2. Gateway записывает extensions_config.json
+   - Обновляет раздел mcpServers
+   - Изменяется время модификации файла (mtime)
 
-3. MCP Manager detects change
-   - get_cached_mcp_tools() checks mtime
-   - If changed: reinitializes MCP client
-   - Loads updated server configurations
+3. MCP Manager обнаруживает изменение
+   - get_cached_mcp_tools() проверяет mtime
+   - Если изменено: переинициализирует клиент MCP
+   - Загружает обновленные конфигурации серверов
 
-4. Next agent run uses new tools
+4. Следующий запуск агента использует новые инструменты
 ```
 
-## Security Considerations
+## Соображения Безопасности (Security Considerations)
 
-### Sandbox Isolation
+### Изоляция Песочницы (Sandbox Isolation)
 
-- Agent code executes within sandbox boundaries
-- Local sandbox: Direct execution (development only)
-- Docker sandbox: Container isolation (production recommended)
-- Path traversal prevention in file operations
+- Код агента выполняется в границах песочницы
+- Локальная песочница: Прямое выполнение (только для разработки)
+- Docker песочница: Изоляция контейнеров (рекомендуется для продакшена)
+- Предотвращение обхода пути (path traversal) в файловых операциях
 
-### API Security
+### Безопасность API (API Security)
 
-- Thread isolation: Each thread has separate data directories
-- File validation: Uploads checked for path safety
-- Environment variable resolution: Secrets not stored in config
+- Изоляция потоков: Каждый поток имеет отдельные каталоги данных
+- Проверка файлов: Загрузки проверяются на безопасность путей
+- Разрешение переменных окружения: Секреты не хранятся в конфигурации
 
-### MCP Security
+### Безопасность MCP (MCP Security)
 
-- Each MCP server runs in its own process
-- Environment variables resolved at runtime
-- Servers can be enabled/disabled independently
+- Каждый сервер MCP работает в собственном процессе
+- Переменные окружения разрешаются во время выполнения
+- Серверы могут быть включены/выключены независимо
 
-## Performance Considerations
+## Соображения Производительности (Performance Considerations)
 
-### Caching
+### Кэширование (Caching)
 
-- MCP tools cached with file mtime invalidation
-- Configuration loaded once, reloaded on file change
-- Skills parsed once at startup, cached in memory
+- Инструменты MCP кэшируются с инвалидацией по времени изменения файла (mtime)
+- Конфигурация загружается один раз, перезагружается при изменении файла
+- Навыки (skills) парсятся один раз при запуске, кэшируются в памяти
 
-### Streaming
+### Потоковая Передача (Streaming)
 
-- SSE used for real-time response streaming
-- Reduces time to first token
-- Enables progress visibility for long operations
+- SSE используется для потоковой передачи ответов в реальном времени
+- Уменьшает время до появления первого токена (time to first token)
+- Обеспечивает видимость прогресса для длительных операций
 
-### Context Management
+### Управление Контекстом (Context Management)
 
-- Summarization middleware reduces context when limits approached
-- Configurable triggers: tokens, messages, or fraction
-- Preserves recent messages while summarizing older ones
+- Summarization middleware уменьшает контекст при приближении к лимитам
+- Настраиваемые триггеры: токены, сообщения или доли
+- Сохраняет последние сообщения, сокращая (суммируя) более старые

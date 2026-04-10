@@ -1,66 +1,66 @@
-# Apple Container Support
+# Поддержка Apple Container
 
-Yandex Deep Research now supports Apple Container as the preferred container runtime on macOS, with automatic fallback to Docker.
+Yandex Deep Research теперь поддерживает Apple Container в качестве предпочтительной среды выполнения контейнеров на macOS с автоматическим переходом на Docker.
 
-## Overview
+## Обзор
 
-Starting with this version, Yandex Deep Research automatically detects and uses Apple Container on macOS when available, falling back to Docker when:
-- Apple Container is not installed
-- Running on non-macOS platforms
+Начиная с этой версии, Yandex Deep Research автоматически обнаруживает и использует Apple Container на macOS, когда он доступен, и переключается на Docker, если:
+- Apple Container не установлен
+- Запуск происходит на платформах, отличных от macOS
 
-This provides better performance on Apple Silicon Macs while maintaining compatibility across all platforms.
+Это обеспечивает лучшую производительность на компьютерах Mac с процессорами Apple Silicon при сохранении совместимости со всеми платформами.
 
-## Benefits
+## Преимущества
 
-### On Apple Silicon Macs with Apple Container:
-- **Better Performance**: Native ARM64 execution without Rosetta 2 translation
-- **Lower Resource Usage**: Lighter weight than Docker Desktop
-- **Native Integration**: Uses macOS Virtualization.framework
+### На компьютерах Mac с процессорами Apple Silicon при использовании Apple Container:
+- **Лучшая производительность**: Нативное выполнение ARM64 без трансляции Rosetta 2
+- **Меньшее потребление ресурсов**: Более легковесный, чем Docker Desktop
+- **Нативная интеграция**: Использует macOS Virtualization.framework
 
-### Fallback to Docker:
-- Full backward compatibility
-- Works on all platforms (macOS, Linux, Windows)
-- No configuration changes needed
+### При переходе на Docker:
+- Полная обратная совместимость
+- Работает на всех платформах (macOS, Linux, Windows)
+- Не требуется изменение конфигурации
 
-## Requirements
+## Требования
 
-### For Apple Container (macOS only):
-- macOS 15.0 or later
+### Для Apple Container (только macOS):
+- macOS 15.0 или новее
 - Apple Silicon (M1/M2/M3/M4)
-- Apple Container CLI installed
+- Установленный Apple Container CLI
 
-### Installation:
+### Установка:
 ```bash
-# Download from GitHub releases
+# Загрузите из релизов GitHub
 # https://github.com/apple/container/releases
 
-# Verify installation
+# Проверьте установку
 container --version
 
-# Start the service
+# Запустите сервис
 container system start
 ```
 
-### For Docker (all platforms):
-- Docker Desktop or Docker Engine
+### Для Docker (все платформы):
+- Docker Desktop или Docker Engine
 
-## How It Works
+## Как это работает
 
-### Automatic Detection
+### Автоматическое обнаружение
 
-The `AioSandboxProvider` automatically detects the available container runtime:
+`AioSandboxProvider` автоматически обнаруживает доступную среду выполнения контейнеров:
 
-1. On macOS: Try `container --version`
-   - Success → Use Apple Container
-   - Failure → Fall back to Docker
+1. На macOS: Пытается выполнить `container --version`
+   - Успех → Использовать Apple Container
+   - Ошибка → Перейти на Docker
 
-2. On other platforms: Use Docker directly
+2. На других платформах: Использовать Docker напрямую
 
-### Runtime Differences
+### Различия сред выполнения
 
-Both runtimes use nearly identical command syntax:
+Обе среды используют практически идентичный синтаксис команд:
 
-**Container Startup:**
+**Запуск контейнера:**
 ```bash
 # Apple Container
 container run --rm -d -p 8080:8080 -v /host:/container -e KEY=value image
@@ -69,146 +69,146 @@ container run --rm -d -p 8080:8080 -v /host:/container -e KEY=value image
 docker run --rm -d -p 8080:8080 -v /host:/container -e KEY=value image
 ```
 
-**Container Cleanup:**
+**Очистка контейнера:**
 ```bash
-# Apple Container (with --rm flag)
-container stop <id>  # Auto-removes due to --rm
+# Apple Container (с флагом --rm)
+container stop <id>  # Автоматически удаляется благодаря --rm
 
-# Docker (with --rm flag)
-docker stop <id>     # Auto-removes due to --rm
+# Docker (с флагом --rm)
+docker stop <id>     # Автоматически удаляется благодаря --rm
 ```
 
-### Implementation Details
+### Детали реализации
 
-The implementation is in `backend/packages/harness/yandex-deep-research/community/aio_sandbox/aio_sandbox_provider.py`:
+Реализация находится в `backend/packages/harness/yandex-deep-research/community/aio_sandbox/aio_sandbox_provider.py`:
 
-- `_detect_container_runtime()`: Detects available runtime at startup
-- `_start_container()`: Uses detected runtime, skips Docker-specific options for Apple Container
-- `_stop_container()`: Uses appropriate stop command for the runtime
+- `_detect_container_runtime()`: Обнаруживает доступную среду выполнения при запуске
+- `_start_container()`: Использует обнаруженную среду, пропускает специфичные для Docker опции при использовании Apple Container
+- `_stop_container()`: Использует соответствующую команду остановки для текущей среды
 
-## Configuration
+## Конфигурация
 
-No configuration changes are needed! The system works automatically.
+Никаких изменений конфигурации не требуется! Система работает автоматически.
 
-However, you can verify the runtime in use by checking the logs:
+Однако вы можете проверить используемую среду выполнения, просмотрев логи:
 
 ```
 INFO:yandex-deep-research.community.aio_sandbox.aio_sandbox_provider:Detected Apple Container: container version 0.1.0
 INFO:yandex-deep-research.community.aio_sandbox.aio_sandbox_provider:Starting sandbox container using container: ...
 ```
 
-Or for Docker:
+Или для Docker:
 ```
 INFO:yandex-deep-research.community.aio_sandbox.aio_sandbox_provider:Apple Container not available, falling back to Docker
 INFO:yandex-deep-research.community.aio_sandbox.aio_sandbox_provider:Starting sandbox container using docker: ...
 ```
 
-## Container Images
+## Образы контейнеров
 
-Both runtimes use OCI-compatible images. The default image works with both:
+Обе среды используют OCI-совместимые образы. Образ по умолчанию работает с обеими:
 
 ```yaml
 sandbox:
   use: yandex-deep-research.community.aio_sandbox:AioSandboxProvider
-  image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest  # Default image
+  image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest  # Образ по умолчанию
 ```
 
-Make sure your images are available for the appropriate architecture:
-- ARM64 for Apple Container on Apple Silicon
-- AMD64 for Docker on Intel Macs
-- Multi-arch images work on both
+Убедитесь, что ваши образы доступны для соответствующей архитектуры:
+- ARM64 для Apple Container на Apple Silicon
+- AMD64 для Docker на компьютерах Mac с Intel
+- Мультиархитектурные образы работают на обеих платформах
 
-### Pre-pulling Images (Recommended)
+### Предварительная загрузка образов (рекомендуется)
 
-**Important**: Container images are typically large (500MB+) and are pulled on first use, which can cause a long wait time without clear feedback.
+**Важно**: Образы контейнеров обычно большие (500 МБ+) и загружаются при первом использовании, что может вызвать долгое время ожидания без четкой обратной связи.
 
-**Best Practice**: Pre-pull the image during setup:
+**Лучшая практика**: Предварительно загрузите образ во время настройки:
 
 ```bash
-# From project root
+# Из корневой директории проекта
 make setup-sandbox
 ```
 
-This command will:
-1. Read the configured image from `config.yaml` (or use default)
-2. Detect available runtime (Apple Container or Docker)
-3. Pull the image with progress indication
-4. Verify the image is ready for use
+Эта команда:
+1. Прочитает настроенный образ из `config.yaml` (или использует образ по умолчанию)
+2. Обнаружит доступную среду выполнения (Apple Container или Docker)
+3. Загрузит образ с индикацией прогресса
+4. Проверит, готов ли образ к использованию
 
-**Manual pre-pull**:
+**Ручная предварительная загрузка**:
 
 ```bash
-# Using Apple Container
+# Используя Apple Container
 container image pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 
-# Using Docker
+# Используя Docker
 docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
-If you skip pre-pulling, the image will be automatically pulled on first agent execution, which may take several minutes depending on your network speed.
+Если вы пропустите предварительную загрузку, образ будет автоматически загружен при первом выполнении агента, что может занять несколько минут в зависимости от скорости вашей сети.
 
-## Cleanup Scripts
+## Скрипты очистки
 
-The project includes a unified cleanup script that handles both runtimes:
+Проект включает унифицированный скрипт очистки, который обрабатывает обе среды выполнения:
 
-**Script:** `scripts/cleanup-containers.sh`
+**Скрипт:** `scripts/cleanup-containers.sh`
 
-**Usage:**
+**Использование:**
 ```bash
-# Clean up all Yandex Deep Research sandbox containers
+# Очистить все sandbox-контейнеры Yandex Deep Research
 ./scripts/cleanup-containers.sh yandex-deep-research-sandbox
 
-# Custom prefix
+# Пользовательский префикс
 ./scripts/cleanup-containers.sh my-prefix
 ```
 
-**Makefile Integration:**
+**Интеграция с Makefile:**
 
-All cleanup commands in `Makefile` automatically handle both runtimes:
+Все команды очистки в `Makefile` автоматически поддерживают обе среды выполнения:
 ```bash
-make stop   # Stops all services and cleans up containers
-make clean  # Full cleanup including logs
+make stop   # Останавливает все сервисы и очищает контейнеры
+make clean  # Полная очистка, включая логи
 ```
 
-## Testing
+## Тестирование
 
-Test the container runtime detection:
+Протестируйте обнаружение среды выполнения контейнеров:
 
 ```bash
 cd backend
 python test_container_runtime.py
 ```
 
-This will:
-1. Detect the available runtime
-2. Optionally start a test container
-3. Verify connectivity
-4. Clean up
+Это:
+1. Обнаружит доступную среду выполнения
+2. Опционально запустит тестовый контейнер
+3. Проверит подключение
+4. Выполнит очистку
 
-## Troubleshooting
+## Устранение неполадок
 
-### Apple Container not detected on macOS
+### Apple Container не обнаружен на macOS
 
-1. Check if installed:
+1. Проверьте, установлен ли:
    ```bash
    which container
    container --version
    ```
 
-2. Check if service is running:
+2. Проверьте, запущен ли сервис:
    ```bash
    container system start
    ```
 
-3. Check logs for detection:
+3. Проверьте логи на наличие сообщения об обнаружении:
    ```bash
-   # Look for detection message in application logs
+   # Ищите сообщение об обнаружении в логах приложения
    grep "container runtime" logs/*.log
    ```
 
-### Containers not cleaning up
+### Контейнеры не очищаются
 
-1. Manually check running containers:
+1. Вручную проверьте запущенные контейнеры:
    ```bash
    # Apple Container
    container list
@@ -217,22 +217,22 @@ This will:
    docker ps
    ```
 
-2. Run cleanup script manually:
+2. Запустите скрипт очистки вручную:
    ```bash
    ./scripts/cleanup-containers.sh yandex-deep-research-sandbox
    ```
 
-### Performance issues
+### Проблемы с производительностью
 
-- Apple Container should be faster on Apple Silicon
-- If experiencing issues, you can force Docker by temporarily renaming the `container` command:
+- Apple Container должен быть быстрее на Apple Silicon
+- Если возникают проблемы, вы можете принудительно использовать Docker, временно переименовав команду `container`:
    ```bash
-   # Temporary workaround - not recommended for permanent use
+   # Временное решение - не рекомендуется для постоянного использования
    sudo mv /opt/homebrew/bin/container /opt/homebrew/bin/container.bak
    ```
 
-## References
+## Ссылки
 
-- [Apple Container GitHub](https://github.com/apple/container)
-- [Apple Container Documentation](https://github.com/apple/container/blob/main/docs/)
-- [OCI Image Spec](https://github.com/opencontainers/image-spec)
+- [Apple Container на GitHub](https://github.com/apple/container)
+- [Документация Apple Container](https://github.com/apple/container/blob/main/docs/)
+- [Спецификация образов OCI (OCI Image Spec)](https://github.com/opencontainers/image-spec)

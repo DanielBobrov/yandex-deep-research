@@ -1,53 +1,53 @@
-# Documentation
+# Документация
 
-This directory contains detailed documentation for the Yandex Deep Research backend.
+В этой директории содержится подробная документация для бекенда Yandex Deep Research.
 
-## Quick Links
+## Быстрые ссылки
 
-| Document | Description |
+| Документ | Описание |
 |----------|-------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture overview |
-| [API.md](API.md) | Complete API reference |
-| [CONFIGURATION.md](CONFIGURATION.md) | Configuration options |
-| [SETUP.md](SETUP.md) | Quick setup guide |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Обзор архитектуры системы |
+| [API.md](API.md) | Полный справочник API |
+| [CONFIGURATION.md](CONFIGURATION.md) | Опции конфигурации |
+| [SETUP.md](SETUP.md) | Краткое руководство по установке |
 
-## Feature Documentation
+## Документация по функциям
 
-| Document | Description |
+| Документ | Описание |
 |----------|-------------|
-| [FILE_UPLOAD.md](FILE_UPLOAD.md) | File upload functionality |
-| [PATH_EXAMPLES.md](PATH_EXAMPLES.md) | Path types and usage examples |
-| [summarization.md](summarization.md) | Context summarization feature |
-| [plan_mode_usage.md](plan_mode_usage.md) | Plan mode with TodoList |
-| [AUTO_TITLE_GENERATION.md](AUTO_TITLE_GENERATION.md) | Automatic title generation |
+| [FILE_UPLOAD.md](FILE_UPLOAD.md) | Функционал загрузки файлов |
+| [PATH_EXAMPLES.md](PATH_EXAMPLES.md) | Типы путей и примеры использования |
+| [summarization.md](summarization.md) | Функция суммаризации контекста |
+| [plan_mode_usage.md](plan_mode_usage.md) | Режим планирования с TodoList |
+| [AUTO_TITLE_GENERATION.md](AUTO_TITLE_GENERATION.md) | Автоматическая генерация заголовков |
 
-## Development
+## Разработка
 
-| Document | Description |
+| Документ | Описание |
 |----------|-------------|
-| [TODO.md](TODO.md) | Planned features and known issues |
+| [TODO.md](TODO.md) | Запланированные функции и известные проблемы |
 
-## Getting Started
+## Начало работы
 
-1. **New to Yandex Deep Research?** Start with [SETUP.md](SETUP.md) for quick installation
-2. **Configuring the system?** See [CONFIGURATION.md](CONFIGURATION.md)
-3. **Understanding the architecture?** Read [ARCHITECTURE.md](ARCHITECTURE.md)
-4. **Building integrations?** Check [API.md](API.md) for API reference
+1. **Впервые работаете с Yandex Deep Research?** Начните с [SETUP.md](SETUP.md) для быстрой установки
+2. **Настраиваете систему?** Смотрите [CONFIGURATION.md](CONFIGURATION.md)
+3. **Хотите понять архитектуру?** Прочитайте [ARCHITECTURE.md](ARCHITECTURE.md)
+4. **Разрабатываете интеграции?** Ознакомьтесь с [API.md](API.md) (справочник API)
 
-## Document Organization
+## Структура документов
 
 ```
 docs/
-├── README.md                  # This file
-├── ARCHITECTURE.md            # System architecture
-├── API.md                     # API reference
-├── CONFIGURATION.md           # Configuration guide
-├── SETUP.md                   # Setup instructions
-├── FILE_UPLOAD.md             # File upload feature
-├── PATH_EXAMPLES.md           # Path usage examples
-├── summarization.md           # Summarization feature
-├── plan_mode_usage.md         # Plan mode feature
-├── AUTO_TITLE_GENERATION.md   # Title generation
-├── TITLE_GENERATION_IMPLEMENTATION.md  # Title implementation details
-└── TODO.md                    # Roadmap and issues
+├── README.md                  # Этот файл
+├── ARCHITECTURE.md            # Архитектура системы
+├── API.md                     # Справочник API
+├── CONFIGURATION.md           # Руководство по конфигурации
+├── SETUP.md                   # Инструкции по установке
+├── FILE_UPLOAD.md             # Функция загрузки файлов
+├── PATH_EXAMPLES.md           # Примеры использования путей
+├── summarization.md           # Функция суммаризации
+├── plan_mode_usage.md         # Функция режима планирования
+├── AUTO_TITLE_GENERATION.md   # Генерация заголовков
+├── TITLE_GENERATION_IMPLEMENTATION.md  # Детали реализации заголовков
+└── TODO.md                    # Планы и проблемы
 ```

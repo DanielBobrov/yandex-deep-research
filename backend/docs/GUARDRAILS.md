@@ -1,88 +1,88 @@
-# Guardrails: Pre-Tool-Call Authorization
+# Guardrails (Ограничители): Авторизация перед вызовом инструмента
 
-> **Context:** [Issue #1213](https://github.com/yandex/yandex-deep-research/issues/1213) — Yandex Deep Research has Docker sandboxing and human approval via `ask_clarification`, but no deterministic, policy-driven authorization layer for tool calls. An agent running autonomous multi-step tasks can execute any loaded tool with any arguments. Guardrails add a middleware that evaluates every tool call against a policy **before** execution.
+> **Контекст:** [Issue #1213](https://github.com/yandex/yandex-deep-research/issues/1213) — Yandex Deep Research имеет Docker-песочницу и ручное подтверждение через `ask_clarification`, но не имеет детерминированного слоя авторизации на основе политик для вызовов инструментов. Агент, выполняющий автономные многошаговые задачи, может выполнить любой загруженный инструмент с любыми аргументами. Guardrails (Ограничители) добавляют промежуточный слой (middleware), который проверяет каждый вызов инструмента на соответствие политике **перед** его выполнением.
 
-## Why Guardrails
+## Зачем нужны Guardrails
 
 ```
-Without guardrails:                      With guardrails:
+Без ограничителей:                       С ограничителями:
 
-  Agent                                    Agent
+  Агент                                    Агент
     │                                        │
     ▼                                        ▼
   ┌──────────┐                             ┌──────────┐
-  │ bash     │──▶ executes immediately     │ bash     │──▶ GuardrailMiddleware
+  │ bash     │──▶ выполняется сразу        │ bash     │──▶ GuardrailMiddleware
   │ rm -rf / │                             │ rm -rf / │        │
   └──────────┘                             └──────────┘        ▼
                                                          ┌──────────────┐
-                                                         │  Provider    │
-                                                         │  evaluates   │
-                                                         │  against     │
-                                                         │  policy      │
+                                                         │  Провайдер   │
+                                                         │  проверяет   │
+                                                         │  по политике │
                                                          └──────┬───────┘
                                                                 │
                                                           ┌─────┴─────┐
                                                           │           │
                                                         ALLOW       DENY
+                                                        (РАЗРЕШИТЬ) (ЗАПРЕТИТЬ)
                                                           │           │
                                                           ▼           ▼
-                                                      Tool runs   Agent sees:
-                                                      normally    "Guardrail denied:
-                                                                   rm -rf blocked"
+                                                     Инструмент   Агент видит:
+                                                     выполняется  "Guardrail denied:
+                                                     обычно        rm -rf blocked"
 ```
 
-- **Sandboxing** provides process isolation but not semantic authorization. A sandboxed `bash` can still `curl` data out.
-- **Human approval** (`ask_clarification`) requires a human in the loop for every action. Not viable for autonomous workflows.
-- **Guardrails** provide deterministic, policy-driven authorization that works without human intervention.
+- **Песочница (Sandboxing)** обеспечивает изоляцию процессов, но не семантическую авторизацию. Внутри песочницы `bash` все еще может отправить данные наружу через `curl`.
+- **Ручное подтверждение** (`ask_clarification`) требует участия человека в цикле для каждого действия. Это не подходит для автономных рабочих процессов.
+- **Guardrails (Ограничители)** обеспечивают детерминированную авторизацию на основе политик, которая работает без вмешательства человека.
 
-## Architecture
+## Архитектура
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                        Middleware Chain                               │
+│                      Цепочка Middleware                             │
 │                                                                      │
-│  1. ThreadDataMiddleware     ─── per-thread dirs                     │
-│  2. UploadsMiddleware        ─── file upload tracking                │
-│  3. SandboxMiddleware        ─── sandbox acquisition                 │
-│  4. DanglingToolCallMiddleware ── fix incomplete tool calls           │
-│  5. GuardrailMiddleware ◄──── EVALUATES EVERY TOOL CALL             │
-│  6. ToolErrorHandlingMiddleware ── convert exceptions to messages     │
+│  1. ThreadDataMiddleware     ─── директории для потоков              │
+│  2. UploadsMiddleware        ─── отслеживание загрузки файлов        │
+│  3. SandboxMiddleware        ─── получение песочницы                 │
+│  4. DanglingToolCallMiddleware ── исправление незавершенных вызовов   │
+│  5. GuardrailMiddleware ◄──── ПРОВЕРЯЕТ КАЖДЫЙ ВЫЗОВ ИНСТРУМЕНТА    │
+│  6. ToolErrorHandlingMiddleware ── преобразование исключений в сообщ.│
 │  7-12. (Summarization, Title, Memory, Vision, Subagent, Clarify)    │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
                          │
                          ▼
            ┌──────────────────────────┐
-           │    GuardrailProvider     │  ◄── pluggable: any class
-           │    (configured in YAML)  │      with evaluate/aevaluate
+           │    GuardrailProvider     │  ◄── подключаемый: любой класс
+           │    (настроен в YAML)     │      с evaluate/aevaluate
            └────────────┬─────────────┘
                         │
               ┌─────────┼──────────────┐
               │         │              │
               ▼         ▼              ▼
-         Built-in   OAP Passport    Custom
-         Allowlist  Provider        Provider
-         (zero dep) (open standard) (your code)
+         Встроенный OAP Passport    Пользовательский
+         Allowlist  Провайдер       Провайдер
+         (без завис)(открытый станд.)(ваш код)
                         │
-                  Any implementation
-                  (e.g. APort, or
-                   your own evaluator)
+                  Любая реализация
+                  (например, APort, или
+                   ваш собственный)
 ```
 
-The `GuardrailMiddleware` implements `wrap_tool_call` / `awrap_tool_call` (the same `AgentMiddleware` pattern used by `ToolErrorHandlingMiddleware`). It:
+`GuardrailMiddleware` реализует `wrap_tool_call` / `awrap_tool_call` (тот же паттерн `AgentMiddleware`, который используется в `ToolErrorHandlingMiddleware`). Он:
 
-1. Builds a `GuardrailRequest` with tool name, arguments, and passport reference
-2. Calls `provider.evaluate(request)` on whatever provider is configured
-3. If **deny**: returns `ToolMessage(status="error")` with the reason -- agent sees the denial and adapts
-4. If **allow**: passes through to the actual tool handler
-5. If **provider error** and `fail_closed=true` (default): blocks the call
-6. `GraphBubbleUp` exceptions (LangGraph control signals) are always propagated, never caught
+1. Создает `GuardrailRequest` с именем инструмента, аргументами и ссылкой на паспорт.
+2. Вызывает `provider.evaluate(request)` у любого настроенного провайдера.
+3. Если **запрещено (deny)**: возвращает `ToolMessage(status="error")` с причиной -- агент видит отказ и адаптируется.
+4. Если **разрешено (allow)**: пропускает вызов к фактическому обработчику инструмента.
+5. Если **ошибка провайдера** и `fail_closed=true` (по умолчанию): блокирует вызов.
+6. Исключения `GraphBubbleUp` (управляющие сигналы LangGraph) всегда пробрасываются дальше и никогда не перехватываются.
 
-## Three Provider Options
+## Три варианта провайдера
 
-### Option 1: Built-in AllowlistProvider (Zero Dependencies)
+### Вариант 1: Встроенный AllowlistProvider (Без зависимостей)
 
-The simplest option. Ships with Yandex Deep Research. Block or allow tools by name. No external packages, no passport, no network.
+Самый простой вариант. Поставляется вместе с Yandex Deep Research. Блокирует или разрешает инструменты по имени. Не требует внешних пакетов, паспортов или сети.
 
 **config.yaml:**
 ```yaml
@@ -94,9 +94,9 @@ guardrails:
       denied_tools: ["bash", "write_file"]
 ```
 
-This blocks `bash` and `write_file` for all requests. All other tools pass through.
+Это блокирует `bash` и `write_file` для всех запросов. Все остальные инструменты проходят.
 
-You can also use an allowlist (only these tools are permitted):
+Вы также можете использовать белый список (allowlist) (разрешены только эти инструменты):
 ```yaml
 guardrails:
   enabled: true
@@ -106,20 +106,20 @@ guardrails:
       allowed_tools: ["web_search", "read_file", "ls"]
 ```
 
-**Try it:**
-1. Add the config above to your `config.yaml`
-2. Start Yandex Deep Research: `make dev`
-3. Ask the agent: "Use bash to run echo hello"
-4. The agent sees: `Guardrail denied: tool 'bash' was blocked (oap.tool_not_allowed)`
+**Попробуйте:**
+1. Добавьте конфигурацию выше в ваш `config.yaml`
+2. Запустите Yandex Deep Research: `make dev`
+3. Попросите агента: "Используй bash, чтобы запустить echo hello"
+4. Агент увидит: `Guardrail denied: tool 'bash' was blocked (oap.tool_not_allowed)`
 
-### Option 2: OAP Passport Provider (Policy-Based)
+### Вариант 2: OAP Passport Провайдер (На основе политик)
 
-For policy enforcement based on the [Open Agent Passport (OAP)](https://github.com/aporthq/aport-spec) open standard. An OAP passport is a JSON document that declares an agent's identity, capabilities, and operational limits. Any provider that reads an OAP passport and returns OAP-compliant decisions works with Yandex Deep Research.
+Для применения политик на основе открытого стандарта [Open Agent Passport (OAP)](https://github.com/aporthq/aport-spec). OAP паспорт — это JSON-документ, который объявляет личность агента, его возможности и эксплуатационные ограничения. Любой провайдер, который читает OAP паспорт и возвращает OAP-совместимые решения, работает с Yandex Deep Research.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    OAP Passport (JSON)                        │
-│                   (open standard, any provider)              │
+│                   (открытый стандарт, любой провайдер)       │
 │  {                                                           │
 │    "spec_version": "oap/1.0",                                │
 │    "status": "active",                                       │
@@ -139,31 +139,31 @@ For policy enforcement based on the [Open Agent Passport (OAP)](https://github.c
 │  }                                                           │
 └──────────────────────────┬──────────────────────────────────┘
                            │
-               Any OAP-compliant provider
+               Любой OAP-совместимый провайдер
           ┌────────────────┼────────────────┐
           │                │                │
-     Your own         APort (ref.      Other future
-     evaluator        implementation)  implementations
+     Ваш собственный  APort (эталонная Другие будущие
+     оценщик          реализация)      реализации
 ```
 
-**Creating a passport manually:**
+**Создание паспорта вручную:**
 
-An OAP passport is just a JSON file. You can create one by hand following the [OAP specification](https://github.com/aporthq/aport-spec/blob/main/oap/oap-spec.md) and validate it against the [JSON schema](https://github.com/aporthq/aport-spec/blob/main/oap/passport-schema.json). See the [examples](https://github.com/aporthq/aport-spec/tree/main/oap/examples) directory for templates.
+OAP паспорт — это просто JSON файл. Вы можете создать его вручную, следуя [спецификации OAP](https://github.com/aporthq/aport-spec/blob/main/oap/oap-spec.md), и проверить его по [JSON схеме](https://github.com/aporthq/aport-spec/blob/main/oap/passport-schema.json). Смотрите директорию [examples](https://github.com/aporthq/aport-spec/tree/main/oap/examples) для шаблонов.
 
-**Using APort as a reference implementation:**
+**Использование APort в качестве эталонной реализации:**
 
-[APort Agent Guardrails](https://github.com/aporthq/aport-agent-guardrails) is one open-source (Apache 2.0) implementation of an OAP provider. It handles passport creation, local evaluation, and optional hosted API evaluation.
+[APort Agent Guardrails](https://github.com/aporthq/aport-agent-guardrails) — это одна из open-source (Apache 2.0) реализаций OAP провайдера. Она обрабатывает создание паспорта, локальную оценку и (опционально) оценку через размещенный API.
 
 ```bash
 pip install aport-agent-guardrails
 aport setup --framework yandex-deep-research
 ```
 
-This creates:
-- `~/.aport/yandex-deep-research/config.yaml` -- evaluator config (local or API mode)
-- `~/.aport/yandex-deep-research/aport/passport.json` -- OAP passport with capabilities and limits
+Это создаст:
+- `~/.aport/yandex-deep-research/config.yaml` -- конфигурация оценщика (локальный или API режим)
+- `~/.aport/yandex-deep-research/aport/passport.json` -- OAP паспорт с возможностями и ограничениями
 
-**config.yaml (using APort as the provider):**
+**config.yaml (с использованием APort в качестве провайдера):**
 ```yaml
 guardrails:
   enabled: true
@@ -171,7 +171,7 @@ guardrails:
     use: aport_guardrails.providers.generic:OAPGuardrailProvider
 ```
 
-**config.yaml (using your own OAP provider):**
+**config.yaml (с использованием вашего собственного OAP провайдера):**
 ```yaml
 guardrails:
   enabled: true
@@ -181,37 +181,37 @@ guardrails:
       passport_path: ./my-passport.json
 ```
 
-Any provider that accepts `framework` as a kwarg and implements `evaluate`/`aevaluate` works. The OAP standard defines the passport format and decision codes; Yandex Deep Research doesn't care which provider reads them.
+Любой провайдер, который принимает `framework` в качестве kwarg и реализует `evaluate`/`aevaluate`, будет работать. Стандарт OAP определяет формат паспорта и коды решений; Yandex Deep Research не важно, какой провайдер их читает.
 
-**What the passport controls:**
+**Что контролирует паспорт:**
 
-| Passport field | What it does | Example |
+| Поле паспорта | Что оно делает | Пример |
 |---|---|---|
-| `capabilities[].id` | Which tool categories the agent can use | `system.command.execute`, `data.file.write` |
-| `limits.*.allowed_commands` | Which commands are allowed | `["git", "npm", "node"]` or `["*"]` for all |
-| `limits.*.blocked_patterns` | Patterns always denied | `["rm -rf", "sudo", "chmod 777"]` |
-| `status` | Kill switch | `active`, `suspended`, `revoked` |
+| `capabilities[].id` | Какие категории инструментов может использовать агент | `system.command.execute`, `data.file.write` |
+| `limits.*.allowed_commands` | Какие команды разрешены | `["git", "npm", "node"]` или `["*"]` для всех |
+| `limits.*.blocked_patterns` | Паттерны, которые всегда запрещены | `["rm -rf", "sudo", "chmod 777"]` |
+| `status` | Выключатель (Kill switch) | `active`, `suspended`, `revoked` |
 
-**Evaluation modes (provider-dependent):**
+**Режимы оценки (зависят от провайдера):**
 
-OAP providers may support different evaluation modes. For example, the APort reference implementation supports:
+Провайдеры OAP могут поддерживать различные режимы оценки. Например, эталонная реализация APort поддерживает:
 
-| Mode | How it works | Network | Latency |
+| Режим | Как это работает | Сеть | Задержка |
 |---|---|---|---|
-| **Local** | Evaluates passport locally (bash script). | None | ~300ms |
-| **API** | Sends passport + context to a hosted evaluator. Signed decisions. | Yes | ~65ms |
+| **Локальный (Local)** | Оценивает паспорт локально (bash скрипт). | Нет | ~300мс |
+| **API** | Отправляет паспорт + контекст на размещенный оценщик. Подписанные решения. | Да | ~65мс |
 
-A custom OAP provider can implement any evaluation strategy -- the Yandex Deep Research middleware doesn't care how the provider reaches its decision.
+Пользовательский OAP провайдер может реализовать любую стратегию оценки -- middleware Yandex Deep Research не важно, как провайдер принимает решение.
 
-**Try it:**
-1. Install and set up as above
-2. Start Yandex Deep Research and ask: "Create a file called test.txt with content hello"
-3. Then ask: "Now delete it using bash rm -rf"
-4. Guardrail blocks it: `oap.blocked_pattern: Command contains blocked pattern: rm -rf`
+**Попробуйте:**
+1. Установите и настройте, как описано выше
+2. Запустите Yandex Deep Research и попросите: "Создай файл test.txt с содержимым hello"
+3. Затем попросите: "Теперь удали его используя bash rm -rf"
+4. Ограничитель заблокирует это: `oap.blocked_pattern: Command contains blocked pattern: rm -rf`
 
-### Option 3: Custom Provider (Bring Your Own)
+### Вариант 3: Пользовательский Провайдер (Принеси свой)
 
-Any Python class with `evaluate(request)` and `aevaluate(request)` methods works. No base class or inheritance needed -- it's a structural protocol.
+Подойдет любой класс Python с методами `evaluate(request)` и `aevaluate(request)`. Базовый класс или наследование не нужны -- это структурный протокол.
 
 ```python
 # my_guardrail.py
@@ -222,7 +222,7 @@ class MyGuardrailProvider:
     def evaluate(self, request):
         from yandex-deep-research.guardrails.provider import GuardrailDecision, GuardrailReason
 
-        # Example: block any bash command containing "delete"
+        # Пример: блокировать любую команду bash, содержащую "delete"
         if request.tool_name == "bash" and "delete" in str(request.tool_input):
             return GuardrailDecision(
                 allow=False,
@@ -243,21 +243,21 @@ guardrails:
     use: my_guardrail:MyGuardrailProvider
 ```
 
-Make sure `my_guardrail.py` is on the Python path (e.g. in the backend directory or installed as a package).
+Убедитесь, что `my_guardrail.py` находится в пути поиска Python (например, в директории backend или установлен как пакет).
 
-**Try it:**
-1. Create `my_guardrail.py` in the backend directory
-2. Add the config
-3. Start Yandex Deep Research and ask: "Use bash to delete test.txt"
-4. Your provider blocks it
+**Попробуйте:**
+1. Создайте `my_guardrail.py` в директории backend
+2. Добавьте конфигурацию
+3. Запустите Yandex Deep Research и попросите: "Используй bash, чтобы удалить test.txt"
+4. Ваш провайдер заблокирует это
 
-## Implementing a Provider
+## Реализация Провайдера
 
-### Required Interface
+### Требуемый Интерфейс
 
 ```
 ┌──────────────────────────────────────────────────┐
-│              GuardrailProvider Protocol            │
+│              Протокол GuardrailProvider            │
 │                                                   │
 │  name: str                                        │
 │                                                   │
@@ -269,117 +269,117 @@ Make sure `my_guardrail.py` is on the Python path (e.g. in the backend directory
 └──────────────────────────────────────────────────┘
 
 ┌──────────────────────────┐    ┌──────────────────────────┐
-│     GuardrailRequest      │    │    GuardrailDecision      │
-│                           │    │                           │
-│  tool_name: str           │    │  allow: bool              │
-│  tool_input: dict         │    │  reasons: [GuardrailReason]│
-│  agent_id: str | None     │    │  policy_id: str | None    │
-│  thread_id: str | None    │    │  metadata: dict           │
-│  is_subagent: bool        │    │                           │
-│  timestamp: str           │    │  GuardrailReason:         │
-│                           │    │    code: str              │
-└──────────────────────────┘    │    message: str           │
+│     GuardrailRequest     │    │    GuardrailDecision     │
+│                          │    │                          │
+│  tool_name: str          │    │  allow: bool             │
+│  tool_input: dict        │    │  reasons: [GuardrailReason]│
+│  agent_id: str | None    │    │  policy_id: str | None   │
+│  thread_id: str | None   │    │  metadata: dict          │
+│  is_subagent: bool       │    │                          │
+│  timestamp: str          │    │  GuardrailReason:        │
+│                          │    │    code: str             │
+└──────────────────────────┘    │    message: str          │
                                 └──────────────────────────┘
 ```
 
-### Yandex Deep Research Tool Names
+### Имена Инструментов Yandex Deep Research
 
-These are the tool names your provider will see in `request.tool_name`:
+Это имена инструментов, которые ваш провайдер увидит в `request.tool_name`:
 
-| Tool | What it does |
+| Инструмент | Что он делает |
 |---|---|
-| `bash` | Shell command execution |
-| `write_file` | Create/overwrite a file |
-| `str_replace` | Edit a file (find and replace) |
-| `read_file` | Read file content |
-| `ls` | List directory |
-| `web_search` | Web search query |
-| `web_fetch` | Fetch URL content |
-| `image_search` | Image search |
-| `present_file` | Present file to user |
-| `view_image` | Display image |
-| `ask_clarification` | Ask user a question |
-| `task` | Delegate to subagent |
-| `mcp__*` | MCP tools (dynamic) |
+| `bash` | Выполнение команд оболочки |
+| `write_file` | Создание/перезапись файла |
+| `str_replace` | Редактирование файла (поиск и замена) |
+| `read_file` | Чтение содержимого файла |
+| `ls` | Список файлов директории |
+| `web_search` | Поисковый запрос в веб |
+| `web_fetch` | Получение содержимого URL |
+| `image_search` | Поиск изображений |
+| `present_file` | Представление файла пользователю |
+| `view_image` | Отображение изображения |
+| `ask_clarification` | Задать вопрос пользователю |
+| `task` | Делегирование субагенту |
+| `mcp__*` | Инструменты MCP (динамические) |
 
-### OAP Reason Codes
+### Коды Причин OAP
 
-Standard codes used by the [OAP specification](https://github.com/aporthq/aport-spec):
+Стандартные коды, используемые в [спецификации OAP](https://github.com/aporthq/aport-spec):
 
-| Code | Meaning |
+| Код | Значение |
 |---|---|
-| `oap.allowed` | Tool call authorized |
-| `oap.tool_not_allowed` | Tool not in allowlist |
-| `oap.command_not_allowed` | Command not in allowed_commands |
-| `oap.blocked_pattern` | Command matches a blocked pattern |
-| `oap.limit_exceeded` | Operation exceeds a limit |
-| `oap.passport_suspended` | Passport status is suspended/revoked |
-| `oap.evaluator_error` | Provider crashed (fail-closed) |
+| `oap.allowed` | Вызов инструмента разрешен |
+| `oap.tool_not_allowed` | Инструмент не в белом списке |
+| `oap.command_not_allowed` | Команда не в allowed_commands |
+| `oap.blocked_pattern` | Команда совпадает с заблокированным паттерном |
+| `oap.limit_exceeded` | Операция превышает лимит |
+| `oap.passport_suspended` | Статус паспорта приостановлен/аннулирован |
+| `oap.evaluator_error` | Ошибка провайдера (fail-closed) |
 
-### Provider Loading
+### Загрузка Провайдера
 
-Yandex Deep Research loads providers via `resolve_variable()` -- the same mechanism used for models, tools, and sandbox providers. The `use:` field is a Python class path: `package.module:ClassName`.
+Yandex Deep Research загружает провайдеры через `resolve_variable()` -- тот же механизм используется для моделей, инструментов и провайдеров песочниц. Поле `use:` - это путь к классу Python: `package.module:ClassName`.
 
-The provider is instantiated with `**config` kwargs if `config:` is set, plus `framework="yandex-deep-research"` is always injected. Accept `**kwargs` to stay forward-compatible:
+Провайдер инстанцируется с `**config` kwargs, если задан `config:`, плюс всегда внедряется `framework="yandex-deep-research"`. Принимайте `**kwargs`, чтобы сохранить обратную совместимость:
 
 ```python
 class YourProvider:
     def __init__(self, framework: str = "generic", **kwargs):
-        # framework="yandex-deep-research" tells you which config dir to use
+        # framework="yandex-deep-research" сообщает вам, какую директорию конфигурации использовать
         ...
 ```
 
-## Configuration Reference
+## Справочник по Конфигурации
 
 ```yaml
 guardrails:
-  # Enable/disable guardrail middleware (default: false)
+  # Включить/выключить middleware ограничителя (по умолчанию: false)
   enabled: true
 
-  # Block tool calls if provider raises an exception (default: true)
+  # Блокировать вызовы инструментов, если провайдер вызывает исключение (по умолчанию: true)
   fail_closed: true
 
-  # Passport reference -- passed as request.agent_id to the provider.
-  # File path, hosted agent ID, or null (provider resolves from its config).
+  # Ссылка на паспорт -- передается как request.agent_id провайдеру.
+  # Путь к файлу, ID размещенного агента или null (провайдер берет из своей конфигурации).
   passport: null
 
-  # Provider: loaded by class path via resolve_variable
+  # Провайдер: загружается по пути класса через resolve_variable
   provider:
     use: yandex-deep-research.guardrails.builtin:AllowlistProvider
-    config:  # optional kwargs passed to provider.__init__
+    config:  # необязательные kwargs, передаваемые в provider.__init__
       denied_tools: ["bash"]
 ```
 
-## Testing
+## Тестирование
 
 ```bash
 cd backend
 uv run python -m pytest tests/test_guardrail_middleware.py -v
 ```
 
-25 tests covering:
-- AllowlistProvider: allow, deny, both allowlist+denylist, async
-- GuardrailMiddleware: allow passthrough, deny with OAP codes, fail-closed, fail-open, passport forwarding, empty reasons fallback, empty tool name, protocol isinstance check
-- Async paths: awrap_tool_call for allow, deny, fail-closed, fail-open
-- GraphBubbleUp: LangGraph control signals propagate through (not caught)
-- Config: defaults, from_dict, singleton load/reset
+25 тестов покрывают:
+- AllowlistProvider: разрешение, запрет, и белый+черный списки, асинхронность
+- GuardrailMiddleware: пропуск при разрешении, запрет с OAP кодами, fail-closed, fail-open, передача паспорта, запасной вариант для пустых причин, пустое имя инструмента, проверка протокола isinstance
+- Асинхронные пути: awrap_tool_call для разрешения, запрета, fail-closed, fail-open
+- GraphBubbleUp: управляющие сигналы LangGraph пробрасываются (не перехватываются)
+- Config: значения по умолчанию, from_dict, загрузка/сброс синглтона
 
-## Files
+## Файлы
 
 ```
 packages/harness/yandex-deep-research/guardrails/
-    __init__.py              # Public exports
-    provider.py              # GuardrailProvider protocol, GuardrailRequest, GuardrailDecision
-    middleware.py             # GuardrailMiddleware (AgentMiddleware subclass)
-    builtin.py               # AllowlistProvider (zero deps)
+    __init__.py              # Публичные экспорты
+    provider.py              # Протокол GuardrailProvider, GuardrailRequest, GuardrailDecision
+    middleware.py             # GuardrailMiddleware (подкласс AgentMiddleware)
+    builtin.py               # AllowlistProvider (без зависимостей)
 
 packages/harness/yandex-deep-research/config/
-    guardrails_config.py     # GuardrailsConfig Pydantic model + singleton
+    guardrails_config.py     # Pydantic модель GuardrailsConfig + синглтон
 
 packages/harness/yandex-deep-research/agents/middlewares/
-    tool_error_handling_middleware.py  # Registers GuardrailMiddleware in chain
+    tool_error_handling_middleware.py  # Регистрирует GuardrailMiddleware в цепочке
 
-config.example.yaml          # Three provider options documented
-tests/test_guardrail_middleware.py  # 25 tests
-docs/GUARDRAILS.md           # This file
+config.example.yaml          # Задокументированы три варианта провайдера
+tests/test_guardrail_middleware.py  # 25 тестов
+docs/GUARDRAILS.md           # Этот файл
 ```
