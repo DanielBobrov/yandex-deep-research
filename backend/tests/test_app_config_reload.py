@@ -13,7 +13,7 @@ def _write_config(path: Path, *, model_name: str, supports_thinking: bool) -> No
     path.write_text(
         yaml.safe_dump(
             {
-                "sandbox": {"use": "yandexdeepresearch.sandbox.local:LocalSandboxProvider"},
+                "sandbox": {"use": "yandex_deep_research.sandbox.local:LocalSandboxProvider"},
                 "models": [
                     {
                         "name": model_name,

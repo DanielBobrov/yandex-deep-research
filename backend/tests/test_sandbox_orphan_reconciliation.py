@@ -339,7 +339,7 @@ def _make_provider_for_reconciliation():
     this helper must be updated in lockstep — otherwise tests will fail with a
     confusing ``AttributeError`` instead of a meaningful assertion failure.
     """
-    aio_mod = importlib.import_module("yandexdeepresearch.community.aio_sandbox.aio_sandbox_provider")
+    aio_mod = importlib.import_module("yandex_deep_research.community.aio_sandbox.aio_sandbox_provider")
     provider = aio_mod.AioSandboxProvider.__new__(aio_mod.AioSandboxProvider)
     provider._lock = threading.Lock()
     provider._sandboxes = {}
@@ -532,7 +532,7 @@ def test_sighup_handler_registered():
     original_sigterm = signal.getsignal(signal.SIGTERM)
     original_sigint = signal.getsignal(signal.SIGINT)
     try:
-        aio_mod = importlib.import_module("yandexdeepresearch.community.aio_sandbox.aio_sandbox_provider")
+        aio_mod = importlib.import_module("yandex_deep_research.community.aio_sandbox.aio_sandbox_provider")
         provider._original_sighup = original_sighup
         provider._original_sigterm = original_sigterm
         provider._original_sigint = original_sigint

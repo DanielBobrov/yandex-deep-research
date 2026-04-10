@@ -1,8 +1,8 @@
 """LangGraph-compatible runtime — runs, streaming, and lifecycle management.
 
-Re-exports the public API of :mod:`~yandexdeepresearch.runtime.runs` and
-:mod:`~yandexdeepresearch.runtime.stream_bridge` so that consumers can import
-directly from ``yandexdeepresearch.runtime``.
+Re-exports the public API of :mod:`~yandex_deep_research.runtime.runs` and
+:mod:`~yandex_deep_research.runtime.stream_bridge` so that consumers can import
+directly from ``yandex_deep_research.runtime``.
 """
 
 from .runs import ConflictError, DisconnectMode, RunManager, RunRecord, RunStatus, UnsupportedStrategyError, run_agent

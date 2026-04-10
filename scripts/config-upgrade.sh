@@ -77,12 +77,12 @@ print()
 
 MIGRATIONS = {
     1: {
-        'description': 'Rename src.* module paths to yandexdeepresearch.*',
+        'description': 'Rename src.* module paths to yandex_deep_research.*',
         'replacements': [
-            ('src.community.', 'yandexdeepresearch.community.'),
-            ('src.sandbox.', 'yandexdeepresearch.sandbox.'),
-            ('src.models.', 'yandexdeepresearch.models.'),
-            ('src.tools.', 'yandexdeepresearch.tools.'),
+            ('src.community.', 'yandex_deep_research.community.'),
+            ('src.sandbox.', 'yandex_deep_research.sandbox.'),
+            ('src.models.', 'yandex_deep_research.models.'),
+            ('src.tools.', 'yandex_deep_research.tools.'),
         ],
     },
     # Future migrations go here:

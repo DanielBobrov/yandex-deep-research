@@ -36,7 +36,7 @@ class RemoteSandboxBackend(SandboxBackend):
     Typical config.yaml::
 
         sandbox:
-          use: yandexdeepresearch.community.aio_sandbox:AioSandboxProvider
+          use: yandex_deep_research.community.aio_sandbox:AioSandboxProvider
           provisioner_url: http://provisioner:8002
     """
 

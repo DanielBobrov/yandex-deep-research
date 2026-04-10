@@ -35,7 +35,7 @@ class CodexChatModel(BaseChatModel):
 
     Config example:
         - name: gpt-5.4
-          use: yandexdeepresearch.models.openai_codex_provider:CodexChatModel
+          use: yandex_deep_research.models.openai_codex_provider:CodexChatModel
           model: gpt-5.4
           reasoning_effort: medium
     """

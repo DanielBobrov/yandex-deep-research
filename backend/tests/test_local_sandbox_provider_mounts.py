@@ -250,8 +250,8 @@ class TestMultipleMounts:
                 captured["command"] = args[0]
             return original_run(*args, **kwargs)
 
-        monkeypatch.setattr("yandexdeepresearch.sandbox.local.local_sandbox.subprocess.run", mock_run)
-        monkeypatch.setattr("yandexdeepresearch.sandbox.local.local_sandbox.LocalSandbox._get_shell", lambda self: "/bin/sh")
+        monkeypatch.setattr("yandex_deep_research.sandbox.local.local_sandbox.subprocess.run", mock_run)
+        monkeypatch.setattr("yandex_deep_research.sandbox.local.local_sandbox.LocalSandbox._get_shell", lambda self: "/bin/sh")
 
         sandbox.execute_command("cat /mnt/data/test.txt")
         # Verify the command received the resolved local path
@@ -302,7 +302,7 @@ class TestLocalSandboxProviderMounts:
         from yandex_deep_research.config.sandbox_config import SandboxConfig, VolumeMountConfig
 
         sandbox_config = SandboxConfig(
-            use="yandexdeepresearch.sandbox.local:LocalSandboxProvider",
+            use="yandex_deep_research.sandbox.local:LocalSandboxProvider",
             mounts=[
                 VolumeMountConfig(host_path=str(custom_dir), container_path="/custom-skills/nested", read_only=False),
             ],
@@ -312,7 +312,7 @@ class TestLocalSandboxProviderMounts:
             sandbox=sandbox_config,
         )
 
-        with patch("yandexdeepresearch.config.get_app_config", return_value=config):
+        with patch("yandex_deep_research.config.get_app_config", return_value=config):
             provider = LocalSandboxProvider()
 
         assert [m.container_path for m in provider._path_mappings] == ["/custom-skills"]
@@ -324,7 +324,7 @@ class TestLocalSandboxProviderMounts:
         from yandex_deep_research.config.sandbox_config import SandboxConfig, VolumeMountConfig
 
         sandbox_config = SandboxConfig(
-            use="yandexdeepresearch.sandbox.local:LocalSandboxProvider",
+            use="yandex_deep_research.sandbox.local:LocalSandboxProvider",
             mounts=[
                 VolumeMountConfig(host_path="relative/path", container_path="/mnt/data", read_only=False),
             ],
@@ -334,7 +334,7 @@ class TestLocalSandboxProviderMounts:
             sandbox=sandbox_config,
         )
 
-        with patch("yandexdeepresearch.config.get_app_config", return_value=config):
+        with patch("yandex_deep_research.config.get_app_config", return_value=config):
             provider = LocalSandboxProvider()
 
         assert [m.container_path for m in provider._path_mappings] == ["/mnt/skills"]
@@ -348,7 +348,7 @@ class TestLocalSandboxProviderMounts:
         from yandex_deep_research.config.sandbox_config import SandboxConfig, VolumeMountConfig
 
         sandbox_config = SandboxConfig(
-            use="yandexdeepresearch.sandbox.local:LocalSandboxProvider",
+            use="yandex_deep_research.sandbox.local:LocalSandboxProvider",
             mounts=[
                 VolumeMountConfig(host_path=str(custom_dir), container_path="mnt/data", read_only=False),
             ],
@@ -358,7 +358,7 @@ class TestLocalSandboxProviderMounts:
             sandbox=sandbox_config,
         )
 
-        with patch("yandexdeepresearch.config.get_app_config", return_value=config):
+        with patch("yandex_deep_research.config.get_app_config", return_value=config):
             provider = LocalSandboxProvider()
 
         assert [m.container_path for m in provider._path_mappings] == ["/mnt/skills"]
@@ -372,7 +372,7 @@ class TestLocalSandboxProviderMounts:
         from yandex_deep_research.config.sandbox_config import SandboxConfig, VolumeMountConfig
 
         sandbox_config = SandboxConfig(
-            use="yandexdeepresearch.sandbox.local:LocalSandboxProvider",
+            use="yandex_deep_research.sandbox.local:LocalSandboxProvider",
             mounts=[
                 VolumeMountConfig(host_path=str(custom_dir), container_path="/mnt/data/", read_only=False),
             ],
@@ -382,7 +382,7 @@ class TestLocalSandboxProviderMounts:
             sandbox=sandbox_config,
         )
 
-        with patch("yandexdeepresearch.config.get_app_config", return_value=config):
+        with patch("yandex_deep_research.config.get_app_config", return_value=config):
             provider = LocalSandboxProvider()
 
         assert [m.container_path for m in provider._path_mappings] == ["/mnt/skills", "/mnt/data"]

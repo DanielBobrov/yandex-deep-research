@@ -16,7 +16,7 @@ from yandex_deep_research.config.summarization_config import SummarizationConfig
 def _make_app_config(models: list[ModelConfig]) -> AppConfig:
     return AppConfig(
         models=models,
-        sandbox=SandboxConfig(use="yandexdeepresearch.sandbox.local:LocalSandboxProvider"),
+        sandbox=SandboxConfig(use="yandex_deep_research.sandbox.local:LocalSandboxProvider"),
     )
 
 

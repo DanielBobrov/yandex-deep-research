@@ -8,19 +8,19 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock
 
-# Make 'app' and 'yandexdeepresearch' importable from any working directory
+# Make 'app' and 'yandex_deep_research' importable from any working directory
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Break the circular import chain that exists in production code:
-#   yandexdeepresearch.subagents.__init__
+#   yandex_deep_research.subagents.__init__
 #     -> .executor (SubagentExecutor, SubagentResult)
-#       -> yandexdeepresearch.agents.thread_state
-#         -> yandexdeepresearch.agents.__init__
+#       -> yandex_deep_research.agents.thread_state
+#         -> yandex_deep_research.agents.__init__
 #           -> lead_agent.agent
 #             -> subagent_limit_middleware
-#               -> yandexdeepresearch.subagents.executor  <-- circular!
+#               -> yandex_deep_research.subagents.executor  <-- circular!
 #
-# By injecting a mock for yandexdeepresearch.subagents.executor *before* any test module
+# By injecting a mock for yandex_deep_research.subagents.executor *before* any test module
 # triggers the import, __init__.py's "from .executor import ..." succeeds
 # immediately without running the real executor module.
 _executor_mock = MagicMock()
@@ -30,4 +30,4 @@ _executor_mock.SubagentStatus = MagicMock
 _executor_mock.MAX_CONCURRENT_SUBAGENTS = 3
 _executor_mock.get_background_task_result = MagicMock()
 
-sys.modules["yandexdeepresearch.subagents.executor"] = _executor_mock
+sys.modules["yandex_deep_research.subagents.executor"] = _executor_mock

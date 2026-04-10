@@ -1,4 +1,4 @@
-"""Tests for yandexdeepresearch.skills.installer — shared skill installation logic."""
+"""Tests for yandex_deep_research.skills.installer — shared skill installation logic."""
 
 import stat
 import zipfile

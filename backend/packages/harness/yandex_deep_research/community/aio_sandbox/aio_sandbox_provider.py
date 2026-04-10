@@ -74,7 +74,7 @@ class AioSandboxProvider(SandboxProvider):
         - Remote/K8s mode (connect to pre-existing sandbox URL)
 
     Configuration options in config.yaml under sandbox:
-        use: yandexdeepresearch.community.aio_sandbox:AioSandboxProvider
+        use: yandex_deep_research.community.aio_sandbox:AioSandboxProvider
         image: <container image>
         port: 8080                      # Base port for local containers
         container_prefix: yandex-deep-research-sandbox

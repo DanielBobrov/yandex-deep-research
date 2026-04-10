@@ -1,4 +1,4 @@
-"""Tests for yandexdeepresearch.runtime.serialization."""
+"""Tests for yandex_deep_research.runtime.serialization."""
 
 from __future__ import annotations
 

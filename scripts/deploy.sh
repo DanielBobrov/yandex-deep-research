@@ -165,7 +165,7 @@ detect_sandbox_mode() {
         }
     ' "$YANDEX_DEEP_RESEARCH_CONFIG_PATH")
 
-    if [[ "$sandbox_use" == *"yandexdeepresearch.community.aio_sandbox:AioSandboxProvider"* ]]; then
+    if [[ "$sandbox_use" == *"yandex_deep_research.community.aio_sandbox:AioSandboxProvider"* ]]; then
         if [ -n "$provisioner_url" ]; then
             echo "provisioner"
         else
