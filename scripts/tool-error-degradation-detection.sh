@@ -35,14 +35,14 @@ from requests.exceptions import SSLError
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import ToolMessage
 
-from yandexdeepresearch.agents.lead_agent.agent import _build_middlewares
-from yandexdeepresearch.config import get_app_config
-from yandexdeepresearch.sandbox.middleware import SandboxMiddleware
+from yandex_deep_research.agents.lead_agent.agent import _build_middlewares
+from yandex_deep_research.config import get_app_config
+from yandex_deep_research.sandbox.middleware import SandboxMiddleware
 
-from yandexdeepresearch.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
+from yandex_deep_research.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
 
 HANDSHAKE_ERROR = "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1000)"
-logging.getLogger("yandexdeepresearch.agents.middlewares.tool_error_handling_middleware").setLevel(logging.CRITICAL)
+logging.getLogger("yandex_deep_research.agents.middlewares.tool_error_handling_middleware").setLevel(logging.CRITICAL)
 
 
 def _make_ssl_error():
@@ -150,7 +150,7 @@ def _validate_outputs(label, outputs):
 
 def _build_sub_middlewares():
     try:
-        from yandexdeepresearch.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
+        from yandex_deep_research.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
     except Exception:
         return [
             ThreadDataMiddleware(lazy_init=True),
