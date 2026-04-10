@@ -1,4 +1,4 @@
-# Yandex Deep Research (Deer Flow) - Backend Engine
+# Yandex Deep Research
 
 Это система ИИ-агентов на базе [LangGraph](https://langchain-ai.github.io/langgraph/), предоставляющая мощный бэкенд, API (FastAPI) и возможности безопасного выполнения кода в песочнице (sandbox).
 
