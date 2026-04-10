@@ -18,14 +18,10 @@
 | [FILE_UPLOAD.md](FILE_UPLOAD.md) | Функционал загрузки файлов |
 | [PATH_EXAMPLES.md](PATH_EXAMPLES.md) | Типы путей и примеры использования |
 | [summarization.md](summarization.md) | Функция суммаризации контекста |
-| [plan_mode_usage.md](plan_mode_usage.md) | Режим планирования с TodoList |
 | [AUTO_TITLE_GENERATION.md](AUTO_TITLE_GENERATION.md) | Автоматическая генерация заголовков |
-
-## Разработка
-
-| Документ | Описание |
-|----------|-------------|
-| [TODO.md](TODO.md) | Запланированные функции и известные проблемы |
+| [APPLE_CONTAINER.md](APPLE_CONTAINER.md) | Поддержка Apple Container |
+| [GUARDRAILS.md](GUARDRAILS.md) | Ограничители (Guardrails) и авторизация вызовов инструментов |
+| [MCP_SERVER.md](MCP_SERVER.md) | Конфигурация MCP-серверов |
 
 ## Начало работы
 
@@ -36,7 +32,7 @@
 
 ## Структура документов
 
-```
+```text
 docs/
 ├── README.md                  # Этот файл
 ├── ARCHITECTURE.md            # Архитектура системы
@@ -46,8 +42,8 @@ docs/
 ├── FILE_UPLOAD.md             # Функция загрузки файлов
 ├── PATH_EXAMPLES.md           # Примеры использования путей
 ├── summarization.md           # Функция суммаризации
-├── plan_mode_usage.md         # Функция режима планирования
 ├── AUTO_TITLE_GENERATION.md   # Генерация заголовков
-├── TITLE_GENERATION_IMPLEMENTATION.md  # Детали реализации заголовков
-└── TODO.md                    # Планы и проблемы
+├── APPLE_CONTAINER.md         # Поддержка Apple Container
+├── GUARDRAILS.md              # Ограничители (Guardrails)
+└── MCP_SERVER.md              # Конфигурация MCP-серверов
 ```

@@ -17,7 +17,7 @@ YandexDeepResearch — это система супер-агентов на ба
 
 **Структура проекта**:
 ```
-deer-flow/
+yandex-deep-research/
 ├── Makefile                    # Корневые команды (check, install, dev, stop)
 ├── config.yaml                 # Основная конфигурация приложения
 ├── extensions_config.json      # Конфигурация MCP-серверов и навыков
