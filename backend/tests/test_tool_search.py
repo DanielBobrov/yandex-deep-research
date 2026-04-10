@@ -263,7 +263,7 @@ class TestDeferredToolsPromptSection:
 
         mock_config = MagicMock()
         mock_config.tool_search = ToolSearchConfig()  # disabled by default
-        monkeypatch.setattr("yandexdeepresearch.config.get_app_config", lambda: mock_config)
+        monkeypatch.setattr("yandex_deep_research.config.get_app_config", lambda: mock_config)
 
     def test_empty_when_disabled(self):
         from yandex_deep_research.agents.lead_agent.prompt import get_deferred_tools_prompt_section
@@ -313,16 +313,16 @@ class TestDeferredToolFilterMiddleware:
     def _ensure_middlewares_package(self):
         """Remove mock entries injected by test_subagent_executor.py.
 
-        That file replaces yandexdeepresearch.agents and yandexdeepresearch.agents.middlewares with
+        That file replaces yandex_deep_research.agents and yandex_deep_research.agents.middlewares with
         MagicMock objects in sys.modules (session-scoped) to break circular imports.
         We must clear those mocks so real submodule imports work.
         """
         from unittest.mock import MagicMock
 
         mock_keys = [
-            "yandexdeepresearch.agents",
-            "yandexdeepresearch.agents.middlewares",
-            "yandexdeepresearch.agents.middlewares.deferred_tool_filter_middleware",
+            "yandex_deep_research.agents",
+            "yandex_deep_research.agents.middlewares",
+            "yandex_deep_research.agents.middlewares.deferred_tool_filter_middleware",
         ]
         for key in mock_keys:
             if isinstance(sys.modules.get(key), MagicMock):
@@ -435,9 +435,9 @@ class TestDeferredToolRegistryPromote:
 
         # Clear any mock entries
         mock_keys = [
-            "yandexdeepresearch.agents",
-            "yandexdeepresearch.agents.middlewares",
-            "yandexdeepresearch.agents.middlewares.deferred_tool_filter_middleware",
+            "yandex_deep_research.agents",
+            "yandex_deep_research.agents.middlewares",
+            "yandex_deep_research.agents.middlewares.deferred_tool_filter_middleware",
         ]
         for key in mock_keys:
             if isinstance(sys.modules.get(key), MagicMock):

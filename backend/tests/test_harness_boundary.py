@@ -1,6 +1,6 @@
 """Boundary check: harness layer must not import from app layer.
 
-The yandexdeepresearch-harness package (packages/harness/yandexdeepresearch/) is a standalone,
+The yandex_deep_research-harness package (packages/harness/yandex_deep_research/) is a standalone,
 publishable agent framework. It must never depend on the app layer (app/).
 
 This test scans all Python files in the harness package and fails if any
@@ -10,7 +10,7 @@ This test scans all Python files in the harness package and fails if any
 import ast
 from pathlib import Path
 
-HARNESS_ROOT = Path(__file__).parent.parent / "packages" / "harness" / "yandexdeepresearch"
+HARNESS_ROOT = Path(__file__).parent.parent / "packages" / "harness" / "yandex_deep_research"
 
 BANNED_PREFIXES = ("app.",)
 

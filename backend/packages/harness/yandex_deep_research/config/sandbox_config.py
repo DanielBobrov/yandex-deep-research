@@ -29,7 +29,7 @@ class SandboxConfig(BaseModel):
 
     use: str = Field(
         ...,
-        description="Class path of the sandbox provider (e.g. yandexdeepresearch.sandbox.local:LocalSandboxProvider)",
+        description="Class path of the sandbox provider (e.g. yandex_deep_research.sandbox.local:LocalSandboxProvider)",
     )
     allow_host_bash: bool = Field(
         default=False,

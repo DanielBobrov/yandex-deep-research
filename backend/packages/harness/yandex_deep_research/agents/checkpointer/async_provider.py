@@ -12,7 +12,7 @@ Usage (e.g. FastAPI lifespan)::
     async with make_checkpointer() as checkpointer:
         app.state.checkpointer = checkpointer  # InMemorySaver if not configured
 
-For sync usage see :mod:`yandexdeepresearch.agents.checkpointer.provider`.
+For sync usage see :mod:`yandex_deep_research.agents.checkpointer.provider`.
 """
 
 from __future__ import annotations

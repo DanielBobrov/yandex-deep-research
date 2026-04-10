@@ -27,7 +27,7 @@ def _is_host_bash_tool(tool: object) -> bool:
     use = getattr(tool, "use", None)
     if group == "bash":
         return True
-    if use == "yandexdeepresearch.sandbox.tools:bash_tool":
+    if use == "yandex_deep_research.sandbox.tools:bash_tool":
         return True
     return False
 

@@ -1,11 +1,11 @@
-"""Tests for create_yandexdeepresearch_agent SDK entry point."""
+"""Tests for create_yandex_deep_research_agent SDK entry point."""
 
 from typing import get_type_hints
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from yandex_deep_research.agents.factory import create_yandexdeepresearch_agent
+from yandex_deep_research.agents.factory import create_yandex_deep_research_agent
 from yandex_deep_research.agents.features import Next, Prev, RuntimeFeatures
 from yandex_deep_research.agents.middlewares.view_image_middleware import ViewImageMiddleware
 from yandex_deep_research.agents.thread_state import ThreadState
@@ -24,12 +24,12 @@ def _make_mock_tool(name: str = "my_tool"):
 # ---------------------------------------------------------------------------
 # 1. Minimal creation — only model
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_minimal_creation(mock_create_agent):
     mock_create_agent.return_value = MagicMock(name="compiled_graph")
     model = _make_mock_model()
 
-    result = create_yandexdeepresearch_agent(model)
+    result = create_yandex_deep_research_agent(model)
 
     mock_create_agent.assert_called_once()
     assert result is mock_create_agent.return_value
@@ -41,13 +41,13 @@ def test_minimal_creation(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 2. With tools
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_with_tools(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     model = _make_mock_model()
     tool = _make_mock_tool("search")
 
-    create_yandexdeepresearch_agent(model, tools=[tool])
+    create_yandex_deep_research_agent(model, tools=[tool])
 
     call_kwargs = mock_create_agent.call_args[1]
     tool_names = [t.name for t in call_kwargs["tools"]]
@@ -57,12 +57,12 @@ def test_with_tools(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 3. With system_prompt
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_with_system_prompt(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     prompt = "You are a helpful assistant."
 
-    create_yandexdeepresearch_agent(_make_mock_model(), system_prompt=prompt)
+    create_yandex_deep_research_agent(_make_mock_model(), system_prompt=prompt)
 
     call_kwargs = mock_create_agent.call_args[1]
     assert call_kwargs["system_prompt"] == prompt
@@ -71,12 +71,12 @@ def test_with_system_prompt(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 4. Features mode — auto-assemble middleware chain
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_features_mode(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     feat = RuntimeFeatures(sandbox=True, auto_title=True)
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     middleware = call_kwargs["middleware"]
@@ -91,13 +91,13 @@ def test_features_mode(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 5. Middleware full takeover
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_middleware_takeover(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     custom_mw = MagicMock(name="custom_middleware")
     custom_mw.name = "custom"
 
-    create_yandexdeepresearch_agent(_make_mock_model(), middleware=[custom_mw])
+    create_yandex_deep_research_agent(_make_mock_model(), middleware=[custom_mw])
 
     call_kwargs = mock_create_agent.call_args[1]
     assert call_kwargs["middleware"] == [custom_mw]
@@ -108,7 +108,7 @@ def test_middleware_takeover(mock_create_agent):
 # ---------------------------------------------------------------------------
 def test_middleware_and_features_conflict():
     with pytest.raises(ValueError, match="Cannot specify both"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             middleware=[MagicMock()],
             features=RuntimeFeatures(),
@@ -118,12 +118,12 @@ def test_middleware_and_features_conflict():
 # ---------------------------------------------------------------------------
 # 7. Vision feature auto-injects view_image_tool
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_vision_injects_view_image_tool(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     feat = RuntimeFeatures(vision=True, sandbox=False)
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     tool_names = [t.name for t in call_kwargs["tools"]]
@@ -140,12 +140,12 @@ def test_view_image_middleware_preserves_viewed_images_reducer():
 # ---------------------------------------------------------------------------
 # 8. Subagent feature auto-injects task_tool
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_subagent_injects_task_tool(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     feat = RuntimeFeatures(subagent=True, sandbox=False)
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     tool_names = [t.name for t in call_kwargs["tools"]]
@@ -155,12 +155,12 @@ def test_subagent_injects_task_tool(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 9. Middleware ordering — ClarificationMiddleware always last
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_clarification_always_last(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     feat = RuntimeFeatures(sandbox=True, memory=True, vision=True)
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     middleware = call_kwargs["middleware"]
@@ -185,13 +185,13 @@ def test_agent_features_defaults():
 # ---------------------------------------------------------------------------
 # 11. Tool deduplication — user-provided tools take priority
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_tool_deduplication(mock_create_agent):
     """If user provides a tool with the same name as an auto-injected one, no duplicate."""
     mock_create_agent.return_value = MagicMock()
     user_clarification = _make_mock_tool("ask_clarification")
 
-    create_yandexdeepresearch_agent(_make_mock_model(), tools=[user_clarification], features=RuntimeFeatures(sandbox=False))
+    create_yandex_deep_research_agent(_make_mock_model(), tools=[user_clarification], features=RuntimeFeatures(sandbox=False))
 
     call_kwargs = mock_create_agent.call_args[1]
     names = [t.name for t in call_kwargs["tools"]]
@@ -203,12 +203,12 @@ def test_tool_deduplication(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 12. Sandbox disabled — no ThreadData/Uploads/Sandbox middleware
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_sandbox_disabled(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     feat = RuntimeFeatures(sandbox=False)
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     mw_types = [type(m).__name__ for m in call_kwargs["middleware"]]
@@ -220,12 +220,12 @@ def test_sandbox_disabled(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 13. Checkpointer passed through
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_checkpointer_passthrough(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     cp = MagicMock(name="checkpointer")
 
-    create_yandexdeepresearch_agent(_make_mock_model(), checkpointer=cp)
+    create_yandex_deep_research_agent(_make_mock_model(), checkpointer=cp)
 
     call_kwargs = mock_create_agent.call_args[1]
     assert call_kwargs["checkpointer"] is cp
@@ -234,7 +234,7 @@ def test_checkpointer_passthrough(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 14. Custom AgentMiddleware instance replaces default
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_custom_middleware_replaces_default(mock_create_agent):
     """Passing an AgentMiddleware instance uses it directly instead of the built-in default."""
     from langchain.agents.middleware import AgentMiddleware
@@ -247,7 +247,7 @@ def test_custom_middleware_replaces_default(mock_create_agent):
     custom_memory = MyMemoryMiddleware()
     feat = RuntimeFeatures(sandbox=False, memory=custom_memory)
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     middleware = call_kwargs["middleware"]
@@ -260,7 +260,7 @@ def test_custom_middleware_replaces_default(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 15. Custom sandbox middleware replaces the 3-middleware group
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_custom_sandbox_replaces_group(mock_create_agent):
     """Passing an AgentMiddleware for sandbox replaces ThreadData+Uploads+Sandbox with one."""
     from langchain.agents.middleware import AgentMiddleware
@@ -273,7 +273,7 @@ def test_custom_sandbox_replaces_group(mock_create_agent):
     custom_sb = MySandbox()
     feat = RuntimeFeatures(sandbox=custom_sb)
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     middleware = call_kwargs["middleware"]
@@ -287,12 +287,12 @@ def test_custom_sandbox_replaces_group(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 16. Always-on error handling middlewares are present
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_always_on_error_handling(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
     feat = RuntimeFeatures(sandbox=False)
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     mw_types = [type(m).__name__ for m in call_kwargs["middleware"]]
@@ -303,7 +303,7 @@ def test_always_on_error_handling(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 17. Vision with custom middleware still injects tool
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_vision_custom_middleware_still_injects_tool(mock_create_agent):
     """Custom vision middleware still gets the view_image_tool auto-injected."""
     from langchain.agents.middleware import AgentMiddleware
@@ -315,7 +315,7 @@ def test_vision_custom_middleware_still_injects_tool(mock_create_agent):
 
     feat = RuntimeFeatures(sandbox=False, vision=MyVision())
 
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat)
 
     call_kwargs = mock_create_agent.call_args[1]
     tool_names = [t.name for t in call_kwargs["tools"]]
@@ -362,7 +362,7 @@ def test_prev_decorator():
 # ---------------------------------------------------------------------------
 # 20. extra_middleware with @Next inserts after anchor
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_extra_next_inserts_after_anchor(mock_create_agent):
     from langchain.agents.middleware import AgentMiddleware
 
@@ -375,7 +375,7 @@ def test_extra_next_inserts_after_anchor(mock_create_agent):
         pass
 
     audit = MyAudit()
-    create_yandexdeepresearch_agent(
+    create_yandex_deep_research_agent(
         _make_mock_model(),
         features=RuntimeFeatures(sandbox=False),
         extra_middleware=[audit],
@@ -392,7 +392,7 @@ def test_extra_next_inserts_after_anchor(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 21. extra_middleware with @Prev inserts before anchor
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_extra_prev_inserts_before_anchor(mock_create_agent):
     from langchain.agents.middleware import AgentMiddleware
 
@@ -405,7 +405,7 @@ def test_extra_prev_inserts_before_anchor(mock_create_agent):
         pass
 
     filt = MyFilter()
-    create_yandexdeepresearch_agent(
+    create_yandex_deep_research_agent(
         _make_mock_model(),
         features=RuntimeFeatures(sandbox=False),
         extra_middleware=[filt],
@@ -422,7 +422,7 @@ def test_extra_prev_inserts_before_anchor(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 22. Unanchored extra_middleware goes before ClarificationMiddleware
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_extra_unanchored_before_clarification(mock_create_agent):
     from langchain.agents.middleware import AgentMiddleware
 
@@ -432,7 +432,7 @@ def test_extra_unanchored_before_clarification(mock_create_agent):
         pass
 
     plain = MyPlain()
-    create_yandexdeepresearch_agent(
+    create_yandex_deep_research_agent(
         _make_mock_model(),
         features=RuntimeFeatures(sandbox=False),
         extra_middleware=[plain],
@@ -462,7 +462,7 @@ def test_extra_conflict_same_next_target():
         pass
 
     with pytest.raises(ValueError, match="Conflict"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False),
             extra_middleware=[MW1(), MW2()],
@@ -486,7 +486,7 @@ def test_extra_conflict_same_prev_target():
         pass
 
     with pytest.raises(ValueError, match="Conflict"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False),
             extra_middleware=[MW1(), MW2()],
@@ -509,7 +509,7 @@ def test_extra_both_next_and_prev_error():
     MW._prev_anchor = ClarificationMiddleware
 
     with pytest.raises(ValueError, match="both @Next and @Prev"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False),
             extra_middleware=[MW()],
@@ -519,7 +519,7 @@ def test_extra_both_next_and_prev_error():
 # ---------------------------------------------------------------------------
 # 26. Cross-external anchoring: extra anchors to another extra
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_extra_cross_external_anchoring(mock_create_agent):
     from langchain.agents.middleware import AgentMiddleware
 
@@ -535,7 +535,7 @@ def test_extra_cross_external_anchoring(mock_create_agent):
     class Second(AgentMiddleware):
         pass
 
-    create_yandexdeepresearch_agent(
+    create_yandex_deep_research_agent(
         _make_mock_model(),
         features=RuntimeFeatures(sandbox=False),
         extra_middleware=[Second(), First()],  # intentionally reversed
@@ -565,7 +565,7 @@ def test_extra_unresolvable_anchor():
         pass
 
     with pytest.raises(ValueError, match="Cannot resolve"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False),
             extra_middleware=[MW()],
@@ -577,7 +577,7 @@ def test_extra_unresolvable_anchor():
 # ---------------------------------------------------------------------------
 def test_extra_with_middleware_takeover_conflict():
     with pytest.raises(ValueError, match="full takeover"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             middleware=[MagicMock()],
             extra_middleware=[MagicMock()],
@@ -592,10 +592,10 @@ def test_extra_with_middleware_takeover_conflict():
 # ---------------------------------------------------------------------------
 # 29. LoopDetectionMiddleware is always present
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_loop_detection_always_present(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
-    create_yandexdeepresearch_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False))
+    create_yandex_deep_research_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False))
 
     call_kwargs = mock_create_agent.call_args[1]
     mw_types = [type(m).__name__ for m in call_kwargs["middleware"]]
@@ -605,10 +605,10 @@ def test_loop_detection_always_present(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 30. LoopDetection before Clarification
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_loop_detection_before_clarification(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
-    create_yandexdeepresearch_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False))
+    create_yandex_deep_research_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False))
 
     call_kwargs = mock_create_agent.call_args[1]
     mw_types = [type(m).__name__ for m in call_kwargs["middleware"]]
@@ -621,10 +621,10 @@ def test_loop_detection_before_clarification(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 31. plan_mode=True adds TodoMiddleware
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_plan_mode_adds_todo_middleware(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
-    create_yandexdeepresearch_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False), plan_mode=True)
+    create_yandex_deep_research_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False), plan_mode=True)
 
     call_kwargs = mock_create_agent.call_args[1]
     mw_types = [type(m).__name__ for m in call_kwargs["middleware"]]
@@ -634,10 +634,10 @@ def test_plan_mode_adds_todo_middleware(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 32. plan_mode=False (default) — no TodoMiddleware
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_plan_mode_default_no_todo(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
-    create_yandexdeepresearch_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False))
+    create_yandex_deep_research_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False))
 
     call_kwargs = mock_create_agent.call_args[1]
     mw_types = [type(m).__name__ for m in call_kwargs["middleware"]]
@@ -649,7 +649,7 @@ def test_plan_mode_default_no_todo(mock_create_agent):
 # ---------------------------------------------------------------------------
 def test_summarization_true_raises():
     with pytest.raises(ValueError, match="requires a custom AgentMiddleware"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False, summarization=True),
         )
@@ -660,7 +660,7 @@ def test_summarization_true_raises():
 # ---------------------------------------------------------------------------
 def test_guardrail_true_raises():
     with pytest.raises(ValueError, match="requires a custom AgentMiddleware"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False, guardrail=True),
         )
@@ -669,7 +669,7 @@ def test_guardrail_true_raises():
 # ---------------------------------------------------------------------------
 # 34. guardrail with custom AgentMiddleware replaces default
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_guardrail_custom_middleware(mock_create_agent):
     from langchain.agents.middleware import AgentMiddleware as AM
 
@@ -679,7 +679,7 @@ def test_guardrail_custom_middleware(mock_create_agent):
         pass
 
     custom = MyGuardrail()
-    create_yandexdeepresearch_agent(
+    create_yandex_deep_research_agent(
         _make_mock_model(),
         features=RuntimeFeatures(sandbox=False, guardrail=custom),
     )
@@ -694,10 +694,10 @@ def test_guardrail_custom_middleware(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 35. guardrail=False (default) — no GuardrailMiddleware
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_guardrail_default_off(mock_create_agent):
     mock_create_agent.return_value = MagicMock()
-    create_yandexdeepresearch_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False))
+    create_yandex_deep_research_agent(_make_mock_model(), features=RuntimeFeatures(sandbox=False))
 
     call_kwargs = mock_create_agent.call_args[1]
     mw_types = [type(m).__name__ for m in call_kwargs["middleware"]]
@@ -707,7 +707,7 @@ def test_guardrail_default_off(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 36. Full chain order matches make_lead_agent (all features on)
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_full_chain_order(mock_create_agent):
     from langchain.agents.middleware import AgentMiddleware as AM
 
@@ -728,7 +728,7 @@ def test_full_chain_order(mock_create_agent):
         auto_title=True,
         guardrail=MyGuardrail(),
     )
-    create_yandexdeepresearch_agent(_make_mock_model(), features=feat, plan_mode=True)
+    create_yandex_deep_research_agent(_make_mock_model(), features=feat, plan_mode=True)
 
     call_kwargs = mock_create_agent.call_args[1]
     mw_types = [type(m).__name__ for m in call_kwargs["middleware"]]
@@ -755,7 +755,7 @@ def test_full_chain_order(mock_create_agent):
 # ---------------------------------------------------------------------------
 # 37. @Next(ClarificationMiddleware) does not break tail invariant
 # ---------------------------------------------------------------------------
-@patch("yandexdeepresearch.agents.factory.create_agent")
+@patch("yandex_deep_research.agents.factory.create_agent")
 def test_next_clarification_preserves_tail_invariant(mock_create_agent):
     """Even with @Next(ClarificationMiddleware), Clarification stays last."""
     from langchain.agents.middleware import AgentMiddleware
@@ -768,7 +768,7 @@ def test_next_clarification_preserves_tail_invariant(mock_create_agent):
     class AfterClar(AgentMiddleware):
         pass
 
-    create_yandexdeepresearch_agent(
+    create_yandex_deep_research_agent(
         _make_mock_model(),
         features=RuntimeFeatures(sandbox=False),
         extra_middleware=[AfterClar()],
@@ -798,7 +798,7 @@ def test_extra_opposite_direction_same_anchor_conflict():
         pass
 
     with pytest.raises(ValueError, match="cross-anchoring"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False),
             extra_middleware=[AfterDangling(), BeforeDangling()],
@@ -837,7 +837,7 @@ def test_prev_bad_anchor_type():
 # ---------------------------------------------------------------------------
 def test_extra_middleware_bad_type():
     with pytest.raises(TypeError, match="AgentMiddleware instances"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False),
             extra_middleware=[object()],  # type: ignore[list-item]
@@ -860,7 +860,7 @@ def test_extra_circular_dependency():
     MW_B._next_anchor = MW_A  # type: ignore[attr-defined]
 
     with pytest.raises(ValueError, match="Circular dependency"):
-        create_yandexdeepresearch_agent(
+        create_yandex_deep_research_agent(
             _make_mock_model(),
             features=RuntimeFeatures(sandbox=False),
             extra_middleware=[MW_A(), MW_B()],

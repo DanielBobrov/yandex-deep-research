@@ -1,4 +1,4 @@
-"""Tests for yandexdeepresearch.models.patched_deepseek.PatchedChatDeepSeek.
+"""Tests for yandex_deep_research.models.patched_deepseek.PatchedChatDeepSeek.
 
 Covers:
 - LangChain serialization protocol: is_lc_serializable, lc_secrets, to_json

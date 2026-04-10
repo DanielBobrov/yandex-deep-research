@@ -154,7 +154,7 @@ class TestStreamUsageIntegration:
     """Test that stream() emits usage_metadata in messages-tuple and end events."""
 
     def _make_client(self):
-        with patch("yandexdeepresearch.client.get_app_config", return_value=_mock_app_config()):
+        with patch("yandex_deep_research.client.get_app_config", return_value=_mock_app_config()):
             return YandexDeepResearchClient()
 
     def test_stream_emits_usage_in_messages_tuple(self):

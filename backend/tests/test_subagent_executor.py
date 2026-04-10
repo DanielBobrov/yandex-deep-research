@@ -9,7 +9,7 @@ Covers:
 - Cooperative cancellation via cancel_event
 
 Note: Due to circular import issues in the main codebase, conftest.py mocks
-yandexdeepresearch.subagents.executor. This test file uses delayed import via fixture to test
+yandex_deep_research.subagents.executor. This test file uses delayed import via fixture to test
 the real implementation in isolation.
 """
 
@@ -23,14 +23,14 @@ import pytest
 
 # Module names that need to be mocked to break circular imports
 _MOCKED_MODULE_NAMES = [
-    "yandexdeepresearch.agents",
-    "yandexdeepresearch.agents.thread_state",
-    "yandexdeepresearch.agents.middlewares",
-    "yandexdeepresearch.agents.middlewares.thread_data_middleware",
-    "yandexdeepresearch.sandbox",
-    "yandexdeepresearch.sandbox.middleware",
-    "yandexdeepresearch.sandbox.security",
-    "yandexdeepresearch.models",
+    "yandex_deep_research.agents",
+    "yandex_deep_research.agents.thread_state",
+    "yandex_deep_research.agents.middlewares",
+    "yandex_deep_research.agents.middlewares.thread_data_middleware",
+    "yandex_deep_research.sandbox",
+    "yandex_deep_research.sandbox.middleware",
+    "yandex_deep_research.sandbox.security",
+    "yandex_deep_research.models",
 ]
 
 
@@ -43,11 +43,11 @@ def _setup_executor_classes():
     """
     # Save original modules
     original_modules = {name: sys.modules.get(name) for name in _MOCKED_MODULE_NAMES}
-    original_executor = sys.modules.get("yandexdeepresearch.subagents.executor")
+    original_executor = sys.modules.get("yandex_deep_research.subagents.executor")
 
     # Remove mocked executor if exists (from conftest.py)
-    if "yandexdeepresearch.subagents.executor" in sys.modules:
-        del sys.modules["yandexdeepresearch.subagents.executor"]
+    if "yandex_deep_research.subagents.executor" in sys.modules:
+        del sys.modules["yandex_deep_research.subagents.executor"]
 
     # Set up mocks
     for name in _MOCKED_MODULE_NAMES:
@@ -84,9 +84,9 @@ def _setup_executor_classes():
 
     # Restore executor module (conftest.py mock)
     if original_executor is not None:
-        sys.modules["yandexdeepresearch.subagents.executor"] = original_executor
-    elif "yandexdeepresearch.subagents.executor" in sys.modules:
-        del sys.modules["yandexdeepresearch.subagents.executor"]
+        sys.modules["yandex_deep_research.subagents.executor"] = original_executor
+    elif "yandex_deep_research.subagents.executor" in sys.modules:
+        del sys.modules["yandex_deep_research.subagents.executor"]
 
 
 # Helper classes that wrap real classes for testing

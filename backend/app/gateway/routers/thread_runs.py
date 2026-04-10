@@ -1,8 +1,8 @@
 """Runs endpoints — create, stream, wait, cancel.
 
 Implements the LangGraph Platform runs API on top of
-:class:`yandexdeepresearch.agents.runs.RunManager` and
-:class:`yandexdeepresearch.agents.stream_bridge.StreamBridge`.
+:class:`yandex_deep_research.agents.runs.RunManager` and
+:class:`yandex_deep_research.agents.stream_bridge.StreamBridge`.
 
 SSE format is aligned with the LangGraph Platform protocol so that
 the ``useStream`` React hook from ``@langchain/langgraph-sdk/react``

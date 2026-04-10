@@ -1,4 +1,4 @@
-"""Tests for yandexdeepresearch.models.openai_codex_provider.CodexChatModel.
+"""Tests for yandex_deep_research.models.openai_codex_provider.CodexChatModel.
 
 Covers:
 - LangChain serialization: is_lc_serializable, to_json kwargs, no token leakage
@@ -22,7 +22,7 @@ def _make_model(**kwargs):
     from yandex_deep_research.models.openai_codex_provider import CodexChatModel
 
     cred = CodexCliCredential(access_token="tok-test", account_id="acc-test")
-    with patch("yandexdeepresearch.models.openai_codex_provider.load_codex_cli_credential", return_value=cred):
+    with patch("yandex_deep_research.models.openai_codex_provider.load_codex_cli_credential", return_value=cred):
         return CodexChatModel(model="gpt-5.4", reasoning_effort="medium", **kwargs)
 
 

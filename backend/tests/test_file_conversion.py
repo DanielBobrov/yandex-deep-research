@@ -102,7 +102,7 @@ class TestDoConvert:
         docx.write_bytes(b"PK fake docx")
 
         with patch(
-            "yandexdeepresearch.utils.file_conversion._convert_with_markitdown",
+            "yandex_deep_research.utils.file_conversion._convert_with_markitdown",
             return_value="# Markdown from MarkItDown",
         ) as mock_md:
             result = _do_convert(docx, "auto")
@@ -119,14 +119,14 @@ class TestDoConvert:
 
         with (
             patch(
-                "yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm",
+                "yandex_deep_research.utils.file_conversion._convert_pdf_with_pymupdf4llm",
                 return_value=dense_text,
             ),
             patch(
-                "yandexdeepresearch.utils.file_conversion._pymupdf_output_too_sparse",
+                "yandex_deep_research.utils.file_conversion._pymupdf_output_too_sparse",
                 return_value=False,
             ),
-            patch("yandexdeepresearch.utils.file_conversion._convert_with_markitdown") as mock_md,
+            patch("yandex_deep_research.utils.file_conversion._convert_with_markitdown") as mock_md,
         ):
             result = _do_convert(pdf, "auto")
 
@@ -140,15 +140,15 @@ class TestDoConvert:
 
         with (
             patch(
-                "yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm",
+                "yandex_deep_research.utils.file_conversion._convert_pdf_with_pymupdf4llm",
                 return_value="x" * 612,  # 19.7 chars/page for 31-page doc
             ),
             patch(
-                "yandexdeepresearch.utils.file_conversion._pymupdf_output_too_sparse",
+                "yandex_deep_research.utils.file_conversion._pymupdf_output_too_sparse",
                 return_value=True,
             ),
             patch(
-                "yandexdeepresearch.utils.file_conversion._convert_with_markitdown",
+                "yandex_deep_research.utils.file_conversion._convert_with_markitdown",
                 return_value="OCR result via MarkItDown",
             ) as mock_md,
         ):
@@ -166,10 +166,10 @@ class TestDoConvert:
 
         with (
             patch(
-                "yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm",
+                "yandex_deep_research.utils.file_conversion._convert_pdf_with_pymupdf4llm",
                 return_value=sparse_text,
             ),
-            patch("yandexdeepresearch.utils.file_conversion._convert_with_markitdown") as mock_md,
+            patch("yandex_deep_research.utils.file_conversion._convert_with_markitdown") as mock_md,
         ):
             result = _do_convert(pdf, "pymupdf4llm")
 
@@ -182,9 +182,9 @@ class TestDoConvert:
         pdf.write_bytes(b"%PDF-1.4 fake")
 
         with (
-            patch("yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm") as mock_pymu,
+            patch("yandex_deep_research.utils.file_conversion._convert_pdf_with_pymupdf4llm") as mock_pymu,
             patch(
-                "yandexdeepresearch.utils.file_conversion._convert_with_markitdown",
+                "yandex_deep_research.utils.file_conversion._convert_with_markitdown",
                 return_value="MarkItDown result",
             ),
         ):
@@ -200,11 +200,11 @@ class TestDoConvert:
 
         with (
             patch(
-                "yandexdeepresearch.utils.file_conversion._convert_pdf_with_pymupdf4llm",
+                "yandex_deep_research.utils.file_conversion._convert_pdf_with_pymupdf4llm",
                 return_value=None,  # None signals not installed
             ),
             patch(
-                "yandexdeepresearch.utils.file_conversion._convert_with_markitdown",
+                "yandex_deep_research.utils.file_conversion._convert_with_markitdown",
                 return_value="MarkItDown fallback",
             ) as mock_md,
         ):
@@ -226,9 +226,9 @@ class TestConvertFileToMarkdown:
         pdf.write_bytes(b"%PDF-1.4 " + b"x" * 100)  # well under 1 MB
 
         with (
-            patch("yandexdeepresearch.utils.file_conversion._get_pdf_converter", return_value="auto"),
+            patch("yandex_deep_research.utils.file_conversion._get_pdf_converter", return_value="auto"),
             patch(
-                "yandexdeepresearch.utils.file_conversion._do_convert",
+                "yandex_deep_research.utils.file_conversion._do_convert",
                 return_value="# Small PDF",
             ) as mock_convert,
             patch("asyncio.to_thread") as mock_thread,
@@ -251,9 +251,9 @@ class TestConvertFileToMarkdown:
             return fn(*args, **kwargs)
 
         with (
-            patch("yandexdeepresearch.utils.file_conversion._get_pdf_converter", return_value="auto"),
+            patch("yandex_deep_research.utils.file_conversion._get_pdf_converter", return_value="auto"),
             patch(
-                "yandexdeepresearch.utils.file_conversion._do_convert",
+                "yandex_deep_research.utils.file_conversion._do_convert",
                 return_value="# Large PDF",
             ),
             patch("asyncio.to_thread", side_effect=fake_to_thread) as mock_thread,
@@ -270,9 +270,9 @@ class TestConvertFileToMarkdown:
         pdf.write_bytes(b"%PDF-1.4 fake")
 
         with (
-            patch("yandexdeepresearch.utils.file_conversion._get_pdf_converter", return_value="auto"),
+            patch("yandex_deep_research.utils.file_conversion._get_pdf_converter", return_value="auto"),
             patch(
-                "yandexdeepresearch.utils.file_conversion._do_convert",
+                "yandex_deep_research.utils.file_conversion._do_convert",
                 side_effect=RuntimeError("conversion failed"),
             ),
         ):
@@ -287,9 +287,9 @@ class TestConvertFileToMarkdown:
         chinese_content = "# 中文报告\n\n这是测试内容。"
 
         with (
-            patch("yandexdeepresearch.utils.file_conversion._get_pdf_converter", return_value="auto"),
+            patch("yandex_deep_research.utils.file_conversion._get_pdf_converter", return_value="auto"),
             patch(
-                "yandexdeepresearch.utils.file_conversion._do_convert",
+                "yandex_deep_research.utils.file_conversion._do_convert",
                 return_value=chinese_content,
             ),
         ):

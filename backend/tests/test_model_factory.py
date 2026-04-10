@@ -1,4 +1,4 @@
-"""Tests for yandexdeepresearch.models.factory.create_chat_model."""
+"""Tests for yandex_deep_research.models.factory.create_chat_model."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from yandex_deep_research.models import openai_codex_provider as codex_provider_
 def _make_app_config(models: list[ModelConfig]) -> AppConfig:
     return AppConfig(
         models=models,
-        sandbox=SandboxConfig(use="yandexdeepresearch.sandbox.local:LocalSandboxProvider"),
+        sandbox=SandboxConfig(use="yandex_deep_research.sandbox.local:LocalSandboxProvider"),
     )
 
 
@@ -660,7 +660,7 @@ def test_codex_provider_disables_reasoning_when_thinking_disabled(monkeypatch):
         [
             _make_model(
                 "codex",
-                use="yandexdeepresearch.models.openai_codex_provider:CodexChatModel",
+                use="yandex_deep_research.models.openai_codex_provider:CodexChatModel",
                 supports_thinking=True,
                 supports_reasoning_effort=True,
             )
@@ -680,7 +680,7 @@ def test_codex_provider_preserves_explicit_reasoning_effort(monkeypatch):
         [
             _make_model(
                 "codex",
-                use="yandexdeepresearch.models.openai_codex_provider:CodexChatModel",
+                use="yandex_deep_research.models.openai_codex_provider:CodexChatModel",
                 supports_thinking=True,
                 supports_reasoning_effort=True,
             )
@@ -700,7 +700,7 @@ def test_codex_provider_defaults_reasoning_effort_to_medium(monkeypatch):
         [
             _make_model(
                 "codex",
-                use="yandexdeepresearch.models.openai_codex_provider:CodexChatModel",
+                use="yandex_deep_research.models.openai_codex_provider:CodexChatModel",
                 supports_thinking=True,
                 supports_reasoning_effort=True,
             )
@@ -720,7 +720,7 @@ def test_codex_provider_strips_unsupported_max_tokens(monkeypatch):
         [
             _make_model(
                 "codex",
-                use="yandexdeepresearch.models.openai_codex_provider:CodexChatModel",
+                use="yandex_deep_research.models.openai_codex_provider:CodexChatModel",
                 supports_thinking=True,
                 supports_reasoning_effort=True,
                 max_tokens=4096,
@@ -740,7 +740,7 @@ def test_thinking_disabled_vllm_chat_template_format(monkeypatch):
     wte = {"extra_body": {"chat_template_kwargs": {"thinking": True}}}
     model = _make_model(
         "vllm-qwen",
-        use="yandexdeepresearch.models.vllm_provider:VllmChatModel",
+        use="yandex_deep_research.models.vllm_provider:VllmChatModel",
         supports_thinking=True,
         when_thinking_enabled=wte,
     )
@@ -767,7 +767,7 @@ def test_thinking_disabled_vllm_enable_thinking_format(monkeypatch):
     wte = {"extra_body": {"chat_template_kwargs": {"enable_thinking": True}}}
     model = _make_model(
         "vllm-qwen-enable",
-        use="yandexdeepresearch.models.vllm_provider:VllmChatModel",
+        use="yandex_deep_research.models.vllm_provider:VllmChatModel",
         supports_thinking=True,
         when_thinking_enabled=wte,
     )
@@ -839,7 +839,7 @@ def test_no_duplicate_kwarg_when_reasoning_effort_in_config_and_thinking_disable
         name="doubao-model",
         display_name="Doubao 1.8",
         description=None,
-        use="yandexdeepresearch.models.patched_deepseek:PatchedChatDeepSeek",
+        use="yandex_deep_research.models.patched_deepseek:PatchedChatDeepSeek",
         model="doubao-seed-1-8-250315",
         reasoning_effort="high",  # user-set extra field in config.yaml
         supports_thinking=True,

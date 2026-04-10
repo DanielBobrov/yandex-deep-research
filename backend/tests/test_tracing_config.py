@@ -1,4 +1,4 @@
-"""Tests for yandexdeepresearch.config.tracing_config."""
+"""Tests for yandex_deep_research.config.tracing_config."""
 
 from __future__ import annotations
 

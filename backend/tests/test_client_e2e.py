@@ -58,7 +58,7 @@ def _make_e2e_config() -> AppConfig:
     return AppConfig(
         models=[
             ModelConfig(
-                display_name="E2E Test Model",
+                name="e2e-model", display_name="E2E Test Model",
                 use=os.getenv("E2E_MODEL_USE", "langchain_openai:ChatOpenAI"),
                 model=os.getenv("E2E_MODEL_ID", "ep-20251211175242-llcmh"),
                 base_url=os.getenv("E2E_BASE_URL", "https://ark-cn-beijing.bytedance.net/api/v3"),
@@ -70,7 +70,7 @@ def _make_e2e_config() -> AppConfig:
                 supports_vision=False,
             )
         ],
-        sandbox=SandboxConfig(use="yandexdeepresearch.sandbox.local:LocalSandboxProvider", allow_host_bash=True),
+        sandbox=SandboxConfig(use="yandex_deep_research.sandbox.local:LocalSandboxProvider", allow_host_bash=True),
     )
 
 
@@ -90,31 +90,31 @@ def e2e_env(tmp_path, monkeypatch):
     """
     # 1. Filesystem isolation
     monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path))
-    monkeypatch.setattr("yandexdeepresearch.config.paths._paths", None)
-    monkeypatch.setattr("yandexdeepresearch.sandbox.sandbox_provider._default_sandbox_provider", None)
+    monkeypatch.setattr("yandex_deep_research.config.paths._paths", None)
+    monkeypatch.setattr("yandex_deep_research.sandbox.sandbox_provider._default_sandbox_provider", None)
 
     # 2. Inject a clean AppConfig via the global singleton.
     config = _make_e2e_config()
-    monkeypatch.setattr("yandexdeepresearch.config.app_config._app_config", config)
-    monkeypatch.setattr("yandexdeepresearch.config.app_config._app_config_is_custom", True)
+    monkeypatch.setattr("yandex_deep_research.config.app_config._app_config", config)
+    monkeypatch.setattr("yandex_deep_research.config.app_config._app_config_is_custom", True)
 
     # 3. Disable title generation (extra LLM call, non-deterministic)
     from yandex_deep_research.config.title_config import TitleConfig
 
-    monkeypatch.setattr("yandexdeepresearch.config.title_config._title_config", TitleConfig(enabled=False))
+    monkeypatch.setattr("yandex_deep_research.config.title_config._title_config", TitleConfig(enabled=False))
 
     # 4. Disable memory queueing (avoids background threads & file writes)
     from yandex_deep_research.config.memory_config import MemoryConfig
 
     monkeypatch.setattr(
-        "yandexdeepresearch.agents.middlewares.memory_middleware.get_memory_config",
+        "yandex_deep_research.agents.middlewares.memory_middleware.get_memory_config",
         lambda: MemoryConfig(enabled=False),
     )
 
     # 5. Ensure summarization is off (default, but be explicit)
     from yandex_deep_research.config.summarization_config import SummarizationConfig
 
-    monkeypatch.setattr("yandexdeepresearch.config.summarization_config._summarization_config", SummarizationConfig(enabled=False))
+    monkeypatch.setattr("yandex_deep_research.config.summarization_config._summarization_config", SummarizationConfig(enabled=False))
 
     # 6. Exclude TitleMiddleware from the chain.
     #    It triggers an extra LLM call to generate a thread title, which adds
@@ -128,7 +128,7 @@ def e2e_env(tmp_path, monkeypatch):
         mws = _original_build_middlewares(*args, **kwargs)
         return [m for m in mws if not isinstance(m, TitleMiddleware)]
 
-    monkeypatch.setattr("yandexdeepresearch.client._build_middlewares", _sync_safe_build_middlewares)
+    monkeypatch.setattr("yandex_deep_research.client._build_middlewares", _sync_safe_build_middlewares)
 
     return {"tmp_path": tmp_path}
 
@@ -251,6 +251,7 @@ class TestFileUploadIntegration:
         test_file.write_text("Hello world")
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         tid = str(uuid.uuid4())
 
         result = c.upload_files(tid, [test_file])
@@ -273,6 +274,7 @@ class TestFileUploadIntegration:
         (d2 / "data.txt").write_text("content B")
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         tid = str(uuid.uuid4())
 
         result = c.upload_files(tid, [d1 / "data.txt", d2 / "data.txt"])
@@ -289,6 +291,7 @@ class TestFileUploadIntegration:
         test_file.write_text("lifecycle test")
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         tid = str(uuid.uuid4())
 
         c.upload_files(tid, [test_file])
@@ -311,6 +314,7 @@ class TestFileUploadIntegration:
         test_file.write_text("The secret code is 7749.")
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         tid = str(uuid.uuid4())
 
         c.upload_files(tid, [test_file])
@@ -344,6 +348,7 @@ class TestLifecycleAndConfig:
     def test_reset_agent_clears_state(self, e2e_env):
         """reset_agent() sets the internal agent to None."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         # Before any call, agent is None
         assert c._agent is None
 
@@ -425,12 +430,14 @@ class TestErrorAndBoundary:
     def test_upload_nonexistent_file_raises(self, e2e_env):
         """Uploading a file that doesn't exist raises FileNotFoundError."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises(FileNotFoundError):
             c.upload_files("test-thread", ["/nonexistent/file.txt"])
 
     def test_delete_nonexistent_upload_raises(self, e2e_env):
         """Deleting a file that doesn't exist raises FileNotFoundError."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         tid = str(uuid.uuid4())
         # Ensure the uploads dir exists first
         c.list_uploads(tid)
@@ -440,6 +447,7 @@ class TestErrorAndBoundary:
     def test_artifact_path_traversal_blocked(self, e2e_env):
         """get_artifact blocks path traversal attempts."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises(ValueError):
             c.get_artifact("test-thread", "../../etc/passwd")
 
@@ -448,6 +456,7 @@ class TestErrorAndBoundary:
         d = tmp_path / "a_directory"
         d.mkdir()
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises(ValueError, match="not a file"):
             c.upload_files("test-thread", [d])
 
@@ -472,6 +481,7 @@ class TestArtifactAccess:
         from yandex_deep_research.config.paths import get_paths
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         tid = str(uuid.uuid4())
 
         # Create an output file in the thread's outputs directory
@@ -488,6 +498,7 @@ class TestArtifactAccess:
         from yandex_deep_research.config.paths import get_paths
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         tid = str(uuid.uuid4())
 
         outputs_dir = get_paths().sandbox_outputs_dir(tid)
@@ -502,12 +513,14 @@ class TestArtifactAccess:
     def test_get_artifact_nonexistent_raises(self, e2e_env):
         """Reading a nonexistent artifact raises FileNotFoundError."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises(FileNotFoundError):
             c.get_artifact("test-thread", "mnt/user-data/outputs/ghost.txt")
 
     def test_get_artifact_traversal_within_prefix_blocked(self, e2e_env):
         """Path traversal within the valid prefix is still blocked."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises((PermissionError, ValueError, FileNotFoundError)):
             c.get_artifact("test-thread", "mnt/user-data/outputs/../../etc/passwd")
 
@@ -527,7 +540,7 @@ class TestSkillInstallation:
         (skills_root / "public").mkdir(parents=True)
         (skills_root / "custom").mkdir(parents=True)
         monkeypatch.setattr(
-            "yandexdeepresearch.skills.installer.get_skills_root_path",
+            "yandex_deep_research.skills.installer.get_skills_root_path",
             lambda: skills_root,
         )
         self._skills_root = skills_root
@@ -548,6 +561,7 @@ class TestSkillInstallation:
         """A valid .skill archive installs to the custom skills directory."""
         archive = self._make_skill_zip(tmp_path)
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
 
         result = c.install_skill(archive)
         assert result["success"] is True
@@ -558,6 +572,7 @@ class TestSkillInstallation:
         """Installing the same skill twice raises ValueError."""
         archive = self._make_skill_zip(tmp_path)
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
 
         c.install_skill(archive)
         with pytest.raises(ValueError, match="already exists"):
@@ -568,6 +583,7 @@ class TestSkillInstallation:
         bad_file = tmp_path / "not_a_skill.zip"
         bad_file.write_bytes(b"PK\x03\x04")  # ZIP magic bytes
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises(ValueError, match=".skill extension"):
             c.install_skill(bad_file)
 
@@ -583,12 +599,14 @@ class TestSkillInstallation:
                 zf.write(file, file.relative_to(tmp_path / "build"))
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises(ValueError, match="Invalid skill"):
             c.install_skill(archive)
 
     def test_install_skill_nonexistent_file(self, e2e_env):
         """Installing from a nonexistent path raises FileNotFoundError."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises(FileNotFoundError):
             c.install_skill("/nonexistent/skill.skill")
 
@@ -604,6 +622,7 @@ class TestConfigManagement:
     def test_list_models_returns_injected_config(self, e2e_env):
         """list_models() returns the model from the injected AppConfig."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         result = c.list_models()
         assert "models" in result
         assert len(result["models"]) == 1
@@ -612,17 +631,20 @@ class TestConfigManagement:
     def test_get_model_found(self, e2e_env):
         """get_model() returns the model when it exists."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         assert model is not None
         assert model["supports_thinking"] is False
 
     def test_get_model_not_found(self, e2e_env):
         """get_model() returns None for nonexistent model."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         assert c.get_model("nonexistent-model") is None
 
     def test_list_skills_returns_list(self, e2e_env):
         """list_skills() returns a dict with 'skills' key from real directory scan."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         result = c.list_skills()
         assert "skills" in result
         assert isinstance(result["skills"], list)
@@ -632,6 +654,7 @@ class TestConfigManagement:
     def test_get_skill_found(self, e2e_env):
         """get_skill() returns skill info for a known public skill."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         # 'deep-research' is a built-in public skill
         skill = c.get_skill("deep-research")
         if skill is not None:
@@ -642,11 +665,13 @@ class TestConfigManagement:
     def test_get_skill_not_found(self, e2e_env):
         """get_skill() returns None for nonexistent skill."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         assert c.get_skill("nonexistent-skill-xyz") is None
 
     def test_get_mcp_config_returns_dict(self, e2e_env):
         """get_mcp_config() returns a dict with 'mcp_servers' key."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         result = c.get_mcp_config()
         assert "mcp_servers" in result
         assert isinstance(result["mcp_servers"], dict)
@@ -664,6 +689,7 @@ class TestConfigManagement:
         reload_extensions_config()
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         # Simulate a cached agent
         c._agent = "fake-agent-placeholder"
         c._agent_config_key = ("a", "b", "c", "d")
@@ -690,6 +716,7 @@ class TestConfigManagement:
         reload_extensions_config()
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         c._agent = "fake-agent-placeholder"
         c._agent_config_key = ("a", "b", "c", "d")
 
@@ -718,6 +745,7 @@ class TestConfigManagement:
         reload_extensions_config()
 
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         with pytest.raises(ValueError, match="not found"):
             c.update_skill("nonexistent-skill-xyz", enabled=True)
 
@@ -733,18 +761,21 @@ class TestMemoryAccess:
     def test_get_memory_returns_dict(self, e2e_env):
         """get_memory() returns a dict (may be empty initial state)."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         result = c.get_memory()
         assert isinstance(result, dict)
 
     def test_reload_memory_returns_dict(self, e2e_env):
         """reload_memory() forces reload and returns a dict."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         result = c.reload_memory()
         assert isinstance(result, dict)
 
     def test_get_memory_config_fields(self, e2e_env):
         """get_memory_config() returns expected config fields."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         result = c.get_memory_config()
         assert "enabled" in result
         assert "storage_path" in result
@@ -757,6 +788,7 @@ class TestMemoryAccess:
     def test_get_memory_status_combines_config_and_data(self, e2e_env):
         """get_memory_status() returns both 'config' and 'data' keys."""
         c = YandexDeepResearchClient(checkpointer=None, thinking_enabled=False)
+        model = c.get_model("e2e-model")
         result = c.get_memory_status()
         assert "config" in result
         assert "data" in result

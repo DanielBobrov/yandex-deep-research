@@ -26,7 +26,7 @@ def _load_enabled_skills_sync() -> list[Skill]:
 def _start_enabled_skills_refresh_thread() -> None:
     threading.Thread(
         target=_refresh_enabled_skills_cache_worker,
-        name="yandexdeepresearch-enabled-skills-loader",
+        name="yandex_deep_research-enabled-skills-loader",
         daemon=True,
     ).start()
 

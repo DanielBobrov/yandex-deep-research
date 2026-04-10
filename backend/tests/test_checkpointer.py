@@ -78,7 +78,7 @@ class TestGetCheckpointer:
         """get_checkpointer should return InMemorySaver when not configured."""
         from langgraph.checkpoint.memory import InMemorySaver
 
-        with patch("yandexdeepresearch.agents.checkpointer.provider.get_app_config", side_effect=FileNotFoundError):
+        with patch("yandex_deep_research.agents.checkpointer.provider.get_app_config", side_effect=FileNotFoundError):
             cp = get_checkpointer()
         assert cp is not None
         assert isinstance(cp, InMemorySaver)
@@ -195,11 +195,11 @@ class TestAsyncCheckpointer:
         mock_module.AsyncSqliteSaver = mock_saver_cls
 
         with (
-            patch("yandexdeepresearch.agents.checkpointer.async_provider.get_app_config", return_value=mock_config),
+            patch("yandex_deep_research.agents.checkpointer.async_provider.get_app_config", return_value=mock_config),
             patch.dict(sys.modules, {"langgraph.checkpoint.sqlite.aio": mock_module}),
-            patch("yandexdeepresearch.agents.checkpointer.async_provider.asyncio.to_thread", new_callable=AsyncMock) as mock_to_thread,
+            patch("yandex_deep_research.agents.checkpointer.async_provider.asyncio.to_thread", new_callable=AsyncMock) as mock_to_thread,
             patch(
-                "yandexdeepresearch.agents.checkpointer.async_provider.resolve_sqlite_conn_str",
+                "yandex_deep_research.agents.checkpointer.async_provider.resolve_sqlite_conn_str",
                 return_value="/tmp/resolved/test.db",
             ),
         ):
@@ -256,12 +256,12 @@ class TestClientCheckpointerFallback:
         config_mock.checkpointer = None
 
         with (
-            patch("yandexdeepresearch.client.get_app_config", return_value=config_mock),
-            patch("yandexdeepresearch.client.create_agent", side_effect=fake_create_agent),
-            patch("yandexdeepresearch.client.create_chat_model", return_value=MagicMock()),
-            patch("yandexdeepresearch.client._build_middlewares", return_value=[]),
-            patch("yandexdeepresearch.client.apply_prompt_template", return_value=""),
-            patch("yandexdeepresearch.client.YandexDeepResearchClient._get_tools", return_value=[]),
+            patch("yandex_deep_research.client.get_app_config", return_value=config_mock),
+            patch("yandex_deep_research.client.create_agent", side_effect=fake_create_agent),
+            patch("yandex_deep_research.client.create_chat_model", return_value=MagicMock()),
+            patch("yandex_deep_research.client._build_middlewares", return_value=[]),
+            patch("yandex_deep_research.client.apply_prompt_template", return_value=""),
+            patch("yandex_deep_research.client.YandexDeepResearchClient._get_tools", return_value=[]),
         ):
             client = YandexDeepResearchClient(checkpointer=None)
             config = client._get_runnable_config("test-thread")
@@ -290,12 +290,12 @@ class TestClientCheckpointerFallback:
         config_mock.checkpointer = None
 
         with (
-            patch("yandexdeepresearch.client.get_app_config", return_value=config_mock),
-            patch("yandexdeepresearch.client.create_agent", side_effect=fake_create_agent),
-            patch("yandexdeepresearch.client.create_chat_model", return_value=MagicMock()),
-            patch("yandexdeepresearch.client._build_middlewares", return_value=[]),
-            patch("yandexdeepresearch.client.apply_prompt_template", return_value=""),
-            patch("yandexdeepresearch.client.YandexDeepResearchClient._get_tools", return_value=[]),
+            patch("yandex_deep_research.client.get_app_config", return_value=config_mock),
+            patch("yandex_deep_research.client.create_agent", side_effect=fake_create_agent),
+            patch("yandex_deep_research.client.create_chat_model", return_value=MagicMock()),
+            patch("yandex_deep_research.client._build_middlewares", return_value=[]),
+            patch("yandex_deep_research.client.apply_prompt_template", return_value=""),
+            patch("yandex_deep_research.client.YandexDeepResearchClient._get_tools", return_value=[]),
         ):
             client = YandexDeepResearchClient(checkpointer=explicit_cp)
             config = client._get_runnable_config("test-thread")

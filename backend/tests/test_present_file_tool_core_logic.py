@@ -3,7 +3,7 @@
 import importlib
 from types import SimpleNamespace
 
-present_file_tool_module = importlib.import_module("yandexdeepresearch.tools.builtins.present_file_tool")
+present_file_tool_module = importlib.import_module("yandex_deep_research.tools.builtins.present_file_tool")
 
 
 def _make_runtime(outputs_path: str) -> SimpleNamespace:

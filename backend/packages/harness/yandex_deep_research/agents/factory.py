@@ -1,6 +1,6 @@
 """Pure-argument factory for YandexDeepResearch agents.
 
-``create_yandexdeepresearch_agent`` accepts plain Python arguments — no YAML files, no
+``create_yandex_deep_research_agent`` accepts plain Python arguments — no YAML files, no
 global singletons.  It is the SDK-level entry point sitting between the raw
 ``langchain.agents.create_agent`` primitive and the config-driven
 ``make_lead_agent`` application factory.
@@ -58,7 +58,7 @@ _TODO_TOOL_DESCRIPTION = "Use this tool to create and manage a structured task l
 # ---------------------------------------------------------------------------
 
 
-def create_yandexdeepresearch_agent(
+def create_yandex_deep_research_agent(
     model: BaseChatModel,
     tools: list[BaseTool] | None = None,
     *,

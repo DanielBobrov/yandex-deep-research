@@ -4,7 +4,7 @@ Provides a single source of truth for converting LangChain message
 objects, Pydantic models, and LangGraph state dicts into plain
 JSON-serialisable Python structures.
 
-Consumers: ``yandexdeepresearch.runtime.runs.worker`` (SSE publishing) and
+Consumers: ``yandex_deep_research.runtime.runs.worker`` (SSE publishing) and
 ``app.gateway.routers.threads`` (REST responses).
 """
 

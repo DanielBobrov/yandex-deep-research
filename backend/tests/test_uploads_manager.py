@@ -1,4 +1,4 @@
-"""Tests for yandexdeepresearch.uploads.manager — shared upload management logic."""
+"""Tests for yandex_deep_research.uploads.manager — shared upload management logic."""
 
 import pytest
 

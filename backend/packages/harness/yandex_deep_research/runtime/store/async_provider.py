@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 async def _async_store(config) -> AsyncIterator[BaseStore]:
     """Async context manager that constructs and tears down a Store.
 
-    The ``config`` argument is a :class:`yandexdeepresearch.config.checkpointer_config.CheckpointerConfig`
+    The ``config`` argument is a :class:`yandex_deep_research.config.checkpointer_config.CheckpointerConfig`
     instance — the same object used by the checkpointer factory.
     """
     if config.type == "memory":
@@ -91,7 +91,7 @@ async def make_store() -> AsyncIterator[BaseStore]:
     configured checkpointer.
 
     Reads from the same ``checkpointer`` section of *config.yaml* used by
-    :func:`yandexdeepresearch.agents.checkpointer.async_provider.make_checkpointer` so
+    :func:`yandex_deep_research.agents.checkpointer.async_provider.make_checkpointer` so
     that both singletons always use the same persistence technology::
 
         async with make_store() as store:
