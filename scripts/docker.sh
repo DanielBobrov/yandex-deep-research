@@ -13,7 +13,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 DOCKER_DIR="$PROJECT_ROOT/docker"
 
 # Docker Compose command with project name
-COMPOSE_CMD="docker compose -p yandex-deep-research-dev -f docker-compose-dev.yaml"
+COMPOSE_CMD="docker-compose -p yandex-deep-research-dev -f docker-compose-dev.yaml"
 
 detect_sandbox_mode() {
     local config_file="$PROJECT_ROOT/config.yaml"
@@ -169,14 +169,14 @@ start() {
     sandbox_mode="$(detect_sandbox_mode)"
 
     if $gateway_mode; then
-        services="frontend gateway nginx"
+        services="gateway"
         if [ "$sandbox_mode" = "provisioner" ]; then
-            services="frontend gateway provisioner nginx"
+            services="gateway provisioner"
         fi
     else
-        services="frontend gateway langgraph nginx"
+        services="gateway langgraph"
         if [ "$sandbox_mode" = "provisioner" ]; then
-            services="frontend gateway langgraph provisioner nginx"
+            services="gateway langgraph provisioner"
         fi
     fi
 

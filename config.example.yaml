@@ -36,7 +36,7 @@ token_usage:
 models:
   # - name: doubao-seed-1.8
   #   display_name: Doubao-Seed-1.8
-  #   use: yandexdeepresearch.models.patched_deepseek:PatchedChatDeepSeek
+  #   use: yandex_deep_research.models.patched_deepseek:PatchedChatDeepSeek
   #   model: doubao-seed-1-8-251228
   #   api_base: https://ark.cn-beijing.volces.com/api/v3
   #   api_key: $VOLCENGINE_API_KEY
@@ -113,7 +113,7 @@ models:
   # https://docs.cloud.google.com/vertex-ai/generative-ai/docs/thought-signatures
   # - name: gemini-2.5-pro-thinking
   #   display_name: Gemini 2.5 Pro (Thinking)
-  #   use: yandexdeepresearch.models.patched_openai:PatchedChatOpenAI
+  #   use: yandex_deep_research.models.patched_openai:PatchedChatOpenAI
   #   model: google/gemini-2.5-pro-preview   # model name as expected by your gateway
   #   api_key: $GEMINI_API_KEY
   #   base_url: https://<your-openai-compat-gateway>/v1
@@ -134,7 +134,7 @@ models:
   # Example: DeepSeek model (with thinking support)
   # - name: deepseek-v3
   #   display_name: DeepSeek V3 (Thinking)
-  #   use: yandexdeepresearch.models.patched_deepseek:PatchedChatDeepSeek
+  #   use: yandex_deep_research.models.patched_deepseek:PatchedChatDeepSeek
   #   model: deepseek-reasoner
   #   api_key: $DEEPSEEK_API_KEY
   #   timeout: 600.0
@@ -154,7 +154,7 @@ models:
   # Example: Kimi K2.5 model
   # - name: kimi-k2.5
   #   display_name: Kimi K2.5
-  #   use: yandexdeepresearch.models.patched_deepseek:PatchedChatDeepSeek
+  #   use: yandex_deep_research.models.patched_deepseek:PatchedChatDeepSeek
   #   model: kimi-k2.5
   #   api_base: https://api.moonshot.cn/v1
   #   api_key: $MOONSHOT_API_KEY
@@ -275,7 +275,7 @@ models:
   # `vllm serve ... --reasoning-parser <parser>`.
   # - name: qwen3-32b-vllm
   #   display_name: Qwen3 32B (vLLM)
-  #   use: yandexdeepresearch.models.vllm_provider:VllmChatModel
+  #   use: yandex_deep_research.models.vllm_provider:VllmChatModel
   #   model: Qwen/Qwen3-32B
   #   api_key: $VLLM_API_KEY
   #   base_url: http://localhost:8000/v1
@@ -309,13 +309,13 @@ tools:
   # Web search tool (uses DuckDuckGo, no API key required)
   - name: web_search
     group: web
-    use: yandexdeepresearch.community.ddg_search.tools:web_search_tool
+    use: yandex_deep_research.community.ddg_search.tools:web_search_tool
     max_results: 5
 
   # Web search tool (requires Tavily API key)
   # - name: web_search
   #   group: web
-  #   use: yandexdeepresearch.community.tavily.tools:web_search_tool
+  #   use: yandex_deep_research.community.tavily.tools:web_search_tool
   #   max_results: 5
   #   # api_key: $TAVILY_API_KEY  # Set if needed
 
@@ -327,7 +327,7 @@ tools:
   # Web search tool (uses Exa, requires EXA_API_KEY)
   # - name: web_search
   #   group: web
-  #   use: yandexdeepresearch.community.exa.tools:web_search_tool
+  #   use: yandex_deep_research.community.exa.tools:web_search_tool
   #   max_results: 5
   #   search_type: auto  # Options: auto, neural, keyword
   #   contents_max_characters: 1000
@@ -338,13 +338,13 @@ tools:
   # Comment out the Jina AI web_fetch entry below before enabling this one.
   # - name: web_fetch
   #   group: web
-  #   use: yandexdeepresearch.community.exa.tools:web_fetch_tool
+  #   use: yandex_deep_research.community.exa.tools:web_fetch_tool
   #   # api_key: $EXA_API_KEY
 
   # Web fetch tool (uses Jina AI reader)
   - name: web_fetch
     group: web
-    use: yandexdeepresearch.community.jina_ai.tools:web_fetch_tool
+    use: yandex_deep_research.community.jina_ai.tools:web_fetch_tool
     timeout: 10
 
   # - name: web_fetch
@@ -360,7 +360,7 @@ tools:
   # Use this to find reference images before image generation
   - name: image_search
     group: web
-    use: yandexdeepresearch.community.image_search.tools:image_search_tool
+    use: yandex_deep_research.community.image_search.tools:image_search_tool
     max_results: 5
 
   # - name: image_search
@@ -373,36 +373,36 @@ tools:
   # File operations tools
   - name: ls
     group: file:read
-    use: yandexdeepresearch.sandbox.tools:ls_tool
+    use: yandex_deep_research.sandbox.tools:ls_tool
 
   - name: read_file
     group: file:read
-    use: yandexdeepresearch.sandbox.tools:read_file_tool
+    use: yandex_deep_research.sandbox.tools:read_file_tool
 
   - name: glob
     group: file:read
-    use: yandexdeepresearch.sandbox.tools:glob_tool
+    use: yandex_deep_research.sandbox.tools:glob_tool
     max_results: 200
 
   - name: grep
     group: file:read
-    use: yandexdeepresearch.sandbox.tools:grep_tool
+    use: yandex_deep_research.sandbox.tools:grep_tool
     max_results: 100
 
   - name: write_file
     group: file:write
-    use: yandexdeepresearch.sandbox.tools:write_file_tool
+    use: yandex_deep_research.sandbox.tools:write_file_tool
 
   - name: str_replace
     group: file:write
-    use: yandexdeepresearch.sandbox.tools:str_replace_tool
+    use: yandex_deep_research.sandbox.tools:str_replace_tool
 
   # Bash execution tool
   # Active only when using an isolated shell sandbox or when
   # sandbox.allow_host_bash: true explicitly opts into host bash.
   - name: bash
     group: bash
-    use: yandexdeepresearch.sandbox.tools:bash_tool
+    use: yandex_deep_research.sandbox.tools:bash_tool
 
 # ============================================================================
 # Tool Search Configuration (Deferred Tool Loading)
@@ -433,7 +433,7 @@ uploads:
   pdf_converter: auto
 
 sandbox:
-  use: yandexdeepresearch.sandbox.local:LocalSandboxProvider
+  use: yandex_deep_research.sandbox.local:LocalSandboxProvider
   # Host bash execution is disabled by default because LocalSandboxProvider is
   # not a secure isolation boundary for shell access. Enable only for fully
   # trusted, single-user local workflows.
@@ -459,7 +459,7 @@ sandbox:
 # On other platforms: Uses Docker
 # Uncomment to use:
 # sandbox:
-#   use: yandexdeepresearch.community.aio_sandbox:AioSandboxProvider
+#   use: yandex_deep_research.community.aio_sandbox:AioSandboxProvider
 #
 #   # Optional: Container image to use (works with both Docker and Apple Container)
 #   # Default: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
@@ -500,7 +500,7 @@ sandbox:
 # Each sandbox_id gets a dedicated Pod in k3s, managed by the provisioner.
 # Recommended for production or advanced users who want better isolation and scalability.:
 # sandbox:
-#   use: yandexdeepresearch.community.aio_sandbox:AioSandboxProvider
+#   use: yandex_deep_research.community.aio_sandbox:AioSandboxProvider
 #   provisioner_url: http://provisioner:8002
 
 # ============================================================================
@@ -773,7 +773,7 @@ checkpointer:
 # guardrails:
 #   enabled: true
 #   provider:
-#     use: yandexdeepresearch.guardrails.builtin:AllowlistProvider
+#     use: yandex_deep_research.guardrails.builtin:AllowlistProvider
 #     config:
 #       denied_tools: ["bash", "write_file"]
 
