@@ -1,6 +1,5 @@
 # YandexDeepResearch - Unified Development Environment
 
-.PHONY: help config config-upgrade check install dev dev-pro dev-daemon dev-daemon-pro start start-pro start-daemon start-daemon-pro stop up up-pro down clean docker-init docker-start docker-start-pro docker-stop docker-logs docker-logs-frontend docker-logs-gateway
 
 BASH ?= bash
 
@@ -17,7 +16,6 @@ help:
 	@echo "  make config          - Generate local config files (aborts if config already exists)"
 	@echo "  make config-upgrade  - Merge new fields from config.example.yaml into config.yaml"
 	@echo "  make check           - Check if all required tools are installed"
-	@echo "  make install         - Install all dependencies (frontend + backend)"
 	@echo "  make setup-sandbox   - Pre-pull sandbox container image (recommended)"
 	@echo "  make dev             - Start all services in development mode (with hot-reloading)"
 	@echo "  make dev-pro         - Start in dev + Gateway mode (experimental, no LangGraph server)"
@@ -41,7 +39,6 @@ help:
 	@echo "  make docker-start-pro - Start Docker in Gateway mode (experimental, no LangGraph container)"
 	@echo "  make docker-stop     - Stop Docker development services"
 	@echo "  make docker-logs     - View Docker development logs"
-	@echo "  make docker-logs-frontend - View Docker frontend logs"
 	@echo "  make docker-logs-gateway - View Docker gateway logs"
 
 config:
@@ -58,8 +55,6 @@ check:
 install:
 	@echo "Installing backend dependencies..."
 	@cd backend && uv sync
-	@echo "Installing frontend dependencies..."
-	@cd frontend && pnpm install
 	@echo "✓ All dependencies installed"
 	@echo ""
 	@echo "=========================================="
@@ -212,8 +207,6 @@ docker-logs:
 	@./scripts/docker.sh logs
 
 # View Docker development logs
-docker-logs-frontend:
-	@./scripts/docker.sh logs --frontend
 docker-logs-gateway:
 	@./scripts/docker.sh logs --gateway
 

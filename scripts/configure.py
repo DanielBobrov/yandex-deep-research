@@ -37,8 +37,6 @@ def main() -> int:
         copy_if_missing(project_root / "config.example.yaml", project_root / "config.yaml")
         copy_if_missing(project_root / ".env.example", project_root / ".env")
         copy_if_missing(
-            project_root / "frontend" / ".env.example",
-            project_root / "frontend" / ".env",
         )
     except (FileNotFoundError, OSError) as exc:
         print("Error while generating configuration files:")
