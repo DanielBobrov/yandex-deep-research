@@ -85,7 +85,7 @@ async function StarCounter() {
 
   try {
     const response = await fetch(
-      "https://api.github.com/repos/bytedance/yandex-deep-research",
+      "https://api.github.com/repos/DanielBobrov/yandex-deep-research",
       {
         headers: env.GITHUB_OAUTH_TOKEN
           ? {
